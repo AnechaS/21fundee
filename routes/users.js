@@ -20,7 +20,7 @@ router.post('/province',
     body('user_id').isLength({ min: 1 }),
     body('first_name').isLength({ min: 1 }),
     body('last_name').isLength({ min: 1 }),
-    body('last_clicked_button_name').isLength({ min: 1 }),
+    body('last_user_freeform_input').isLength({ min: 1 }),
   ]), async (req, res) => {
     console.log('/province', req.body);
 
@@ -28,7 +28,7 @@ router.post('/province',
       user_id, 
       first_name, 
       last_name, 
-      last_clicked_button_name 
+      last_user_freeform_input 
     } = req.body;
     
     let user;
@@ -39,7 +39,7 @@ router.post('/province',
       user.userId = user_id;
       user.firstName = first_name;
       user.lastName = last_name;
-      user.province = last_clicked_button_name;
+      user.province = last_user_freeform_input;
       user = await user.save();
     } else {
       // New user
@@ -47,7 +47,7 @@ router.post('/province',
         userId: user_id,
         firstName: first_name,
         lastName: last_name,
-        province: last_clicked_button_name
+        province: last_user_freeform_input
       });
     }
 
@@ -63,7 +63,7 @@ router.post('/district',
     body('user_id').isLength({ min: 1 }),
     body('first_name').isLength({ min: 1 }),
     body('last_name').isLength({ min: 1 }),
-    body('last_clicked_button_name').isLength({ min: 1 }),
+    body('last_user_freeform_input').isLength({ min: 1 }),
   ]), async (req, res) => {
     console.log('/district', req.body);
 
@@ -71,7 +71,7 @@ router.post('/district',
       user_id, 
       first_name, 
       last_name, 
-      last_clicked_button_name 
+      last_user_freeform_input 
     } = req.body;
     
     let user;
@@ -82,7 +82,7 @@ router.post('/district',
       user.userId = user_id;
       user.firstName = first_name;
       user.lastName = last_name;
-      user.district = last_clicked_button_name;
+      user.district = last_user_freeform_input;
       user = await user.save();
     } else {
       // New user
@@ -90,7 +90,7 @@ router.post('/district',
         userId: user_id,
         firstName: first_name,
         lastName: last_name,
-        district: last_clicked_button_name
+        district: last_user_freeform_input
       });
     }
 
@@ -103,7 +103,7 @@ router.post('/child',
     body('user_id').isLength({ min: 1 }),
     body('first_name').isLength({ min: 1 }),
     body('last_name').isLength({ min: 1 }),
-    body('last_clicked_button_name').isLength({ min: 1 }),
+    body('last_user_freeform_input').isLength({ min: 1 }),
     body('dental_personnel_id').isLength({ min: 1 }),
     body('child_name').isLength({ min: 1 }),
   ]), async (req, res) => {
@@ -113,7 +113,7 @@ router.post('/child',
       user_id, 
       first_name, 
       last_name,
-      last_clicked_button_name,
+      last_user_freeform_input,
       dental_personnel_id,
       child_name
     } = req.body;
@@ -128,7 +128,7 @@ router.post('/child',
       user.lastName = last_name;
       user.dentalPersonnelId = dental_personnel_id;
       user.childName = child_name;
-      user.childBirthday = last_clicked_button_name;
+      user.childBirthday = last_user_freeform_input;
       user = await user.save();
     } else {
       // New user
@@ -138,7 +138,7 @@ router.post('/child',
         lastName: last_name,
         dentalPersonnelId: dental_personnel_id,
         childName: child_name,
-        childBirthday: last_clicked_button_name
+        childBirthday: last_user_freeform_input
       });
     }
 

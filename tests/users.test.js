@@ -41,7 +41,7 @@ describe('POST /user/province', () => {
         'sessions': '{{sessions}}',
         'last_visited_block_name': '{{last visited block name}}',
         'last_visited_block_id': '{{last visited block id}}',
-        'last_clicked_button_name': testData.province
+        'last_user_freeform_input': testData.province
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -78,7 +78,7 @@ describe('POST /user/district', () => {
         'sessions': '{{sessions}}',
         'last_visited_block_name': '{{last visited block name}}',
         'last_visited_block_id': '{{last visited block id}}',
-        'last_clicked_button_name': testData.district
+        'last_user_freeform_input': testData.district
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -117,7 +117,7 @@ describe('POST /user/child', () => {
         'sessions': '{{sessions}}',
         'last_visited_block_name': '{{last visited block name}}',
         'last_visited_block_id': '{{last visited block id}}',
-        'last_clicked_button_name': testData.childBirthday,
+        'last_user_freeform_input': testData.childBirthday,
         'child_name': testData.childName,
         'dental_personnel_id': testData.dentalPersonnelId
       })
