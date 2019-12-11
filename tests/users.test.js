@@ -87,3 +87,44 @@ describe('POST /user/district', () => {
     expect(agent.body).toEqual(expect.objectContaining(testData));
   });
 });
+
+describe('POST /user/child', () => {
+  test('should child a create user when request is ok', async () => {
+    const testData = {
+      userId: 'lsdpqio23',
+      firstName: '21fundee',
+      lastName: 'tester',
+      dentalPersonnelId: 'x',
+      childName: 'B',
+      childBirthday: '2562'
+    };
+
+    mockingoose(User).toReturn(testData);
+
+    const agent = await request(app)
+      .post('/users/child')
+      .send({
+        'user_id': testData.userId,
+        'first_name': testData.firstName,
+        'last_name': testData.lastName,
+        'gender': '{{gender}}',
+        'avatar': '{{profile pic url}}',
+        'timezone': '{{timezone}}',
+        'locale': '{{locale}}',
+        'source': '{{source}}',
+        'last_seen': '{{last seen}}',
+        'signed_up': '{{signed up}}',
+        'sessions': '{{sessions}}',
+        'last_visited_block_name': '{{last visited block name}}',
+        'last_visited_block_id': '{{last visited block id}}',
+        'last_clicked_button_name': testData.childBirthday,
+        'child_name': testData.childName,
+        'dental_personnel_id': testData.dentalPersonnelId
+      })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200);
+    
+    expect(agent.body).toEqual(expect.objectContaining(testData));
+  });
+});

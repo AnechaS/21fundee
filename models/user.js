@@ -8,6 +8,7 @@ const User = new Schema({
   lastName: String,
   province: String,
   district: String,
+  dentalPersonnelId: String,
   childName: String,
   childBirthday: String,
 });
