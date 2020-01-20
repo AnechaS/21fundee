@@ -24,7 +24,7 @@ router.post('/',
 
     // update the people
     Object.keys(req.body).forEach((val) => {
-      if (!_.isEmpty(val) && !_.isEmpty(req.body[val])) {
+      if (!_.isEmpty(val) && !_.isEmpty(req.body[val]) && req.body[val]  !== 'null') {
         people[val] = req.body[val];
       }
     });
