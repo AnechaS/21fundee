@@ -7,5 +7,5 @@
 // exports.mongodb = parsed.mongodb;
 // exports.port = parsed.port;
 
-exports.mongodb = parsed.mongodb;
+exports.mongodb = process.env.MONGODB_URL;
 exports.port = process.env.POST || 3000;
