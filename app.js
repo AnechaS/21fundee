@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const appConfig = require('./config.json');
 
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/people');
+const peopleRouter = require('./routes/people');
 
 mongoose.connect(appConfig.mongodb, {
   useNewUrlParser: true,
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/people', usersRouter);
+app.use('/people', peopleRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
