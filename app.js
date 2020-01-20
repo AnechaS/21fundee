@@ -4,7 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
-const appConfig = require('./config.json');
+const appConfig = require('./config');
 
 const indexRouter = require('./routes/index');
 const peopleRouter = require('./routes/people');
