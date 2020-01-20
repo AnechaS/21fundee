@@ -7,5 +7,5 @@
 // exports.mongodb = parsed.mongodb;
 // exports.port = parsed.port;
 
-exports.mongodb = process.env.MONGODB_URL;
-exports.port = process.env.POST || 3000;
+exports.mongodb = 'mongodb+srv://root:vLwymUb052@clusterx-ciifu.mongodb.net/21fundee';
+exports.port = 3333;
