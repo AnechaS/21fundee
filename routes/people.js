@@ -1,8 +1,8 @@
 const express = require('express');
 const _ = require('lodash');
-const { body } = require('express-validator');
-const { handleValidator } = require('../middlewares');
 const People = require('../models/people');
+const removeRequestBodyWithNull = require('../utils/removeRequestBodyWithNull');
+
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
@@ -11,21 +11,25 @@ router.get('/', async (req, res, next) => {
 });
 
 router.post('/', 
-  handleValidator([
-    body('messengerUserId').isLength({ min: 1 }),
-  ]),
   async(req, res) => {
-    const people = await People.findOne({ messengerUserId: req.body.messengerUserId });
-    if (!people) {
-      // create a new people
-      const newPeople = await People.create(req.body);
-      return res.json(newPeople);  
+    const body = removeRequestBodyWithNull(req.body);
+    if (typeof body.messengerUserId === 'undefined') {
+      return res.status(400).json({
+        message: 'invalid messenger user id'
+      });
     }
 
+    const people = await People.findOne({ messengerUserId: body.messengerUserId });
+    if (!people) {
+      // create a new people
+      const newPeople = await People.create(body);
+      return res.json(newPeople);  
+    }
+  
     // update the people
-    Object.keys(req.body).forEach((val) => {
-      if (!_.isEmpty(val) && !_.isEmpty(req.body[val]) && req.body[val]  !== 'null') {
-        people[val] = req.body[val];
+    Object.keys(body).forEach((val) => {
+      if (!_.isEmpty(val) && !_.isEmpty(body[val]) && body[val] !== 'null') {
+        people[val] = body[val];
       }
     });
     

@@ -47,6 +47,31 @@ describe('POST /people', () => {
     expect(agent.body).toMatchObject(expect.objectContaining(bodyRequest));
   });
 
+  test('should create a new people body request value null  when request is ok', async () => {
+    const bodyRequest = {
+      messengerUserId: 'asdf',
+      firstName: 'null',
+      lastName: 'null',
+      province: 'สงขลา',
+      gender: 'null',
+      profilePicUrl: 'null',
+      locale: 'null',
+      source: 'null' 
+    };
+
+    const agent = await request(app)
+      .post('/people')
+      .send(bodyRequest)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200);
+    
+    expect(agent.body).toEqual(expect.objectContaining({
+      messengerUserId: 'asdf',
+      province: 'สงขลา',
+    }));
+  });
+
   test('should update district the people when request is ok', async () => {
     mockingoose(People).toReturn(MockCollectionPeople[0], 'findOne');
 
