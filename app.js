@@ -8,13 +8,15 @@ const appConfig = require('./config');
 
 const indexRouter = require('./routes/index');
 const peopleRouter = require('./routes/people');
+const scheduleRouter = require('./routes/schedule');
+const messageRouter = require('./routes/message');
 
 mongoose.connect(appConfig.mongodb, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false
 });
-
-mongoose.set('useCreateIndex', true);
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/people', peopleRouter);
+app.use('/schedule', scheduleRouter);
+app.use('/message', messageRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
