@@ -1,5 +1,4 @@
 const express = require('express');
-const _ = require('lodash');
 const People = require('../models/people');
 const removeRequestBodyWithNull = require('../utils/removeRequestBodyWithNull');
 

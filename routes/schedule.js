@@ -16,7 +16,7 @@ router.put('/:id', async(req, res) => {
   const schedule = await Schedule.findByIdAndUpdate(
     req.params.id, 
     { $set: req.body }, 
-    { 'new': true }
+    { new: true }
   );
   return res.json(schedule);
 });
