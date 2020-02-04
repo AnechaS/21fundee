@@ -6,7 +6,8 @@
     "start": "node ./bin/www",
     "client": "node start-client.js",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "node postinstall.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
