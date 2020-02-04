@@ -12,7 +12,7 @@ module.exports = {
     },
     {
       name: '21FunDee-client',
-      script: 'npm run client'
+      script: 'cd ./client && npm run serve'
     }
   ]
 };
