@@ -6,7 +6,7 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const appConfig = require('./config');
 
-const indexRouter = require('./routes/index');
+// const indexRouter = require('./routes/index');
 const peopleRouter = require('./routes/people');
 const scheduleRouter = require('./routes/schedule');
 const messageRouter = require('./routes/message');
@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
 app.use('/people', peopleRouter);
 app.use('/schedule', scheduleRouter);
 app.use('/message', messageRouter);
