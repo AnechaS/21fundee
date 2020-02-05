@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 // TODO bot id and block id
 
 const People = new Schema({
-  messengerUserId: { 
+  messengerUserId: {
     type: String,
     index: { unique: true },
     required: true,
@@ -35,7 +35,7 @@ const People = new Schema({
     type: String,
     trim: true
   },
-  dpId: {
+  dentalId: {
     type: String,
     trim: true
   },
