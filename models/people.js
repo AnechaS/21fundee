@@ -35,7 +35,7 @@ const People = new Schema({
     type: String,
     trim: true
   },
-  dentalPersonnelId: {
+  dpId: {
     type: String,
     trim: true
   },
