@@ -29,6 +29,7 @@
     "key-spacing": ["error", { "beforeColon": false }],
     "no-constant-condition": ["error", { "checkLoops": false }],
     "quote-props": ["error", "as-needed"],
-    "no-prototype-builtins": [0]
+    "no-prototype-builtins": [0],
+    "require-atomic-updates": [0]
   }
 }

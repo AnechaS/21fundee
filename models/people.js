@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-// TODO bot id and block id
+// TODO bot id
 
 const People = new Schema({
-  messengerUserId: {
+  eUserId: {
     type: String,
     index: { unique: true },
     required: true,

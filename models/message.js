@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-// TODO bot id and block id
-
 const Message = new Schema({
   people: {
     type: Schema.Types.ObjectId,
@@ -11,12 +9,25 @@ const Message = new Schema({
   },
   schedule: {
     type: Schema.Types.ObjectId,
-    ref: 'Schedule'
+    ref: 'Schedule',
+    required: true
   },
   text: {
     type: String,
     trim: true
-  }
+  },
+  image: {
+    type: String,
+    trim: true
+  },
+  botId: {
+    type: String,
+    trim: true
+  },
+  blockId: {
+    type: String,
+    trim: true
+  },
 }, {
   timestamps: true
 });

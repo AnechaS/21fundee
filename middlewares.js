@@ -1,5 +1,7 @@
 const { validationResult } = require('express-validator');
 
+const removeRequestBodyWithNull = require('./utils/removeRequestBodyWithNull');
+
 // export async function handleApiHeaders(req, res, next) {
 //   try {
 //     if (req.header('x-api-key') !== 'me1tmoru01TOi5Ss1x') {
@@ -48,25 +50,16 @@ exports.handleValidator = function(validations) {
   return async (req, res, next) => {
     await Promise.all(validations.map(validation => validation.run(req)));
 
-    // const errors = validationResult(req);
-    // if (errors.isEmpty()) {
-    //   return next();
-    // }
-
-    // res.status(400).json({ error: errors.array() });
-
-    const errors = validationResult(req).formatWith(
-      ({ location, msg, value }) => ({
-        location,
-        message: msg,
-        value,
-      })
-    );
-    if (errors.isEmpty()) {
-      return next();
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    res.status(400).json({ error: errors.mapped() });
+    return next();
   };
 };
 
+exports.handleRemoveRequestBodyWithNull = function(req, res, next) {
+  req.body = removeRequestBodyWithNull(req.body);
+  return next();
+};

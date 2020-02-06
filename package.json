@@ -16,6 +16,7 @@
     "express": "~4.16.1",
     "express-validator": "^6.3.0",
     "http-errors": "~1.6.3",
+    "http-status": "^1.4.2",
     "lodash": "^4.17.15",
     "mongoose": "^5.8.0",
     "morgan": "~1.9.1"

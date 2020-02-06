@@ -1,4 +1,5 @@
 const createError = require('http-errors');
+const httpStatus = require('http-status');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -7,9 +8,9 @@ const mongoose = require('mongoose');
 const appConfig = require('./config');
 
 // const indexRouter = require('./routes/index');
-const peopleRouter = require('./routes/people');
-const scheduleRouter = require('./routes/schedule');
-const messageRouter = require('./routes/message');
+const peoplesRouter = require('./routes/peoples');
+const schedulesRouter = require('./routes/schedules');
+const messagesRouter = require('./routes/messages');
 
 mongoose.connect(appConfig.mongodb, {
   useNewUrlParser: true,
@@ -27,9 +28,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/', indexRouter);
-app.use('/people', peopleRouter);
-app.use('/schedule', scheduleRouter);
-app.use('/message', messageRouter);
+app.use('/peoples', peoplesRouter);
+app.use('/schedules', schedulesRouter);
+app.use('/messages', messagesRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -42,12 +43,22 @@ app.use((err, req, res, next) => {
   // res.locals.message = err.message;
   // res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.json({ 
-    message: err.message, 
-    code: err.status
-  });
+  if (err instanceof mongoose.Error) {
+    if (err.kind === 'ObjectId') {
+      err = new Error('Object not found.');
+      err.status = httpStatus.NOT_FOUND;
+    }
+  } else if (typeof err.status === 'undefined') {
+    err = new Error('Internal server error.');
+    err.status = httpStatus.INTERNAL_SERVER_ERROR;
+  }
+
+  res
+    .status(err.status)
+    .json({
+      message: err.message,
+      code: err.status
+    });
 });
 
 module.exports = app;
