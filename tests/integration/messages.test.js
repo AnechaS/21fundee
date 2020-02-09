@@ -9,6 +9,7 @@ const People = require('../../models/people');
 mongoose.Promise = global.Promise;
 
 let people = {
+  _id: undefined,
   eUserId: 'hjkl',
   firstName: 'Bran',
   lastName: 'Stark',
@@ -23,6 +24,27 @@ beforeAll(async () => {
 afterAll(async () => {
   await People.deleteOne({ _id: people._id });
   await mongoose.disconnect();
+});
+
+describe('POST /messages', () => {
+  test('should get all message when request is ok', async () => {
+    const agent = await request(app)
+      .post('/messages')
+      .send({
+        people: {
+          eUserId: people._id
+        },
+        schedule: {
+          _id: ''
+        },
+        test: ''
+      })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(agent.body).toMatchObject([]);
+  });
 });
 
 describe('GET /messages', () => {

@@ -8,6 +8,7 @@ const People = require('../../models/people');
 mongoose.Promise = global.Promise;
 
 let people = {
+  _id: undefined,
   eUserId: 'abcde',
   firstName: 'Jon',
   lastName: 'Snow',
