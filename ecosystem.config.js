@@ -2,7 +2,9 @@ module.exports = {
   apps: [
     {
       name: '21FunDee',
-      script: 'node ./bin/www',
+      script: 'node ./bin/server',
+      watch: true,
+      ignore_watch: ['node_modules', './client'],
       env: {
         NODE_ENV: 'development'
       },

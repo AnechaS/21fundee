@@ -6,7 +6,7 @@
 
 var app = require('../app');
 var appConfig = require('../config')
-var debug = require('debug')('backend:server');
+var debug = require('debug')('21fundee:server');
 var http = require('http');
 
 /**

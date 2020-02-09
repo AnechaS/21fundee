@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "server": "node ./bin/www",
-    "client": "node start-client.js",
+    "start": "node ./bin/server",
+    "server": "node ./bin/server",
+    "server-dev": "cross-env DEBUG=* NODE_ENV=development node ./bin/server",
+    "client": "node ./bin/client",
     "test": "jest",
     "lint": "eslint .",
     "postinstall": "node postinstall.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
+    "cross-env": "^7.0.0",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "express-validator": "^6.3.0",
