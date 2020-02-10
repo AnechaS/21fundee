@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/server",
-    "server": "node ./bin/server",
-    "server-dev": "cross-env DEBUG=* NODE_ENV=development node ./bin/server",
+    "server": "cross-env NODE_ENV=production && node ./bin/server",
+    "server-dev": "cross-env DEBUG=* node ./bin/server",
     "client": "node ./bin/client",
     "test": "jest",
     "lint": "eslint .",

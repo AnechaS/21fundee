@@ -1,9 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
+const env = process.env.NODE_ENV || 'development';
+
 let parsed;
 
-switch (process.env.NODE_ENV) {
+switch (env) {
   case 'test': {
     parsed = {
       mongodb: 'mongodb://localhost:27001/jest',
@@ -25,6 +27,6 @@ switch (process.env.NODE_ENV) {
   }
 }
 
+parsed.env = env;
 
-// TODO add env config
 module.exports = parsed;
