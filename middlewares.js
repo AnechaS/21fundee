@@ -46,7 +46,7 @@ const removeRequestBodyWithNull = require('./utils/removeRequestBodyWithNull');
 //   }
 // }
 
-exports.handleValidator = function(validations) {
+exports.validator = function(validations) {
   return async (req, res, next) => {
     await Promise.all(validations.map(validation => validation.run(req)));
 
@@ -59,7 +59,7 @@ exports.handleValidator = function(validations) {
   };
 };
 
-exports.handleRemoveRequestBodyWithNull = function(req, res, next) {
+exports.removeRequestBodyWithNull = function(req, res, next) {
   req.body = removeRequestBodyWithNull(req.body);
   return next();
 };

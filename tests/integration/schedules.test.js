@@ -34,7 +34,9 @@ describe('GET /schedules', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    expect(agent.body).toMatchObject([schedule]);
+    expect(agent.body).toMatchObject([
+      expect.objectContaining(schedule)
+    ]);
   });
 });
 
@@ -55,10 +57,10 @@ describe('PUT /schedules', () => {
 
   test('should report error when schedules does not exists', async () => {
     const agent = await request(app)
-      .put('/schedules/abcd')
+      .put('/schedules/5e412c6d163c750001096473')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(httpStatus.NOT_FOUND);
+      .expect(httpStatus.NOT_FOUND);   
 
     expect(agent.body.code).toBe(404);
     expect(agent.body.message).toBe('Object not found.');
@@ -79,7 +81,7 @@ describe('DELETE /schedules', () => {
 
   test('should report error when schedules does not exists', async () => {
     const agent = await request(app)
-      .delete('/schedules/abcd')
+      .delete('/schedules/5e412c6d163c750001096473')
       .expect(httpStatus.NOT_FOUND);
 
     expect(agent.body.code).toBe(404);

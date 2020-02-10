@@ -8,8 +8,7 @@ const People = require('../../models/people');
 mongoose.Promise = global.Promise;
 
 let people = {
-  _id: undefined,
-  eUserId: 'abcde',
+  _id: '5e412c6d163c750001b96477',
   firstName: 'Jon',
   lastName: 'Snow',
   province: 'สงขลา',
@@ -37,7 +36,6 @@ describe('POST /peoples', () => {
 
     expect(agent.body).toMatchObject({
       _id: people._id,
-      eUserId: people.eUserId,
       firstName: people.firstName,
       lastName: people.lastName,
       province: people.province,
@@ -51,7 +49,7 @@ describe('POST /peoples', () => {
 
   test('should create a new people with value null', async () => {
     const bodyRequest = {
-      eUserId: 'asdf',
+      _id: '5e412c6d163c750001b96d73',
       firstName: 'null',
       lastName: 'null',
       province: 'สงขลา',
@@ -67,16 +65,16 @@ describe('POST /peoples', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    
+      
     expect(agent.body).toMatchObject({
-      eUserId: bodyRequest.eUserId,
+      _id: bodyRequest._id,
       province: bodyRequest.province,
     });
 
     await People.deleteOne({ _id: agent.body._id });
   });
 
-  test('should update people if "eUserId" is exists', async () => {
+  test('should update people if "_id" is exists', async () => {
     people = {
       ...people,
       firstName: 'b',
@@ -94,7 +92,6 @@ describe('POST /peoples', () => {
     
     expect(agent.body).toMatchObject({
       _id: people._id,
-      eUserId: people.eUserId,
       firstName: people.firstName,
       lastName: people.lastName,
       province: people.province,
@@ -102,14 +99,26 @@ describe('POST /peoples', () => {
     });
   });
 
-  test('should report error when messageUserId already exists', async () => {
+  test('should report error when _id not objectId', async () => {
+    const bodyRequest = {
+      _id: '5e412c6d163cd73',
+      firstName: 'null',
+      lastName: 'null',
+      province: 'สงขลา',
+      gender: 'null',
+      profilePicUrl: 'null',
+      locale: 'null',
+      source: 'null' 
+    };
+
     const agent = await request(app)
       .post('/peoples')
+      .send(bodyRequest)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-    
-    expect(agent.body.message).toBe('Invalid messenger user id.');
+      .expect(httpStatus.INTERNAL_SERVER_ERROR);
+
+    expect(agent.body.code).toBe(500);
   });
 });
 
@@ -121,22 +130,27 @@ describe('GET /peoples', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    expect(agent.body).toMatchObject([{
-      _id: people._id,
-      eUserId: people.eUserId,
-      firstName: people.firstName,
-      lastName: people.lastName,
-      province: people.province
-    }]);
+    expect(agent.body).toMatchObject([
+      expect.objectContaining({
+        _id: people._id,
+        firstName: people.firstName,
+        lastName: people.lastName,
+        province: people.province,
+        district: people.district,
+        dentalId: people.dentalId,
+        childName: people.childName,
+        childBirthday: people.childBirthday,
+        gender: people.gender,
+      })
+    ]);
   });
 });
 
 describe('PUT /peoples/:id', () => {
-  test('should update the people when request is ok', async () => {
+  test('should update the people', async () => {
     const bodyRequest = {
-      eUserId: 'abcde',
-      firstName: 'b',
-      lastName: 'a',
+      firstName: 'c',
+      lastName: 'd',
       province: people.province,
       district: 'fgew'
     };
@@ -147,10 +161,9 @@ describe('PUT /peoples/:id', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-
+      
     expect(agent.body).toMatchObject({
       _id: people._id,
-      eUserId: bodyRequest.eUserId,
       firstName: bodyRequest.firstName,
       lastName: bodyRequest.lastName,
       province: bodyRequest.province,
@@ -160,7 +173,7 @@ describe('PUT /peoples/:id', () => {
 
   test('should report error when people does not exists', async () => {
     const agent = await request(app)
-      .put('/peoples/abcd')
+      .put('/peoples/jonsnow123')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.NOT_FOUND);
@@ -182,7 +195,7 @@ describe('DELETE /peoples', () => {
 
   test('should report error when people does not exists', async () => {
     const agent = await request(app)
-      .delete('/peoples/abcd')
+      .delete('/peoples/jonsnow123')
       .expect(httpStatus.NOT_FOUND);
 
     expect(agent.body.code).toBe(404);

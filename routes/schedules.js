@@ -1,6 +1,9 @@
 const express = require('express');
 const httpStatus = require('http-status');
 const Schedule = require('../models/schedule');
+const mongoose = require('mongoose');
+const APIError = require('../utils/APIError');
+
 const router = express.Router();
 
 /**
@@ -43,12 +46,23 @@ router.post('/', async (req, res, next) => {
  */
 router.put('/:id', async(req, res, next) => {
   try {
-    const schedule = await Schedule.findByIdAndUpdate(
-      req.params.id, 
-      { $set: req.body }, 
-      { new: true }
-    );
-    return res.json(schedule);
+    const id = req.params.id;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const schedule = await Schedule.findByIdAndUpdate(
+        req.params.id, 
+        { $set: req.body }, 
+        { new: true }
+      );
+      if (schedule) {
+        return res.json(schedule);
+      }
+    }
+
+    // object id is not exists
+    throw new APIError({
+      message: 'Object not found.',
+      status: httpStatus.NOT_FOUND,
+    });
   } catch (error) {
     return next(error);
   }
@@ -62,8 +76,19 @@ router.put('/:id', async(req, res, next) => {
  */
 router.delete('/:id', async(req, res, next) => {
   try {
-    await Schedule.deleteOne({ _id: req.params.id });
-    return res.status(httpStatus.NO_CONTENT).end();
+    const id = req.params.id;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const schedule = await Schedule.findByIdAndRemove(req.params.id);
+      if (schedule) {
+        return res.status(httpStatus.NO_CONTENT).end();
+      }
+    }
+
+    // object id is not exists
+    throw new APIError({
+      message: 'Object not found.',
+      status: httpStatus.NOT_FOUND,
+    });
   } catch (error) {
     return next(error);
   }

@@ -1,6 +1,9 @@
 const express = require('express');
 const httpStatus = require('http-status');
+const mongoose = require('mongoose');
 const Message = require('../models/message');
+const APIError = require('../utils/APIError');
+
 const router = express.Router();
 
 /**
@@ -11,7 +14,9 @@ const router = express.Router();
  */
 router.get('/', async (req, res, next) => {
   try {
-    const message = await Message.find();
+    const message = await Message.find()
+      .populate('people')
+      .populate('schedule');
     return res.json(message);
   } catch (error) {
     return next(error);
@@ -19,7 +24,7 @@ router.get('/', async (req, res, next) => {
 });
 
 /**
- * @api {post} /peoples Create Message
+ * @api {post} /messages Create Message
  * @apiDescription Create a new message
  * @apiName CreateMessage
  * @apiGroup Message
@@ -28,8 +33,11 @@ router.get('/', async (req, res, next) => {
  */
 router.post('/', async (req, res, next) => {
   try {
-    // find the people
-    // ...
+    // create a new people
+    const message = await Message.create(req.body);
+    return res
+      .status(httpStatus.CREATED)
+      .json(message);
   } catch (error) {
     return next(error);
   }
@@ -43,7 +51,23 @@ router.post('/', async (req, res, next) => {
  */
 router.put('/:id', async(req, res, next) => {
   try {
-    // ...
+    const id = req.params.id;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const message = await Message.findByIdAndUpdate(
+        id, 
+        { $set: req.body }, 
+        { new: true }
+      );
+      if (message) {
+        return res.json(message); 
+      }
+    }
+
+    // object id is not exists
+    throw new APIError({
+      message: 'Object not found.',
+      status: httpStatus.NOT_FOUND,
+    });
   } catch (error) {
     return next(error);
   }
@@ -57,8 +81,19 @@ router.put('/:id', async(req, res, next) => {
  */
 router.delete('/:id', async(req, res, next) => {
   try {
-    await Message.deleteOne({ _id: req.params.id });
-    return res.status(httpStatus.NO_CONTENT).end();
+    const id = req.params.id;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const message = await Message.findByIdAndRemove(id);
+      if (message) {
+        return res.status(httpStatus.NO_CONTENT).end();
+      }
+    }
+    
+    // object id is not exists
+    throw new APIError({
+      message: 'Object not found.',
+      status: httpStatus.NOT_FOUND,
+    });
   } catch (error) {
     return next(error);
   }

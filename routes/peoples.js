@@ -1,7 +1,9 @@
 const express = require('express');
 const httpStatus = require('http-status');
+const mongoose = require('mongoose');
 const People = require('../models/people');
-const { handleRemoveRequestBodyWithNull } = require('../middlewares');
+const APIError = require('../utils/APIError');
+const { removeRequestBodyWithNull } = require('../middlewares');
 
 const router = express.Router();
 
@@ -29,37 +31,31 @@ router.get('/', async (req, res, next) => {
  * @apiPermission IP Chatfuel
  */
 router.post('/',  
-  handleRemoveRequestBodyWithNull,
+  removeRequestBodyWithNull,
   async (req, res, next) => {
-    const body = req.body;
-    if (typeof body.eUserId === 'undefined') {
-      return res.status(400).json({
-        message: 'Invalid messenger user id.'
-      });
-    }
-
     try {
-      const people = await People.findOne({
-        eUserId: body.eUserId
-      });
+      const body = req.body;
+      if (typeof body._id !== 'undefined') {
+        // update the people if object id exists
+        let id = body._id;
+        delete body._id;
 
-      // create a new people if not exists
-      if (!people) {
-        const newPeople = await People.create(body);
+        const people = await People.findByIdAndUpdate(id, body, {
+          upsert: true,
+          new: true,
+          // overwrite: true
+        });
+
         return res
           .status(httpStatus.CREATED)
-          .json(newPeople);
+          .json(people);
       }
-  
-      // update the people if exists
-      Object.keys(body).forEach(val => {
-        people[val] = body[val];
-      });
-  
-      const newPeople = await people.save();
+
+      // create a new people
+      const people = await People.create(body);
       return res
         .status(httpStatus.CREATED)
-        .json(newPeople);
+        .json(people);
     } catch (error) {
       return next(error);
     }
@@ -73,12 +69,23 @@ router.post('/',
  */
 router.put('/:id', async (req, res, next) => {
   try {
-    const people = await People.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
-    );
-    return res.json(people); 
+    const id = req.params.id;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const people = await People.findByIdAndUpdate(
+        id, 
+        { $set: req.body }, 
+        { new: true }
+      );
+      if (people) {
+        return res.json(people); 
+      }
+    }
+
+    // object id is not exists
+    throw new APIError({
+      message: 'Object not found.',
+      status: httpStatus.NOT_FOUND,
+    });
   } catch (error) {
     return next(error);
   }
@@ -92,8 +99,19 @@ router.put('/:id', async (req, res, next) => {
  */
 router.delete('/:id', async (req, res, next) => {
   try {
-    await People.deleteOne({ _id: req.params.id });
-    return res.status(httpStatus.NO_CONTENT).end();
+    const id = req.params.id;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const people = await People.findByIdAndRemove(id);
+      if (people) {
+        return res.status(httpStatus.NO_CONTENT).end();
+      }
+    }
+    
+    // object id is not exists
+    throw new APIError({
+      message: 'Object not found.',
+      status: httpStatus.NOT_FOUND,
+    });
   } catch (error) {
     return next(error);
   }

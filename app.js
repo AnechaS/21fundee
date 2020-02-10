@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 const appConfig = require('./config');
+const APIError = require('./utils/APIError');
 
 // const indexRouter = require('./routes/index');
 const peoplesRouter = require('./routes/peoples');
@@ -39,26 +40,29 @@ app.use((req, res, next) => {
 
 // error handler
 app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  // res.locals.message = err.message;
-  // res.locals.error = req.app.get('env') === 'development' ? err : {};
+  let convertedError = err;
 
-  if (err instanceof mongoose.Error) {
-    if (err.kind === 'ObjectId') {
-      err = new Error('Object not found.');
-      err.status = httpStatus.NOT_FOUND;
-    }
-  } else if (typeof err.status === 'undefined') {
-    err = new Error('Internal server error.');
-    err.status = httpStatus.INTERNAL_SERVER_ERROR;
+  if (!(err instanceof APIError)) {
+    convertedError = new APIError({
+      message: err.message,
+      status: err.status,
+      stack: err.stack,
+    });
   }
 
-  res
-    .status(err.status)
-    .json({
-      message: err.message,
-      code: err.status
-    });
+  const response = {
+    code: convertedError.status,
+    message: convertedError.message || httpStatus[convertedError.status],
+    errors: convertedError.errors,
+    stack: convertedError.stack,
+  };
+
+  if (req.app.get('env') !== 'development') {
+    delete response.stack;
+  }
+
+  res.status(convertedError.status);
+  res.json(response);
 });
 
 module.exports = app;

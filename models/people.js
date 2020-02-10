@@ -5,12 +5,6 @@ const Schema = mongoose.Schema;
 // TODO bot id
 
 const People = new Schema({
-  eUserId: {
-    type: String,
-    index: { unique: true },
-    required: true,
-    trim: true
-  },
   firstName: {
     type: String,
     trim: true
