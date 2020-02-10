@@ -130,19 +130,20 @@ describe('GET /peoples', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    expect(agent.body).toMatchObject([
-      expect.objectContaining({
-        _id: people._id,
-        firstName: people.firstName,
-        lastName: people.lastName,
-        province: people.province,
-        district: people.district,
-        dentalId: people.dentalId,
-        childName: people.childName,
-        childBirthday: people.childBirthday,
-        gender: people.gender,
-      })
-    ]);
+    expect(agent.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          _id: people._id,
+          firstName: people.firstName,
+          lastName: people.lastName,
+          province: people.province,
+          district: people.district,
+          dentalId: people.dentalId,
+          childName: people.childName,
+          childBirthday: people.childBirthday,
+          gender: people.gender,
+        })
+      ]));
   });
 });
 

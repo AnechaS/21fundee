@@ -7,6 +7,29 @@ const APIError = require('../utils/APIError');
 const router = express.Router();
 
 /**
+ * Load document when API with id route parameter is hit
+ */
+router.param('id', async (req, res, next, id) => {
+  try {
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const message = await Message.findById(id);
+      if (message) {
+        req.message = message;
+        return next();
+      }
+    }
+
+    // object id is not exists
+    throw new APIError({
+      message: 'Object not found.',
+      status: httpStatus.NOT_FOUND
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+/**
  * @api {get} /messages List Messages
  * @apiDescription Get a list of messages
  * @apiName ListMessages
@@ -51,23 +74,9 @@ router.post('/', async (req, res, next) => {
  */
 router.put('/:id', async(req, res, next) => {
   try {
-    const id = req.params.id;
-    if (mongoose.Types.ObjectId.isValid(id)) {
-      const message = await Message.findByIdAndUpdate(
-        id, 
-        { $set: req.body }, 
-        { new: true }
-      );
-      if (message) {
-        return res.json(message); 
-      }
-    }
-
-    // object id is not exists
-    throw new APIError({
-      message: 'Object not found.',
-      status: httpStatus.NOT_FOUND,
-    });
+    const message = Object.assign(req.message, req.body);
+    const savedMessage = await message.save();
+    return res.json(savedMessage);
   } catch (error) {
     return next(error);
   }
@@ -81,19 +90,9 @@ router.put('/:id', async(req, res, next) => {
  */
 router.delete('/:id', async(req, res, next) => {
   try {
-    const id = req.params.id;
-    if (mongoose.Types.ObjectId.isValid(id)) {
-      const message = await Message.findByIdAndRemove(id);
-      if (message) {
-        return res.status(httpStatus.NO_CONTENT).end();
-      }
-    }
-    
-    // object id is not exists
-    throw new APIError({
-      message: 'Object not found.',
-      status: httpStatus.NOT_FOUND,
-    });
+    const message = req.message;
+    await message.remove();
+    return res.status(httpStatus.NO_CONTENT).end();
   } catch (error) {
     return next(error);
   }
