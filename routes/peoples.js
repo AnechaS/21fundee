@@ -3,7 +3,6 @@ const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const People = require('../models/people');
 const APIError = require('../utils/APIError');
-const { removeRequestBodyWithNull } = require('../middlewares');
 
 const router = express.Router();
 
@@ -50,28 +49,10 @@ router.get('/', async (req, res, next) => {
  * @apiDescription Create a new people
  * @apiName CreatePeople
  * @apiGroup People
- *
- * @apiPermission IP Chatfuel
  */
-router.post('/', removeRequestBodyWithNull, async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
-    const body = req.body;
-    if (typeof body._id !== 'undefined') {
-      // update the people if object id exists
-      let id = body._id;
-      delete body._id;
-
-      const people = await People.findByIdAndUpdate(id, body, {
-        upsert: true,
-        new: true
-        // overwrite: true
-      });
-
-      return res.status(httpStatus.CREATED).json(people);
-    }
-
-    // create a new people
-    const people = await People.create(body);
+    const people = await People.create(req.body);
     return res.status(httpStatus.CREATED).json(people);
   } catch (error) {
     return next(error);

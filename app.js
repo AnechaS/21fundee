@@ -8,10 +8,11 @@ const mongoose = require('mongoose');
 const appConfig = require('./config');
 const APIError = require('./utils/APIError');
 
-const indexRouter = require('./routes/index');
+// const indexRouter = require('./routes/index');
 const peoplesRouter = require('./routes/peoples');
 const schedulesRouter = require('./routes/schedules');
 const messagesRouter = require('./routes/messages');
+const chatfuelRouter = require('./routes/chatfuel');
 
 mongoose.connect(appConfig.mongodb, {
   useNewUrlParser: true,
@@ -28,10 +29,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
 app.use('/peoples', peoplesRouter);
 app.use('/schedules', schedulesRouter);
 app.use('/messages', messagesRouter);
+app.use('/chatfuel', chatfuelRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

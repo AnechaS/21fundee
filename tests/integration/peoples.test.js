@@ -8,7 +8,6 @@ const People = require('../../models/people');
 mongoose.Promise = global.Promise;
 
 let people = {
-  _id: '5e412c6d163c750001b96477',
   firstName: 'Jon',
   lastName: 'Snow',
   province: 'สงขลา',
@@ -45,80 +44,6 @@ describe('POST /peoples', () => {
       childBirthday: people.childBirthday,
       gender: people.gender,
     });
-  });
-
-  test('should create a new people with value null', async () => {
-    const bodyRequest = {
-      _id: '5e412c6d163c750001b96d73',
-      firstName: 'null',
-      lastName: 'null',
-      province: 'สงขลา',
-      gender: 'null',
-      profilePicUrl: 'null',
-      locale: 'null',
-      source: 'null' 
-    };
-
-    const agent = await request(app)
-      .post('/peoples')
-      .send(bodyRequest)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.CREATED);
-      
-    expect(agent.body).toMatchObject({
-      _id: bodyRequest._id,
-      province: bodyRequest.province,
-    });
-
-    await People.deleteOne({ _id: agent.body._id });
-  });
-
-  test('should update people if "_id" is exists', async () => {
-    people = {
-      ...people,
-      firstName: 'b',
-      lastName: 'a',
-      province: 'ยะลา',
-      district: 'เมือง'
-    };
-
-    const agent = await request(app)
-      .post('/peoples')
-      .send(people)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.CREATED);
-    
-    expect(agent.body).toMatchObject({
-      _id: people._id,
-      firstName: people.firstName,
-      lastName: people.lastName,
-      province: people.province,
-      district: people.district,
-    });
-  });
-
-  test('should report error when _id not objectId', async () => {
-    const bodyRequest = {
-      _id: '5e412c6d163cd73',
-      firstName: 'null',
-      lastName: 'null',
-      province: 'สงขลา',
-      gender: 'null',
-      profilePicUrl: 'null',
-      locale: 'null',
-      source: 'null' 
-    };
-
-    const agent = await request(app)
-      .post('/peoples')
-      .send(bodyRequest)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.INTERNAL_SERVER_ERROR);
-
-    expect(agent.body.code).toBe(500);
   });
 });
 

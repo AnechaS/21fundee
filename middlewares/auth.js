@@ -1,7 +1,3 @@
-const { validationResult } = require('express-validator');
-
-const removeRequestBodyWithNull = require('./utils/removeRequestBodyWithNull');
-
 // export async function handleApiHeaders(req, res, next) {
 //   try {
 //     if (req.header('x-api-key') !== 'me1tmoru01TOi5Ss1x') {
@@ -45,21 +41,3 @@ const removeRequestBodyWithNull = require('./utils/removeRequestBodyWithNull');
 //     return res.json({ error: 'Invalid session token' }).status(403);
 //   }
 // }
-
-exports.validator = function(validations) {
-  return async (req, res, next) => {
-    await Promise.all(validations.map(validation => validation.run(req)));
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    return next();
-  };
-};
-
-exports.removeRequestBodyWithNull = function(req, res, next) {
-  req.body = removeRequestBodyWithNull(req.body);
-  return next();
-};

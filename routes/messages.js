@@ -51,12 +51,9 @@ router.get('/', async (req, res, next) => {
  * @apiDescription Create a new message
  * @apiName CreateMessage
  * @apiGroup Message
- * 
- * @apiPermission IP Chatfuel
  */
 router.post('/', async (req, res, next) => {
   try {
-    // create a new people
     const message = await Message.create(req.body);
     return res
       .status(httpStatus.CREATED)

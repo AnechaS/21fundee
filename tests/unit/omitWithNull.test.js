@@ -1,4 +1,4 @@
-const removeRequestBodyWithNull = require('../../utils/removeRequestBodyWithNull');
+const omitWithNull = require('../../utils/omitWithNull');
 
 it('should return object', () => {
   const body = { 
@@ -12,7 +12,7 @@ it('should return object', () => {
     h: 0,
     i: 'null'
   };
-  expect(removeRequestBodyWithNull(body)).toEqual({
+  expect(omitWithNull(body)).toEqual({
     b: 2,
     c: 4,
     f: false,
