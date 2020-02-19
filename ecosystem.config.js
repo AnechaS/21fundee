@@ -11,10 +11,6 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production'
       }
-    },
-    {
-      name: '21FunDee-client',
-      script: 'cd ./client && npm run serve'
     }
   ]
 };
