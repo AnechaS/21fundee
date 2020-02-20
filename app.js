@@ -60,7 +60,7 @@ app.use((err, req, res, next) => {
   };
 
   // if (req.app.get('env') !== 'development') {
-  // delete response.stack;
+  delete response.stack;
   // }
 
   res.status(convertedError.status);
