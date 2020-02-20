@@ -5,6 +5,7 @@ const People = require('../models/people');
 const Message = require('../models/message');
 const removeReqBodyWithNull = require('../middlewares/removeReqBodyWithNull');
 const validator = require('../middlewares/validator');
+const ipChatfuel = require('../middlewares/ipChatfuel');
 
 const router = express.Router();
 
@@ -16,7 +17,8 @@ const router = express.Router();
  * 
  * @apiPermission IP Chatfuel
  */
-router.post('/people', 
+router.post('/people',
+  ipChatfuel,
   removeReqBodyWithNull,
   validator([  body('uid', 'Is required').exists() ]),
   async (req, res, next) => {
@@ -42,7 +44,8 @@ router.post('/people',
  * 
  * @apiPermission IP Chatfuel
  */
-router.post('/message', 
+router.post('/message',
+  ipChatfuel,
   removeReqBodyWithNull, 
   async (req, res, next) => {
     try {

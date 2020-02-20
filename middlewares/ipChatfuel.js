@@ -1,15 +1,15 @@
 const httpStatus = require('http-status');
 const APIError = require('../utils/APIError');
+const { IP_CHATFUEL } = require('../utils/constants');
 
 module.exports = function(req, res, next) {
-  const trustedIps = '104.209.176.191';
-  const requestIP = req.ip;
-  if(trustedIps === requestIP) {
+  const requestIP = req.get('x-real-ip');
+  if(requestIP === IP_CHATFUEL) {
     return next();
   } 
 
-  return new APIError({
+  next(new APIError({
     message: `Access denied to IP address: ${requestIP}`,
     status: httpStatus.FORBIDDEN
-  });
+  }));
 };

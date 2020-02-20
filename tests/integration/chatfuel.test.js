@@ -5,6 +5,7 @@ const httpStatus = require('http-status');
 const app = require('../../app');
 const People = require('../../models/people');
 const Schedule = require('../../models/schedule');
+const { IP_CHATFUEL } = require('../../utils/constants');
 
 mongoose.Promise = global.Promise;
 
@@ -26,6 +27,7 @@ describe('POST /chatfuel/people', () => {
   test('should create a new people', async () => {
     const agent = await request(app)
       .post('/chatfuel/people')
+      .set('x-real-ip', IP_CHATFUEL)
       .send(json)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -49,6 +51,7 @@ describe('POST /chatfuel/people', () => {
   test('should create a new people with value null', async () => {
     const agent = await request(app)
       .post('/chatfuel/people')
+      .set('x-real-ip', IP_CHATFUEL)
       .send({
         uid: '5e412c6d163c750001b96d73',
         firstName: 'null',
@@ -82,6 +85,7 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
+      .set('x-real-ip', IP_CHATFUEL)
       .send(json)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -100,6 +104,7 @@ describe('POST /chatfuel/people', () => {
   test('should report error when uid is not provided', async () => {
     const agent = await request(app)
       .post('/chatfuel/people')
+      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
@@ -116,6 +121,7 @@ describe('POST /chatfuel/people', () => {
   test('should report error when uid is not mongo objectId', async () => {
     const agent = await request(app)
       .post('/chatfuel/people')
+      .set('x-real-ip', IP_CHATFUEL)
       .send({
         uid: '5e412c6d963c750001b96x77',
         province: 'สงขลา',
@@ -156,6 +162,7 @@ describe('POST /chatfuel/message', () => {
   test('should create a new message', async () => {
     const agent = await request(app)
       .post('/chatfuel/message')
+      .set('x-real-ip', IP_CHATFUEL)
       .send({
         people: people._id,
         schedule: schedule._id,
