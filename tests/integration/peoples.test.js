@@ -7,16 +7,7 @@ const People = require('../../models/people');
 
 mongoose.Promise = global.Promise;
 
-let people = {
-  firstName: 'Jon',
-  lastName: 'Snow',
-  province: 'สงขลา',
-  district: 'เทพา',
-  dentalId: 'x',
-  childName: 'bee',
-  childBirthday: '2560',
-  gender: 'male'
-};
+let people;
 
 afterAll(async () => {
   await mongoose.disconnect();
@@ -24,17 +15,27 @@ afterAll(async () => {
 
 describe('POST /peoples', () => {
   test('should create a new people', async () => {
+    const payload = {
+      firstName: 'Jon',
+      lastName: 'Snow',
+      province: 'สงขลา',
+      district: 'เทพา',
+      dentalId: 'x',
+      childName: 'bee',
+      childBirthday: '2560',
+      gender: 'male'
+    };
+    
     const agent = await request(app)
       .post('/peoples')
-      .send(people)
+      .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    
-    people._id = agent.body._id;
+
+    people = agent.body;
 
     expect(agent.body).toMatchObject({
-      _id: people._id,
       firstName: people.firstName,
       lastName: people.lastName,
       province: people.province,
@@ -74,7 +75,7 @@ describe('GET /peoples', () => {
 
 describe('PUT /peoples/:id', () => {
   test('should update the people', async () => {
-    const bodyRequest = {
+    const payload = {
       firstName: 'c',
       lastName: 'd',
       province: people.province,
@@ -83,17 +84,17 @@ describe('PUT /peoples/:id', () => {
 
     const agent = await request(app)
       .put(`/peoples/${people._id}`)
-      .send(bodyRequest)
+      .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
       
     expect(agent.body).toMatchObject({
       _id: people._id,
-      firstName: bodyRequest.firstName,
-      lastName: bodyRequest.lastName,
-      province: bodyRequest.province,
-      district: bodyRequest.district
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      province: payload.province,
+      district: payload.district
     });
   });
 

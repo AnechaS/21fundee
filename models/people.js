@@ -1,10 +1,17 @@
 const mongoose = require('mongoose');
+const shortid = require('shortid');
 
 const Schema = mongoose.Schema;
 
 // TODO bot id
 
 const People = new Schema({
+  _id: {
+    type: String,
+    trim: true,
+    default: shortid.generate
+    // index: { unique: true },
+  },
   firstName: {
     type: String,
     trim: true

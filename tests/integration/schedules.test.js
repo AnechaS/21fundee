@@ -7,7 +7,7 @@ const Schedule = require('../../models/schedule');
 
 mongoose.Promise = global.Promise;
 
-const schedule = { name: 'Day 2' };
+let schedule;
 
 afterAll(async () => {
   await mongoose.disconnect();
@@ -15,16 +15,16 @@ afterAll(async () => {
 
 describe('POST /schedules', () => {
   test('should create a new schedule', async () => {
+    const payload = { name: 'Day 2' };
     const agent = await request(app)
       .post('/schedules')
-      .send(schedule)
+      .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    schedule._id = agent.body._id;
-      
-    expect(agent.body.name).toBe(schedule.name);
+    schedule = agent.body;
+    expect(agent.body.name).toBe(payload.name);
   });
 });
 
@@ -38,7 +38,10 @@ describe('GET /schedules', () => {
 
     expect(agent.body).toEqual(
       expect.arrayContaining([
-        expect.objectContaining(schedule)
+        expect.objectContaining({
+          _id: schedule._id,
+          name: schedule.name
+        })
       ])
     );
   });
@@ -46,15 +49,15 @@ describe('GET /schedules', () => {
 
 describe('PUT /schedules', () => {
   test('should update the schedule ', async () => {
-    const bodyRequest = { name: 'Day 3' };
+    const payload = { name: 'Day 3' };
     const agent = await request(app)
       .put(`/schedules/${schedule._id}`)
-      .send(bodyRequest)
+      .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    expect(agent.body.name).toBe(bodyRequest.name);
+    expect(agent.body.name).toBe(payload.name);
   });
 
   test('should report error when schedules does not exists', async () => {

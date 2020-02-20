@@ -1,6 +1,5 @@
 const express = require('express');
 const httpStatus = require('http-status');
-const mongoose = require('mongoose');
 const People = require('../models/people');
 const APIError = require('../utils/APIError');
 
@@ -11,7 +10,7 @@ const router = express.Router();
  */
 router.param('id', async (req, res, next, id) => {
   try {
-    if (mongoose.Types.ObjectId.isValid(id)) {
+    if (id.trim().length) {
       const people = await People.findById(id);
       if (people) {
         req.people = people;
@@ -87,6 +86,8 @@ router.put('/:id', async (req, res, next) => {
     const savedPeople = await people.save();
     return res.json(savedPeople);
   } catch (error) {
+    console.log(error);
+    
     return next(error);
   }
 });

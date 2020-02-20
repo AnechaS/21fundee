@@ -10,7 +10,7 @@ const Message = require('../../models/message');
 mongoose.Promise = global.Promise;
 
 const people = {
-  _id: '5e412c6d163c753701b96477',
+  _id: '7531b96477',
   firstName: 'Bran',
   lastName: 'Stark',
   province: 'สงขลา',
@@ -20,6 +20,8 @@ const schedule = {
   _id: '5e734c6d163c753701b96477',
   name: 'Day 2' 
 };
+
+let message;
 
 beforeAll(async () => {
   await People.create(people);
@@ -34,7 +36,7 @@ afterAll(async () => {
 
 describe('POST /messages', () => {
   test('should reate a new message', async () => {
-    const json = {
+    const payload = {
       people: people._id,
       schedule: schedule._id,
       text: 'Hello World'
@@ -42,16 +44,17 @@ describe('POST /messages', () => {
 
     const agent = await request(app)
       .post('/messages')
-      .send(json)
+      .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
     
+    message = agent.body;
+
     expect(agent.body).toMatchObject({
-      _id: expect.anything(),
       people: people._id,
       schedule: schedule._id,
-      text: json.text
+      text: payload.text
     });
   });
 });
@@ -64,38 +67,46 @@ describe('GET /messages', () => {
       .expect('Content-Type', /json/)
       .expect(200);
 
-    expect(agent.body).toMatchObject([
-      {
-        _id: expect.anything(),
-        people,
-        schedule,
-        text: 'Hello World'
-      }
-    ]);
+    expect(agent.body).toBeInstanceOf(Array);
+    expect(agent.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          _id: message._id,
+          people: expect.objectContaining({
+            _id: people._id,
+            firstName: people.firstName,
+            lastName: people.lastName,
+            province: people.province,
+          }),
+          schedule: expect.objectContaining({ 
+            _id: schedule._id,
+            name: schedule.name
+          }),
+          text: message.text
+        })
+      ])
+    );
   });
 });
 
-
 describe('PUT /messages', () => {
   test('should update the message ', async () => {
-    const id = (await Message.findOne({}))._id;
-
-    const json = {
+    const payload = {
       text: 'Good.'
     };
 
     const agent = await request(app)
-      .put(`/messages/${id}`)
-      .send(json)
+      .put(`/messages/${message._id}`)
+      .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
     expect(agent.body).toMatchObject({
-      _id: id.toString(),
+      _id: message._id,
       people: people._id,
       schedule: schedule._id,
-      text: json.text
+      text: payload.text
     });
   });
 
@@ -113,14 +124,12 @@ describe('PUT /messages', () => {
 
 describe('DELETE /messages', () => {
   test('should delete the message', async () => {
-    const id = (await Message.findOne({}))._id;
-
     const agent = await request(app)
-      .delete(`/messages/${id}`)
+      .delete(`/messages/${message._id}`)
       .expect(httpStatus.NO_CONTENT);
 
     expect(agent.body).toEqual({});
-    await expect(Message.findById(id)).resolves.toBeNull();
+    await expect(Message.findById(message._id)).resolves.toBeNull();
   });
 
   test('should report error when message does not exists', async () => {

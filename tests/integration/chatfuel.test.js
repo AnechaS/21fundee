@@ -10,10 +10,8 @@ const { IP_CHATFUEL } = require('../../utils/constants');
 mongoose.Promise = global.Promise;
 
 describe('POST /chatfuel/people', () => {
-  let people;
-
-  let json = {
-    uid: '5e412c6d963c750001b96477',
+  let payload = {
+    uid: 'abcde',
     firstName: 'Jon',
     lastName: 'Snow',
     province: 'สงขลา',
@@ -28,23 +26,21 @@ describe('POST /chatfuel/people', () => {
     const agent = await request(app)
       .post('/chatfuel/people')
       .set('x-real-ip', IP_CHATFUEL)
-      .send(json)
+      .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    
-    people = agent.body;
 
     expect(agent.body).toMatchObject({
-      _id: expect.anything(),
-      firstName: json.firstName,
-      lastName: json.lastName,
-      province: json.province,
-      district: json.district,
-      dentalId: json.dentalId,
-      childName: json.childName,
-      childBirthday: json.childBirthday,
-      gender: json.gender,
+      _id: payload.uid,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      province: payload.province,
+      district: payload.district,
+      dentalId: payload.dentalId,
+      childName: payload.childName,
+      childBirthday: payload.childBirthday,
+      gender: payload.gender,
     });
   });
 
@@ -53,7 +49,7 @@ describe('POST /chatfuel/people', () => {
       .post('/chatfuel/people')
       .set('x-real-ip', IP_CHATFUEL)
       .send({
-        uid: '5e412c6d163c750001b96d73',
+        uid: 'gggg',
         firstName: 'null',
         lastName: 'null',
         province: 'สงขลา',
@@ -67,7 +63,7 @@ describe('POST /chatfuel/people', () => {
       .expect(httpStatus.CREATED);
       
     expect(agent.body).toMatchObject({
-      _id: '5e412c6d163c750001b96d73',
+      _id: 'gggg',
       province: 'สงขลา',
     });
 
@@ -75,8 +71,8 @@ describe('POST /chatfuel/people', () => {
   });
 
   test('should update people if "_id" is exists', async () => {
-    json = {
-      ...json,
+    payload = {
+      ...payload,
       firstName: 'b',
       lastName: 'a',
       province: 'ยะลา',
@@ -86,17 +82,17 @@ describe('POST /chatfuel/people', () => {
     const agent = await request(app)
       .post('/chatfuel/people')
       .set('x-real-ip', IP_CHATFUEL)
-      .send(json)
+      .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
     
     expect(agent.body).toMatchObject({
-      _id: people._id,
-      firstName: json.firstName,
-      lastName: json.lastName,
-      province: json.province,
-      district: json.district,
+      _id: payload.uid,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      province: payload.province,
+      district: payload.district,
     });
   });
 
@@ -116,28 +112,11 @@ describe('POST /chatfuel/people', () => {
     expect(location).toBe('body');
     expect(message).toBe('Is required');
   });
-
-
-  test('should report error when uid is not mongo objectId', async () => {
-    const agent = await request(app)
-      .post('/chatfuel/people')
-      .set('x-real-ip', IP_CHATFUEL)
-      .send({
-        uid: '5e412c6d963c750001b96x77',
-        province: 'สงขลา',
-      })
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.INTERNAL_SERVER_ERROR);
-
-    expect(agent.body.code).toBe(500);
-    expect(agent.body.message).toBeDefined();
-  });
 });
 
 describe('POST /chatfuel/message', () => {
   const people = {
-    _id: '5e412c6d163c753701b96497',
+    _id: '1601b96497',
     firstName: 'Bran',
     lastName: 'Stark',
     province: 'สงขลา',
@@ -171,7 +150,7 @@ describe('POST /chatfuel/message', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    
+
     expect(agent.body).toMatchObject({
       _id: expect.anything(),
       people: people._id,
