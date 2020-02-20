@@ -3,8 +3,6 @@ const shortid = require('shortid');
 
 const Schema = mongoose.Schema;
 
-// TODO bot id
-
 const People = new Schema({
   _id: {
     type: String,
@@ -45,6 +43,14 @@ const People = new Schema({
     trim: true
   },
   childBirthday: {
+    type: String,
+    trim: true
+  },
+  botId: {
+    type: String,
+    trim: true
+  },
+  blockId: {
     type: String,
     trim: true
   },
