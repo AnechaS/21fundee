@@ -1,8 +1,29 @@
 const _ = require('lodash');
 
-module.exports = function(object) {
-  const result =_.omitBy(object, (value) => {
-    return _.isUndefined(value) || _.isNaN(value) || _.isNull(value) || value === '' || value === 'null';
-  });
+/**
+ * validate rule
+ * @param {any} 
+ */
+function rule(value) {
+  return _.isUndefined(value) || _.isNaN(value) || _.isNull(value) || value === '' || value === 'null';
+}
+
+/**
+ * Remove prop object with null
+ * @param {Object}
+ */
+function omitWithNull(object) {
+  const result = Object.keys(object).reduce((result, value) => {
+    const o = object[value];
+    if (!rule(o) && typeof o === 'object' && Object.keys(o).length) {
+      result[value] = omitWithNull(o);
+    } else if (!rule(o)) {
+      result[value] = o;
+    }
+
+    return result;
+  }, {});
   return result;
-};
+}
+
+module.exports = omitWithNull;

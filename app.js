@@ -59,9 +59,9 @@ app.use((err, req, res, next) => {
     stack: convertedError.stack,
   };
 
-  if (req.app.get('env') !== 'development') {
-    delete response.stack;
-  }
+  // if (req.app.get('env') !== 'development') {
+  // delete response.stack;
+  // }
 
   res.status(convertedError.status);
   res.json(response);

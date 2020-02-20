@@ -53,6 +53,9 @@ router.post('/message',
   removeReqBodyWithNull,
   validator([
     body('people', 'Is required').isLength({ min: 1 }),
+    body('schedule', 'Is required').isLength({ min: 1 }),
+    body('quiz.question').if(body('quiz').exists()).notEmpty({ min: 1 }),
+    body('quiz.answer').if(body('quiz').exists()).isInt({ max: 10 })
   ]),
   async (req, res, next) => {
     try {
@@ -65,7 +68,28 @@ router.post('/message',
         });
       }
 
-      const message = await Message.create(req.body);
+      const object = req.body;
+
+      // TODO write code add quiz
+      if (typeof req.body.quiz !== 'undefined') {
+        // get question with id
+        const question = await Question.findById(req.body.quiz.question);
+        // if question not exists then throw
+        if (!question) {
+          throw new APIError({
+            message: 'Question not found.',
+            status: httpStatus.BAD_REQUEST
+          });
+        }
+
+        object.quiz = {
+          question: question._id,
+          answer: req.body.quiz.answer,
+          isCorrect: question.correct === req.body.quiz.answer,
+        };
+      }
+
+      const message = await Message.create(object);
       return res
         .status(httpStatus.CREATED)
         .json(message);
