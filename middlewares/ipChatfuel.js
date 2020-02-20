@@ -2,8 +2,8 @@ const httpStatus = require('http-status');
 const APIError = require('../utils/APIError');
 
 module.exports = function(req, res, next) {
-  const trustedIps = '52.177.171.217';
-  const requestIP = req.connection.remoteAddress;
+  const trustedIps = '104.209.176.191';
+  const requestIP = req.ip;
   if(trustedIps === requestIP) {
     return next();
   } 
