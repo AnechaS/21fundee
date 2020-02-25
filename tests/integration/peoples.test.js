@@ -3,7 +3,7 @@ const request = require('supertest');
 const httpStatus = require('http-status');
 
 const app = require('../../app');
-const People = require('../../models/people');
+const People = require('../../models/people.model');
 
 mongoose.Promise = global.Promise;
 

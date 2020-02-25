@@ -3,9 +3,9 @@ const request = require('supertest');
 const httpStatus = require('http-status');
 
 const app = require('../../app');
-const People = require('../../models/people');
-const Schedule = require('../../models/schedule');
-const Question = require('../../models/question');
+const People = require('../../models/people.model');
+const Schedule = require('../../models/schedule.model');
+const Question = require('../../models/question.model');
 
 const { IP_CHATFUEL } = require('../../utils/constants');
 
@@ -108,7 +108,7 @@ describe('POST /chatfuel/people', () => {
     await People.deleteOne({ _id: agent.body._id });
   });
 
-  test('should update people if "_id" is exists', async () => {
+  test('should update people if "uid" is exists', async () => {
     payload = {
       ...payload,
       firstName: 'b',
@@ -141,6 +141,9 @@ describe('POST /chatfuel/people', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
+      
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
       
     const { field } = agent.body.errors[0];
     const { location } = agent.body.errors[0];
@@ -189,6 +192,9 @@ describe('POST /chatfuel/message', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
       
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+      
     const { field } = agent.body.errors[0];
     const { location } = agent.body.errors[0];
     const { message } = agent.body.errors[0];
@@ -213,10 +219,129 @@ describe('POST /chatfuel/message', () => {
       .expect(httpStatus.BAD_REQUEST);
       
     expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('People not found.');
+    expect(agent.body.message).toBe('Validation Error');
+      
+    const { field } = agent.body.errors[0];
+    const { location } = agent.body.errors[0];
+    const { message } = agent.body.errors[0];
+    expect(field).toBe('people');
+    expect(location).toBe('body');
+    expect(message).toBe('Invalid value');
   });
 
-  test.todo('create quiz');
+
+  test('should report error when schedule is not provided', async () => {
+    const agent = await request(app)
+      .post('/chatfuel/message')
+      .send({ 
+        people: people._id,
+        text: 'Hello World',
+        botId: 'a',
+        blockId: 'aa',
+      })
+      .set('x-real-ip', IP_CHATFUEL)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+      
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+      
+    const { field } = agent.body.errors[0];
+    const { location } = agent.body.errors[0];
+    const { message } = agent.body.errors[0];
+    expect(field).toBe('schedule');
+    expect(location).toBe('body');
+    expect(message).toBe('Is required');
+  });
+
+  test('should report error when schedule is object id', async () => {
+    const agent = await request(app)
+      .post('/chatfuel/message')
+      .send({ 
+        people: people._id,
+        schedule: 'abc',
+        text: 'Hello World',
+        botId: 'a',
+        blockId: 'aa',
+      })
+      .set('x-real-ip', IP_CHATFUEL)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+      
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+      
+    const { field } = agent.body.errors[0];
+    const { location } = agent.body.errors[0];
+    const { message } = agent.body.errors[0];
+    expect(field).toBe('schedule');
+    expect(location).toBe('body');
+    expect(message).toBe('Invalid value');
+  });
+
+  test('should report error when schedule is not exists', async () => {
+    const agent = await request(app)
+      .post('/chatfuel/message')
+      .send({ 
+        people: people._id,
+        schedule: '5e734c6d163c755501b96547',
+        text: 'Hello World',
+        botId: 'a',
+        blockId: 'aa',
+      })
+      .set('x-real-ip', IP_CHATFUEL)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+      
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+      
+    const { field } = agent.body.errors[0];
+    const { location } = agent.body.errors[0];
+    const { message } = agent.body.errors[0];
+    expect(field).toBe('schedule');
+    expect(location).toBe('body');
+    expect(message).toBe('Invalid value');
+  });
+
+  test('should create a new quiz of the message when correct answer', async () => {
+    const payload = {
+      people: people._id,
+      schedule: schedule._id,
+      text: 'answer the quiz',
+      botId: 'a',
+      blockId: 'aa',
+      quiz: {
+        question: question._id,
+        answer: question.correct
+      }
+    };
+    
+    const agent = await request(app)
+      .post('/chatfuel/message')
+      .send(payload)
+      .set('x-real-ip', IP_CHATFUEL)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.CREATED);
+
+    expect(agent.body).toMatchObject({
+      _id: expect.anything(),
+      quiz: {
+        question: payload.quiz.question,
+        answer: payload.quiz.answer,
+        isCorrect: true
+      },
+      people: people._id,
+      schedule: schedule._id,
+      text: payload.text,
+      botId: payload.botId,
+      blockId: payload.blockId,
+    });
+  });
 
   test('should report error when quiz empty', async () => {
     const agent = await request(app)
@@ -234,44 +359,21 @@ describe('POST /chatfuel/message', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
       
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+      
     expect(agent.body.errors).toEqual([ 
-      { 
-        field: 'quiz.question',
-        location: 'body',
-        message: 'Invalid value' 
-      },
       { 
         field: 'quiz.answer',
         location: 'body',
         message: 'Invalid value' 
-      } 
+      },
+      { 
+        field: 'quiz.question',
+        location: 'body',
+        message: 'Invalid value' 
+      }
     ]);
-  });
-
-  test('should report error when quiz not key "question"', async () => {
-    const agent = await request(app)
-      .post('/chatfuel/message')
-      .send({
-        people: people._id,
-        schedule: schedule._id,
-        text: 'Hello World',
-        botId: 'a',
-        blockId: 'aa',
-        quiz: {
-          answer: 'abc'
-        }
-      })
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-      
-    const { field } = agent.body.errors[0];
-    const { location } = agent.body.errors[0];
-    const { message } = agent.body.errors[0];
-    expect(field).toBe('quiz.question');
-    expect(location).toBe('body');
-    expect(message).toBe('Invalid value');
   });
 
   test('should report error when quiz.question is not provided', async () => {
@@ -291,6 +393,9 @@ describe('POST /chatfuel/message', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
+      
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
       
     const { field } = agent.body.errors[0];
     const { location } = agent.body.errors[0];
@@ -317,10 +422,17 @@ describe('POST /chatfuel/message', () => {
       .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(httpStatus.INTERNAL_SERVER_ERROR);
+      .expect(httpStatus.BAD_REQUEST);
     
-    expect(agent.body.code).toBe(500);
-    expect(agent.body.message).toEqual(expect.stringContaining('Cast to ObjectId failed'));
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field } = agent.body.errors[0];
+    const { location } = agent.body.errors[0];
+    const { message } = agent.body.errors[0];
+    expect(field).toBe('quiz.question');
+    expect(location).toBe('body');
+    expect(message).toBe('Invalid value');
   });
 
   test('should report error when quiz.question is not exists', async () => {
@@ -343,7 +455,15 @@ describe('POST /chatfuel/message', () => {
       .expect(httpStatus.BAD_REQUEST);
       
     expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Question not found.');
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field } = agent.body.errors[0];
+    const { location } = agent.body.errors[0];
+    const { message } = agent.body.errors[0];
+    
+    expect(field).toBe('quiz.question');
+    expect(location).toBe('body');
+    expect(message).toBe('Invalid value');
   });
 
   test('should report error when quiz.answer is not provided', async () => {
@@ -364,163 +484,14 @@ describe('POST /chatfuel/message', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
       
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
     const { field } = agent.body.errors[0];
     const { location } = agent.body.errors[0];
     const { message } = agent.body.errors[0];
     expect(field).toBe('quiz.answer');
     expect(location).toBe('body');
     expect(message).toBe('Invalid value');
-  });
-});
-
-describe('POST /chatfuel/quiz', () => {
-  test('should create a new quiz', async () => {
-    const payload = {
-      people: people._id,
-      question: question._id,
-      answer: 0,
-      botId: 'a',
-      blockId: 'aa',
-    };
-
-    const agent = await request(app)
-      .post('/chatfuel/quiz')
-      .set('x-real-ip', IP_CHATFUEL)
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.CREATED);
-    
-    expect(agent.body).toMatchObject({
-      question: payload.question,
-      people: payload.people,
-      answer: payload.answer,
-      botId: payload.botId,
-      blockId: payload.blockId
-    });
-  });
-
-  test('should report error when payload empty', async () => {
-    const agent = await request(app)
-      .post('/chatfuel/quiz')
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    expect(agent.body.errors).toMatchObject([
-      {
-        field: 'question',
-        location: 'body',
-        message: 'Is required'
-      },
-      {
-        field: 'people',
-        location: 'body',
-        message: 'Is required'
-      }
-    ]);
-  });
-
-  test('should report error when people is not provided', async () => {
-    const agent = await request(app)
-      .post('/chatfuel/quiz')
-      .send({
-        question: question._id,
-        answer: 0,
-        botId: 'a',
-        blockId: 'aa',
-      })
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-      
-    const { field } = agent.body.errors[0];
-    const { location } = agent.body.errors[0];
-    const { message } = agent.body.errors[0];
-    expect(field).toBe('people');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-  });
-
-  test('should report error when people is not exists', async () => {
-    const agent = await request(app)
-      .post('/chatfuel/quiz')
-      .send({ 
-        question: question._id,
-        people: 'abc',
-        answer: 0,
-        botId: 'a',
-        blockId: 'aa',
-      })
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-      
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('People not found.');
-  });
-
-  
-  test('should report error when question is not provided', async () => {
-    const agent = await request(app)
-      .post('/chatfuel/quiz')
-      .send({
-        people: people._id,
-        answer: 0,
-        botId: 'a',
-        blockId: 'aa',
-      })
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-      
-    const { field } = agent.body.errors[0];
-    const { location } = agent.body.errors[0];
-    const { message } = agent.body.errors[0];
-    expect(field).toBe('question');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-  });
-
-  test('should report error when question is object id', async () => {
-    const agent = await request(app)
-      .post('/chatfuel/quiz')
-      .send({ 
-        question: 'abc',
-        people: people._id,
-        answer: 0,
-        botId: 'a',
-        blockId: 'aa',
-      })
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.INTERNAL_SERVER_ERROR);
-      
-    expect(agent.body.code).toBe(500);
-    expect(agent.body.message).toEqual(expect.stringContaining('Cast to ObjectId failed'));
-  });
-
-  test('should report error when question is not exists', async () => {
-    const agent = await request(app)
-      .post('/chatfuel/quiz')
-      .send({ 
-        question: '5e734c65563c75372cb96547',
-        people: people._id,
-        answer: 0,
-        botId: 'a',
-        blockId: 'aa',
-      })
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-      
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Question not found.');
   });
 });

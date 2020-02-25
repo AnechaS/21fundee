@@ -29,20 +29,16 @@ const Message = new Schema({
     trim: true
   },
   quiz: {
-    // type: Object,
     question: {
       type: mongoose.Types.ObjectId,
       ref: 'question',
-      // required: true,
     },
     answer: {
       type: Number,
-      // required: true,
     },
     isCorrect: {
       type: Boolean,
       default: false,
-      // required: true,
     },
   }
 }, {

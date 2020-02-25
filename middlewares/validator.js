@@ -1,4 +1,6 @@
 const { validationResult } = require('express-validator');
+const httpStatus = require('http-status');
+const APIError = require('../utils/APIError');
 
 module.exports = function (validations) {
   return async (req, res, next) => {
@@ -12,7 +14,11 @@ module.exports = function (validations) {
       })
     );
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return next(new APIError({
+        message: 'Validation Error',
+        status: httpStatus.BAD_REQUEST,
+        errors: errors.array(),
+      }));
     }
 
     return next();

@@ -1,5 +1,5 @@
 const { Seeder } = require('mongoose-data-seed');
-const User = require('../models/user');
+const User = require('../models/user.model');
 
 const data = [
   {

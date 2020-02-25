@@ -1,6 +1,6 @@
 const express = require('express');
 const httpStatus = require('http-status');
-const People = require('../models/people');
+const People = require('../models/people.model');
 const APIError = require('../utils/APIError');
 
 const router = express.Router();

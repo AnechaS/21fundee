@@ -1,15 +1,16 @@
 const express = require('express');
 const { body } = require('express-validator');
 const httpStatus = require('http-status');
+const mongoose = require('mongoose');
 const removeReqBodyWithNull = require('../middlewares/removeReqBodyWithNull');
 const validator = require('../middlewares/validator');
 const ipChatfuel = require('../middlewares/ipChatfuel');
 const APIError = require('../utils/APIError');
 
-const People = require('../models/people');
-const Message = require('../models/message');
-const Question = require('../models/question');
-const Quiz = require('../models/quiz');
+const People = require('../models/people.model');
+const Message = require('../models/message.model');
+const Schedule = require('../models/schedule.model');
+const Question = require('../models/question.model');
 
 const router = express.Router();
 
@@ -52,33 +53,49 @@ router.post('/message',
   ipChatfuel,
   removeReqBodyWithNull,
   validator([
-    body('people', 'Is required').isLength({ min: 1 }),
-    body('schedule', 'Is required').isLength({ min: 1 }),
-    body('quiz.question').if(body('quiz').exists()).notEmpty({ min: 1 }),
-    body('quiz.answer').if(body('quiz').exists()).isInt({ max: 10 })
+    body('people', 'Is required')
+      .isLength({ min: 1 })
+      .bail()
+      .custom(value => People.findById(value).then(result => {
+        if (!result) {
+          return Promise.reject('Invalid value');
+        }
+      })),
+    body('schedule', 'Is required')
+      .isLength({ min: 1 })
+      .bail()
+      .custom(value => mongoose.Types.ObjectId.isValid(value))
+      .withMessage('Invalid value')
+      .bail()
+      .custom(value => Schedule.findById(value).then(result => {
+        if (!result) {
+          return Promise.reject('Invalid value');
+        }
+      })),
+    body('quiz.answer').if(body('quiz').exists()).isInt({ max: 10 }),
+    body('quiz.question')
+      .if(body('quiz').exists())
+      .notEmpty({ min: 1 })
+      .bail()
+      .custom(value => mongoose.Types.ObjectId.isValid(value))
+      .withMessage('Invalid value'),
   ]),
   async (req, res, next) => {
     try {
-      // validate people req 
-      const people = await People.findById(req.body.people);
-      if (!people) {
-        throw new APIError({
-          message: 'People not found.',
-          status: httpStatus.BAD_REQUEST
-        });
-      }
-
       const object = req.body;
-
-      // TODO write code add quiz
       if (typeof req.body.quiz !== 'undefined') {
         // get question with id
         const question = await Question.findById(req.body.quiz.question);
         // if question not exists then throw
         if (!question) {
           throw new APIError({
-            message: 'Question not found.',
-            status: httpStatus.BAD_REQUEST
+            message: 'Validation Error',
+            status: httpStatus.BAD_REQUEST,
+            errors: [{
+              field: 'quiz.question',
+              location: 'body',
+              message: 'Invalid value',
+            }],
           });
         }
 
@@ -93,56 +110,6 @@ router.post('/message',
       return res
         .status(httpStatus.CREATED)
         .json(message);
-    } catch (error) {
-      return next(error);
-    }
-  });
-
-/**
- * @api {post} /chatfuel/quiz Create Quiz
- * @apiDescription Create a new quiz
- * @apiName CreateQuiz
- * @apiGroup Chatfuel
- * 
- * @apiPermission IP Chatfuel
- */
-router.post('/quiz',
-  ipChatfuel,
-  removeReqBodyWithNull,
-  validator([
-    body('question', 'Is required').isLength({ min: 1 }),
-    body('people', 'Is required').isLength({ min: 1 }),
-  ]),
-  async (req, res, next) => {
-    try {
-      // validate people req 
-      const people = await People.findById(req.body.people);
-      if (!people) {
-        throw new APIError({
-          message: 'People not found.',
-          status: httpStatus.BAD_REQUEST
-        });
-      }
-
-      // get question with id
-      const question = await Question.findById(req.body.question);
-      if (!question) {
-        throw new APIError({
-          message: 'Question not found.',
-          status: httpStatus.BAD_REQUEST
-        });
-      }
-
-      const quiz = await Quiz.create({
-        question,
-        people: req.body.people,
-        answer: req.body.answer,
-        isCorrect: question.correct === req.body.answer,
-        botId: req.body.botId,
-        blockId: req.body.blockId
-      });
-
-      return res.status(httpStatus.CREATED).json(quiz);
     } catch (error) {
       return next(error);
     }

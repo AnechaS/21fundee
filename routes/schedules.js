@@ -1,6 +1,6 @@
 const express = require('express');
 const httpStatus = require('http-status');
-const Schedule = require('../models/schedule');
+const Schedule = require('../models/schedule.model');
 const mongoose = require('mongoose');
 const APIError = require('../utils/APIError');
 

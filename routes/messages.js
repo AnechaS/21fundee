@@ -1,7 +1,7 @@
 const express = require('express');
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
-const Message = require('../models/message');
+const Message = require('../models/message.model');
 const APIError = require('../utils/APIError');
 
 const router = express.Router();
