@@ -72,7 +72,10 @@ router.post('/message',
           return Promise.reject('Invalid value');
         }
       })),
-    body('quiz.answer').if(body('quiz').exists()).isInt({ max: 10 }),
+    body('quiz.answer')
+      .if(body('quiz').exists())
+      .isInt({ max: 10 })
+      .toInt(),
     body('quiz.question')
       .if(body('quiz').exists())
       .notEmpty({ min: 1 })
@@ -102,7 +105,7 @@ router.post('/message',
         object.quiz = {
           question: question._id,
           answer: req.body.quiz.answer,
-          isCorrect: question.correct.includes(req.body.quiz.answer),
+          isCorrect: question.corrects.includes(req.body.quiz.answer),
         };
       }
 

@@ -10,7 +10,7 @@ const Question = new Schema({
   },
   // TODO add field list answer
   // answers: Array,
-  correct: {
+  corrects: {
     type: [Number],
     default: [],
   }
