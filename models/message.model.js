@@ -38,7 +38,6 @@ const Message = new Schema({
     },
     isCorrect: {
       type: Boolean,
-      default: false,
     },
   }
 }, {
