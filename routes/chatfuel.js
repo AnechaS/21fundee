@@ -102,7 +102,7 @@ router.post('/message',
         object.quiz = {
           question: question._id,
           answer: req.body.quiz.answer,
-          isCorrect: question.correct === req.body.quiz.answer,
+          isCorrect: question.correct.includes(req.body.quiz.answer),
         };
       }
 

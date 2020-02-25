@@ -1,10 +1,11 @@
 const { Seeder } = require('mongoose-data-seed');
-const Question = require('../models/question');
+const Question = require('../models/question.model');
 
 const data = [
   {
+    _id: '5e4ed320f813281e48042cc5',
     title: 'คุณคิดว่าฟันน้ำนมสำคัญยังไงเอ่ย?',
-    correct: 5
+    correct: [5]
   },
 ];
 

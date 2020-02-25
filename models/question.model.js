@@ -11,9 +11,8 @@ const Question = new Schema({
   // TODO add field list answer
   // answers: Array,
   correct: {
-    type: Number,
-    default: 0,
-    required: true
+    type: [Number],
+    default: [],
   }
 }, {
   timestamps: true
