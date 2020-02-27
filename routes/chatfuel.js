@@ -1,11 +1,10 @@
 const express = require('express');
 const { body } = require('express-validator');
 const httpStatus = require('http-status');
-const mongoose = require('mongoose');
+const APIError = require('../utils/APIError');
 const removeReqBodyWithNull = require('../middlewares/removeReqBodyWithNull');
 const validator = require('../middlewares/validator');
 const ipChatfuel = require('../middlewares/ipChatfuel');
-const APIError = require('../utils/APIError');
 
 const People = require('../models/people.model');
 const Message = require('../models/message.model');
@@ -64,7 +63,7 @@ router.post('/message',
     body('schedule', 'Is required')
       .isLength({ min: 1 })
       .bail()
-      .custom(value => mongoose.Types.ObjectId.isValid(value))
+      .isMongoId()
       .withMessage('Invalid value')
       .bail()
       .custom(value => Schedule.findById(value).then(result => {
@@ -80,7 +79,7 @@ router.post('/message',
       .if(body('quiz').exists())
       .notEmpty({ min: 1 })
       .bail()
-      .custom(value => mongoose.Types.ObjectId.isValid(value))
+      .isMongoId()
       .withMessage('Invalid value'),
   ]),
   async (req, res, next) => {

@@ -8,7 +8,9 @@ switch (env) {
   case 'test': {
     parsed = {
       mongodb: 'mongodb://localhost:27001/jest',
-      port: 5561
+      port: 5561,
+      jwtExpirationInterval: 0.15,
+      jwtSecret: 'asdfgh'
     };
     break;
   }
@@ -26,5 +28,8 @@ switch (env) {
   }
 }
 
-parsed.env = env;
-module.exports = parsed;
+exports.env = env;
+exports.port = parsed.port;
+exports.mongodb = parsed.mongodb;
+exports.jwtExpirationInterval = parsed.jwtExpirationInterval;
+exports.jwtSecret = parsed.jwtSecret;

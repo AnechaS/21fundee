@@ -1,13 +1,11 @@
 const mongoose = require('mongoose');
-const shortid = require('shortid');
+const crypto = require('crypto');
 
-const Schema = mongoose.Schema;
-
-const People = new Schema({
+const PeopleSchema = new mongoose.Schema({
   _id: {
     type: String,
     trim: true,
-    default: shortid.generate
+    default: () => crypto.randomBytes(15).toString('hex')
     // index: { unique: true },
   },
   firstName: {
@@ -58,4 +56,4 @@ const People = new Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('People', People);
+module.exports = mongoose.model('People', PeopleSchema);

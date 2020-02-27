@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
-
-const Message = new Schema({
+const MessageSchema = new mongoose.Schema({
   people: {
     type: String,
     ref: 'People'
   },
   schedule: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Schedule',
     required: true
   },
@@ -30,7 +28,7 @@ const Message = new Schema({
   },
   quiz: {
     question: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'question',
     },
     answer: {
@@ -44,4 +42,4 @@ const Message = new Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Message', Message);
+module.exports = mongoose.model('Message', MessageSchema);

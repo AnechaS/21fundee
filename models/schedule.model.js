@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
-
-const Schedule = new Schema({
+const ScheduleSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
@@ -12,4 +10,4 @@ const Schedule = new Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Schedule', Schedule);
+module.exports = mongoose.model('Schedule', ScheduleSchema);

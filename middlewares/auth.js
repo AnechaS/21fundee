@@ -1,43 +1,39 @@
-// export async function handleApiHeaders(req, res, next) {
-//   try {
-//     if (req.header('x-api-key') !== 'me1tmoru01TOi5Ss1x') {
-//       return res.status(400).json({ error: 'unauthorized' });
-//     }
+const httpStatus = require('http-status');
+const passport = require('passport');
+const APIError = require('../utils/APIError');
 
-//     const token = req.header('authorization');
-//     if (!token.trim().length) {
-//       return res.status(403).json({ error: 'Invalid session token' });
-//     }
+const handleJWT = (req, res, next, roles) => async (err, user, info) => {
+  try {
+    const error = err || info;
+    if (error || !user) {
+      throw new APIError({
+        message: error ? error.message : 'Unauthorized',
+        status: httpStatus.UNAUTHORIZED,
+        stack: error ? error.stack : undefined,
+      });
+    }
 
-//     // query user
-//     Parse.User.enableUnsafeCurrentUser();
-//     const user = await Parse.User.become(token);
+    if (roles.length) {
+      if (!roles.includes(user.role)) {
+        throw new APIError({
+          message: error ? error.message : 'Forbidden',
+          status: httpStatus.FORBIDDEN,
+          stack: error ? error.stack : undefined,
+        });
+      }
+    }
 
-//     // query user detail
-//     const UserDetail = Parse.Object.extend('UserDetail');
-//     const userDetailQuery = new Parse.Query(UserDetail);
-//     userDetailQuery.equalTo('userid', user.get('userid'));
-//     userDetailQuery.select(['firstname', 'surname', 'friend']);
-//     const userDetail = await userDetailQuery.first();
+    await req.logIn(user, { session: false });
+  } catch (e) {
+    return next(e);
+  }
 
-//     // remote filed unwanted of user
-//     const newUser = _.omit(user.toJSON(), ['ACL', 'createdAt', 'updatedAt']);
+  return next();
+};
 
-//     // remote filed unwanted of user detail
-//     const newUserDetail = _.omit(userDetail.toJSON(), [
-//       'createdAt',
-//       'updatedAt',
-//     ]);
-//     newUserDetail.__type = 'Object';
-//     newUserDetail.className = 'UserDetail';
-
-//     const object = { ...newUser, detail: newUserDetail };
-
-//     // set data to request
-//     req.user = object;
-
-//     return next();
-//   } catch (error) {
-//     return res.json({ error: 'Invalid session token' }).status(403);
-//   }
-// }
+module.exports = function(...roles) {
+  return (req, res, next) => passport.authenticate(
+    'jwt', { session: false },
+    handleJWT(req, res, next, roles),
+  )(req, res, next);
+}; 

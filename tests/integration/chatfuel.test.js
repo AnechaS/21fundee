@@ -26,7 +26,7 @@ const schedule = {
 const question = { 
   _id: '5e734c6d163c753725b96547',
   title: 'คุณคิดว่าฟันน้ำนมสำคัญยังไงเอ่ย?',
-  correct: 5
+  corrects: [5]
 };
 
 beforeAll(async () => {
@@ -316,7 +316,7 @@ describe('POST /chatfuel/message', () => {
       blockId: 'aa',
       quiz: {
         question: question._id,
-        answer: question.correct
+        answer: question.corrects[0]
       }
     };
     

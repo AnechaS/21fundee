@@ -5,17 +5,25 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+const passport = require('passport');
 const appConfig = require('./config');
+const strategies = require('./passport');
 const APIError = require('./utils/APIError');
 
 // const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
 const peoplesRouter = require('./routes/peoples');
 const schedulesRouter = require('./routes/schedules');
 const messagesRouter = require('./routes/messages');
 const chatfuelRouter = require('./routes/chatfuel');
 
+// set mongoose Promise to Bluebird
+mongoose.Promise = Promise;
+
 mongoose.connect(appConfig.mongodb, {
   useNewUrlParser: true,
+  keepAlive: 1,
   useUnifiedTopology: true,
   useCreateIndex: true,
   useFindAndModify: false
@@ -29,7 +37,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// enable authentication
+app.use(passport.initialize());
+passport.use('jwt', strategies);
+
 // app.use('/', indexRouter);
+app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 app.use('/peoples', peoplesRouter);
 app.use('/schedules', schedulesRouter);
 app.use('/messages', messagesRouter);
@@ -60,7 +74,7 @@ app.use((err, req, res, next) => {
   };
 
   // if (req.app.get('env') !== 'development') {
-  delete response.stack;
+  // delete response.stack;
   // }
 
   res.status(convertedError.status);

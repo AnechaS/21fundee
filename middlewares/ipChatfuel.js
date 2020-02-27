@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const APIError = require('../utils/APIError');
-const { IP_CHATFUEL } = require('../utils/constants');
+
+const IP_CHATFUEL = '104.209.176.191';
 
 module.exports = function(req, res, next) {
   const requestIP = req.get('x-real-ip');
