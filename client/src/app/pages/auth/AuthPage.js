@@ -10,24 +10,6 @@ import "../../../_metronic/_assets/sass/pages/login/login-1.scss";
 export default function AuthPage() {
   return (
     <>
-      {/* https://github.com/nfl/react-helmet */}
-      <Helmet>
-        {/* <link
-            type="text/css"
-            rel="stylesheet"
-            href={toAbsoluteUrl(
-                "/assets/css/demo1/style.bundle.css"
-            )}
-        />
-        <link
-          type="text/css"
-          rel="stylesheet"
-          href={toAbsoluteUrl(
-            "/assets/css/demo1/pages/login/login-1.css"
-          )}
-        /> */}
-      </Helmet>
-
       <div className="kt-grid kt-grid--ver kt-grid--root">
         <div
           id="kt_login"
@@ -60,18 +42,7 @@ export default function AuthPage() {
               <div className="kt-grid__item">
                 <div className="kt-login__info">
                   <div className="kt-login__copyright">
-                    &copy; 2018 Metronic
-                  </div>
-                  <div className="kt-login__menu">
-                    <Link to="/terms" className="kt-link">
-                      Privacy
-                    </Link>
-                    <Link to="/terms" className="kt-link">
-                      Legal
-                    </Link>
-                    <Link to="/terms" className="kt-link">
-                      Contact
-                    </Link>
+                    &copy; 2019 21fundee.com
                   </div>
                 </div>
               </div>

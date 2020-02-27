@@ -27,16 +27,6 @@ function Login(props) {
 
   return (
     <>
-      <div className="kt-login__head">
-        <span className="kt-login__signup-label">
-          Don't have an account yet?
-        </span>
-        &nbsp;&nbsp;
-        <Link to="/auth/registration" className="kt-link kt-login__signup-link">
-          Sign Up!
-        </Link>
-      </div>
-
       <div className="kt-login__body">
         <div className="kt-login__form">
           <div className="kt-login__title">
@@ -48,8 +38,8 @@ function Login(props) {
 
           <Formik
             initialValues={{
-              email: "admin@demo.com",
-              password: "demo"
+              email: '',
+              password: ''
             }}
             validate={values => {
               const errors = {};
@@ -179,29 +169,6 @@ function Login(props) {
               </form>
             )}
           </Formik>
-
-          <div className="kt-login__divider">
-            <div className="kt-divider">
-              <span />
-              <span>OR</span>
-              <span />
-            </div>
-          </div>
-
-          <div className="kt-login__options">
-            <Link to="http://facebook.com" className="btn btn-primary kt-btn">
-              <i className="fab fa-facebook-f" />
-              Facebook
-            </Link>
-            <Link to="http://twitter.com" className="btn btn-info kt-btn">
-              <i className="fab fa-twitter" />
-              Twitter
-            </Link>
-            <Link to="google.com" className="btn btn-danger kt-btn">
-              <i className="fab fa-google" />
-              Google
-            </Link>
-          </div>
         </div>
       </div>
     </>

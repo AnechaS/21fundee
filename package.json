@@ -19,7 +19,7 @@
     "server": "cross-env NODE_ENV=production node ./bin/server",
     "server-dev": "cross-env DEBUG=21fundee:* node ./bin/server",
     "client": "node ./bin/client",
-    "seed-run": "md-seed run",
+    "seed": "md-seed run",
     "seed-drop": "md-seed run --dropdb",
     "test": "jest",
     "lint": "eslint .",
@@ -28,6 +28,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
     "cross-env": "^7.0.0",
     "debug": "~2.6.9",
     "express": "~4.16.1",

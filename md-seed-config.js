@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const appConfig = require('./config');
 
-const Users = require('./seeders/user.seeder');
+const User = require('./seeders/user.seeder');
 const Question = require('./seeders/question.seeder');
 const Schedule = require('./seeders/schedule.seeder');
 
@@ -11,7 +11,7 @@ const Schedule = require('./seeders/schedule.seeder');
  * @type {Object}
  */
 const seedersList = {
-  Users,
+  User,
   Question,
   Schedule
 };

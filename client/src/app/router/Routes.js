@@ -35,7 +35,7 @@ export const Routes = withRouter(({ history }) => {
       <Switch>
         {!isAuthorized ? (
           /* Render auth page when user at `/auth` and not authorized. */
-          <Route path="/auth/login" component={AuthPage} />
+          <Route path="/auth" component={AuthPage} />
         ) : (
           /* Otherwise redirect to root page (`/`) */
           <Redirect from="/auth" to={userLastLocation} />

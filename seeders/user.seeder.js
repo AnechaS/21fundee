@@ -3,8 +3,10 @@ const User = require('../models/user.model');
 
 const data = [
   {
-    email: 'root@email.com',
+    email: 'administration@email.com',
     password: '123123',
+    name: 'administration',
+    role: 'super-admin'
   },
 ];
 
