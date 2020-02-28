@@ -1,57 +1,130 @@
-import { persistReducer } from "redux-persist";
+import { persistReducer, REHYDRATE } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { put, takeLatest } from "redux-saga/effects";
 import { getUserByToken } from "../../crud/auth.crud";
 import * as routerHelpers from "../../router/RouterHelpers";
+import { toAbsoluteUrl } from "../../../_metronic/utils/utils";
 
 export const actionTypes = {
   Login: "[Login] Action",
   Logout: "[Logout] Action",
   Register: "[Register] Action",
+  RefreshToken: "[Refresh Token] Action",
   UserRequested: "[Request User] Action",
   UserLoaded: "[Load User] Auth API"
 };
 
 const initialAuthState = {
   user: undefined,
-  authToken: undefined
+  authToken: undefined,
+  refreshToken: undefined,
+  expiresAt: ""
 };
 
 export const reducer = persistReducer(
-    { storage, key: "demo1-auth", whitelist: ["user", "authToken"] },
-    (state = initialAuthState, action) => {
-      switch (action.type) {
-        case actionTypes.Login: {
-          const { authToken } = action.payload;
+  {
+    storage,
+    key: "auth",
+    whitelist: ["user", "authToken", "refreshToken", "expiresAt"]
+  },
+  (state = initialAuthState, action) => {
 
-          return { authToken, user: undefined };
-        }
+    switch (action.type) {
+      case actionTypes.Login: {
+        const { token, user } = action.payload;
 
-        case actionTypes.Register: {
-          const { authToken } = action.payload;
+        return {
+          authToken: token.accessToken,
+          expiresAt: token.expiresIn,
+          refreshToken: token.refreshToken,
+          user: {
+            pic: toAbsoluteUrl("/media/users/300_25.jpg"),
+            fullname: user.username,
+            occupation: "CEO",
+            companyName: "Keenthemes",
+            phone: "456669067890",
+            address: {
+              addressLine: "L-12-20 Vertex, Cybersquare",
+              city: "San Francisco",
+              state: "California",
+              postCode: "45000"
+            },
+            socialNetworks: {
+              linkedIn: "https://linkedin.com/admin",
+              facebook: "https://facebook.com/admin",
+              twitter: "https://twitter.com/admin",
+              instagram: "https://instagram.com/admin"
+            },
+            ...user
+          }
+        };
+      }
 
-          return { authToken, user: undefined };
-        }
+      case actionTypes.Register: {
+        const { authToken } = action.payload;
 
-        case actionTypes.Logout: {
-          routerHelpers.forgotLastLocation();
-          return initialAuthState;
-        }
+        return { authToken, user: undefined };
+      }
 
-        case actionTypes.UserLoaded: {
-          const { user } = action.payload;
+      case actionTypes.Logout: {
+        routerHelpers.forgotLastLocation();
+        return initialAuthState;
+      }
 
-          return { ...state, user };
-        }
+      case actionTypes.UserLoaded: {
+        const { user } = action.payload;
 
-        default:
-          return state;
+        return { 
+          ...state, 
+          user: {
+            pic: toAbsoluteUrl("/media/users/300_25.jpg"),
+            fullname: user.username,
+            occupation: "CEO",
+            companyName: "Keenthemes",
+            phone: "456669067890",
+            address: {
+              addressLine: "L-12-20 Vertex, Cybersquare",
+              city: "San Francisco",
+              state: "California",
+              postCode: "45000"
+            },
+            socialNetworks: {
+              linkedIn: "https://linkedin.com/admin",
+              facebook: "https://facebook.com/admin",
+              twitter: "https://twitter.com/admin",
+              instagram: "https://instagram.com/admin"
+            },
+            ...user
+          }
+        };
+      }
+
+      case actionTypes.RefreshToken: {
+        const { token } = action.payload;
+        return {
+          ...state,
+          authToken: token.accessToken,
+          refreshToken: token.refreshToken,
+          expiresAt: token.expiresIn
+        };
+      }
+
+      default: {
+        return state;
       }
     }
+  }
 );
 
 export const actions = {
-  login: authToken => ({ type: actionTypes.Login, payload: { authToken } }),
+  login: (token, user) => ({
+    type: actionTypes.Login,
+    payload: { token, user }
+  }),
+  requestToken: token => ({
+    type: actionTypes.RefreshToken,
+    payload: { token }
+  }),
   register: authToken => ({
     type: actionTypes.Register,
     payload: { authToken }
@@ -62,15 +135,23 @@ export const actions = {
 };
 
 export function* saga() {
-  yield takeLatest(actionTypes.Login, function* loginSaga() {
-    yield put(actions.requestUser());
+  // init page
+  yield takeLatest(REHYDRATE, function* userCurrent(action) {
+    if (action.key === "auth" && typeof action.payload.user !== "undefined") {
+      yield put(actions.requestUser());
+    }
   });
+
+  // action login
+  // yield takeLatest(actionTypes.Login, function* loginSaga() {
+  //   yield put(actions.requestUser());
+  // });
 
   yield takeLatest(actionTypes.Register, function* registerSaga() {
     yield put(actions.requestUser());
   });
 
-  yield takeLatest(actionTypes.UserRequested, function* userRequested() {
+  yield takeLatest(actionTypes.UserRequested, function*() {
     const { data: user } = yield getUserByToken();
 
     yield put(actions.fulfillUser(user));

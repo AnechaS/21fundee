@@ -5,7 +5,7 @@ const data = [
   {
     email: 'administration@email.com',
     password: '123123',
-    name: 'administration',
+    username: 'administration',
     role: 'super-admin'
   },
 ];

@@ -172,3 +172,18 @@ describe('GET /users', () => {
   //     });
   // });
 });
+
+
+describe('GET /users/me', () => {
+  it('should get user with token', () => {
+    return request(app)
+      .get('/users/me')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .expect(httpStatus.OK)
+      .then(async (res) => {
+        const bran = await format(dbUsers.branStark);
+        const includesBranStark = some(res.body, bran);
+        expect(includesBranStark).toBeDefined();
+      });
+  });
+});

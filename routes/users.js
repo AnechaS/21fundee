@@ -13,4 +13,13 @@ router.get('/', authorize('admin'), async (req, res, next) => {
   }
 });
 
+router.get('/me', authorize(), async (req, res, next) => {
+  try {
+    const users = await User.findById(req.user.id).select('-password');
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

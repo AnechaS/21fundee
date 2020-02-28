@@ -1,14 +1,24 @@
 /* eslint-disable no-script-url,jsx-a11y/anchor-is-valid */
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
 import { connect } from "react-redux";
 import { toAbsoluteUrl } from "../../../_metronic";
+import * as auth from "../../store/ducks/auth.duck";
+import { logout } from "../../crud/auth.crud";
 import HeaderDropdownToggle from "../content/CustomDropdowns/HeaderDropdownToggle";
 
 class UserProfile extends React.Component {
+  state = {
+    isLogouted: false
+  }
+
   render() {
     const { user, showHi, showAvatar, showBadge } = this.props;
+
+    if (this.state.isLogouted) {
+      return <Redirect to="/logout" />
+    }
 
     return (
       <Dropdown className="kt-header__topbar-item kt-header__topbar-item--user" drop="down" alignRight>
@@ -114,12 +124,16 @@ class UserProfile extends React.Component {
               </div>
             </a>
             <div className="kt-notification__custom">
-              <Link
-                to="/logout"
+              <button
                 className="btn btn-label-brand btn-sm btn-bold"
+                onClick={() => {
+                  logout().finally(() => {
+                    this.setState({ isLogouted: true });
+                  })
+                }}
               >
                 Sign Out
-              </Link>
+              </button>
             </div>
           </div>
         </Dropdown.Menu>
@@ -129,7 +143,7 @@ class UserProfile extends React.Component {
 }
 
 const mapStateToProps = ({ auth: { user } }) => ({
-  user
+  user,
 });
 
-export default connect(mapStateToProps)(UserProfile);
+export default connect(mapStateToProps, auth.actions)(UserProfile);

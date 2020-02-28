@@ -16,14 +16,14 @@ beforeEach(async () => {
   dbUser = {
     email: 'branstark@gmail.com',
     password: 'mypassword',
-    name: 'Bran Stark',
+    username: 'Bran Stark',
     role: 'admin',
   };
 
   user = {
     email: 'sousa.dfs@gmail.com',
     password: '123456',
-    name: 'Daniel Sousa',
+    username: 'Daniel Sousa',
   };
 
   refreshToken = {
@@ -61,9 +61,9 @@ describe('POST /auth/register', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-
+    
     delete user.password;
-      
+
     expect(agent.body.token).toHaveProperty('tokenType', 'Bearer');
     expect(agent.body.token).toHaveProperty('accessToken');
     expect(agent.body.token).toHaveProperty('refreshToken');
@@ -131,7 +131,7 @@ describe('POST /auth/login', () => {
       .expect(httpStatus.OK);
 
     delete dbUser.password;
-        
+    
     expect(agent.body.token).toHaveProperty('tokenType', 'Bearer');
     expect(agent.body.token).toHaveProperty('accessToken');
     expect(agent.body.token).toHaveProperty('refreshToken');
@@ -193,7 +193,7 @@ describe('POST /auth/refresh-token', () => {
     await RefreshToken.create(refreshToken);
     const agent = await request(app)
       .post('/auth/refresh-token')
-      .send({ email: dbUser.email, refreshToken: refreshToken.token })
+      .send({ refreshToken: refreshToken.token })
       .expect(httpStatus.OK);
 
     expect(agent.body).toHaveProperty('accessToken');
@@ -225,5 +225,26 @@ describe('POST /auth/refresh-token', () => {
         expect(res.body.code).toBe(401);
         expect(res.body.message).toBe('Invalid refresh token.');
       });
+  });
+});
+
+describe('POST /auth/logout', () => {
+  let userLogined;
+  beforeEach(async () => {
+    userLogined = await request(app)
+      .post('/auth/login')
+      .send(dbUser)
+      .expect(httpStatus.OK)
+      .then(response => response.body);
+  });
+
+  it('should delete refresh with token', async () => {
+    const agent = await request(app)
+      .post('/auth/logout')
+      .send({ refreshToken: userLogined.token.refreshToken })
+      .expect(httpStatus.NO_CONTENT);
+    
+    expect(agent.body).toEqual({});
+    await expect(RefreshToken.findOne({ token: userLogined.token.refreshToken })).resolves.toBeNull();
   });
 });

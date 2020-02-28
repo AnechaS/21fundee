@@ -2,8 +2,8 @@ const express = require('express');
 const { body } = require('express-validator');
 const httpStatus = require('http-status');
 const moment = require('moment');
-const appConfig = require('../config');
 const _ = require('lodash');
+const appConfig = require('../config');
 const APIError = require('../utils/APIError');
 const validator = require('../middlewares/validator');
 
@@ -124,6 +124,21 @@ router.post('/refresh-token', validator([
     const user = refreshObject.user;
     const response = generateTokenResponse(user, user.token());
     return res.json(response);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// TODO logout
+router.post('/logout', validator([
+  body('refreshToken', 'Is required')
+    .trim()
+    .isLength({ min: 1 })
+]), async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    await RefreshToken.remove({ token: refreshToken });
+    return res.status(httpStatus.NO_CONTENT).end();
   } catch (error) {
     return next(error);
   }

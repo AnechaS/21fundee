@@ -18,7 +18,6 @@ const handleJWT = (req, res, next, roles) => async (err, user, info) => {
         throw new APIError({
           message: error ? error.message : 'Forbidden',
           status: httpStatus.FORBIDDEN,
-          stack: error ? error.stack : undefined,
         });
       }
     }

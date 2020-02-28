@@ -69,9 +69,10 @@ function Login(props) {
               enableLoading();
               setTimeout(() => {
                 login(values.email, values.password)
-                  .then(({ data: { accessToken } }) => {
+                  .then(({ data: { token, user } }) => {
                     disableLoading();
-                    props.login(accessToken);
+                    
+                    props.login(token, user);
                   })
                   .catch(() => {
                     disableLoading();

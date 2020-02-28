@@ -17,7 +17,7 @@
   "scripts": {
     "start": "node ./bin/server",
     "server": "cross-env NODE_ENV=production node ./bin/server",
-    "server-dev": "cross-env DEBUG=21fundee:* node ./bin/server",
+    "server-dev": "node ./bin/server",
     "client": "node ./bin/client",
     "seed": "md-seed run",
     "seed-drop": "md-seed run --dropdb",

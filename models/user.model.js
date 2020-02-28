@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
     minlength: 6,
     maxlength: 128
   },
-  name: {
+  username: {
     type: String,
     maxlength: 128,
     index: true,
@@ -70,7 +70,7 @@ UserSchema.pre('save', async function save(next) {
 UserSchema.method({
   transform() {
     const transformed = {};
-    const fields = ['id', 'name', 'email', 'picture', 'role', 'createdAt'];
+    const fields = ['id', 'username', 'email', 'picture', 'role', 'createdAt'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
