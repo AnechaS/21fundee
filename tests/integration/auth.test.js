@@ -4,7 +4,7 @@ const httpStatus = require('http-status');
 const moment = require('moment');
 
 const app = require('../../app');
-const RefreshToken = require('../../models/refreshToken.model');
+const SessionToken = require('../../models/sessionToken.model');
 const User = require('../../models/user.model');
 
 let dbUser;
@@ -43,10 +43,8 @@ beforeEach(async () => {
   };
 
   await User.deleteMany({});
-  const savedUser = await User.create(dbUser);
-  refreshToken.user = savedUser._id;
-  expiredRefreshToken.user = savedUser._id;
-  await RefreshToken.deleteMany({});
+  await User.create(dbUser);
+  await SessionToken.deleteMany({});
 });
 
 afterAll(async () => {
@@ -64,11 +62,8 @@ describe('POST /auth/register', () => {
     
     delete user.password;
 
-    expect(agent.body.token).toHaveProperty('tokenType', 'Bearer');
-    expect(agent.body.token).toHaveProperty('accessToken');
-    expect(agent.body.token).toHaveProperty('refreshToken');
-    expect(agent.body.token).toHaveProperty('expiresIn');
-    expect(agent.body.user).toMatchObject(user);
+    expect(agent.body).toHaveProperty('sessionToken');
+    expect(agent.body).toMatchObject(user);
   });
 
   it('should report error when email already exists', async () => {
@@ -86,12 +81,10 @@ describe('POST /auth/register', () => {
   });
 
   it('should report error when the email provided is not valid', async () => {
+    user.email = 'this_is_not_an_email';
     const agent = await request(app)
       .post('/auth/register')
-      .send({ 
-        ...user,
-        email: 'this_is_not_an_email'
-      })
+      .send(user)
       .expect(httpStatus.BAD_REQUEST);
 
     const errors = agent.body.errors[0];
@@ -129,15 +122,12 @@ describe('POST /auth/login', () => {
       .post('/auth/login')
       .send(dbUser)
       .expect(httpStatus.OK);
-
+    
     delete dbUser.password;
     
-    expect(agent.body.token).toHaveProperty('tokenType', 'Bearer');
-    expect(agent.body.token).toHaveProperty('accessToken');
-    expect(agent.body.token).toHaveProperty('refreshToken');
-    expect(agent.body.token).toHaveProperty('expiresIn');
-    expect(agent.body.user).toMatchObject(dbUser);
-  });
+    expect(agent.body).toHaveProperty('sessionToken');
+    expect(agent.body).toMatchObject(dbUser);
+  }); 
 
   it('should report error when email and password are not provided', async () => {
     const agent = await request(app)
@@ -162,13 +152,13 @@ describe('POST /auth/login', () => {
   });
 
   it('should report error when the email provided is not valid', async () => {
+    dbUser.email = 'this_is_not_an_email';
+
     const agent = await request(app)
       .post('/auth/login')
-      .send({
-        ...user,
-        email: 'this_is_not_an_email'
-      })
+      .send(dbUser)
       .expect(httpStatus.BAD_REQUEST);
+      
     const errors = agent.body.errors[0];
     expect(errors.field).toBe('email');
     expect(errors.location).toBe('body');
@@ -188,46 +178,6 @@ describe('POST /auth/login', () => {
   });
 });
 
-describe('POST /auth/refresh-token', () => {
-  it('should return a new accessToken when refreshToken and email match', async () => {
-    await RefreshToken.create(refreshToken);
-    const agent = await request(app)
-      .post('/auth/refresh-token')
-      .send({ refreshToken: refreshToken.token })
-      .expect(httpStatus.OK);
-
-    expect(agent.body).toHaveProperty('accessToken');
-    expect(agent.body).toHaveProperty('refreshToken');
-    expect(agent.body).toHaveProperty('expiresIn');
-  });
-
-  it('should report error when refreshToken are not provided', () => {
-    return request(app)
-      .post('/auth/refresh-token')
-      .send({})
-      .expect(httpStatus.BAD_REQUEST)
-      .then((res) => {
-        const errors = res.body.errors[0];
-        expect(errors.field).toBe('refreshToken');
-        expect(errors.location).toBe('body');
-        expect(errors.message).toBe('Is required');
-      });
-  });
-
-  it('should report error when the refreshToken is expired', async () => {
-    await RefreshToken.create(expiredRefreshToken);
-
-    return request(app)
-      .post('/auth/refresh-token')
-      .send({ email: dbUser.email, refreshToken: expiredRefreshToken.token })
-      .expect(httpStatus.UNAUTHORIZED)
-      .then((res) => {
-        expect(res.body.code).toBe(401);
-        expect(res.body.message).toBe('Invalid refresh token.');
-      });
-  });
-});
-
 describe('POST /auth/logout', () => {
   let userLogined;
   beforeEach(async () => {
@@ -238,13 +188,13 @@ describe('POST /auth/logout', () => {
       .then(response => response.body);
   });
 
-  it('should delete refresh with token', async () => {
+  it('should delete session token the user', async () => {
     const agent = await request(app)
       .post('/auth/logout')
-      .send({ refreshToken: userLogined.token.refreshToken })
+      .set('Authorization', `Bearer ${userLogined.sessionToken}`)
       .expect(httpStatus.NO_CONTENT);
     
     expect(agent.body).toEqual({});
-    await expect(RefreshToken.findOne({ token: userLogined.token.refreshToken })).resolves.toBeNull();
+    await expect(SessionToken.findOne({ token: userLogined.sessionToken })).resolves.toBeNull();
   });
 });

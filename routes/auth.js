@@ -1,32 +1,15 @@
 const express = require('express');
 const { body } = require('express-validator');
 const httpStatus = require('http-status');
-const moment = require('moment');
 const _ = require('lodash');
-const appConfig = require('../config');
 const APIError = require('../utils/APIError');
 const validator = require('../middlewares/validator');
+const authorize = require('../middlewares/auth');
 
-const RefreshToken = require('../models/refreshToken.model');
+const SessionToken = require('../models/sessionToken.model');
 const User = require('../models/user.model');
 
 const router = express.Router();
-
-/**
- * Returns a formated object with tokens
- * @private
- */
-function generateTokenResponse(user, accessToken) {
-  const tokenType = 'Bearer';
-  const refreshToken = RefreshToken.generate(user).token;
-  const expiresIn = moment().add(appConfig.jwtExpirationInterval, 'minutes');
-  return {
-    tokenType,
-    accessToken,
-    refreshToken,
-    expiresIn,
-  };
-}
 
 /**
  * @api {post} auth/register Register
@@ -51,9 +34,9 @@ router.post('/register', validator([
     const userData = _.omit(req.body, 'role');
     const user = await new User(userData).save();
     const userTransformed = user.transform();
-    const token = generateTokenResponse(user, user.token());
+    const sessionToken = SessionToken.generate(user).token;
     res.status(httpStatus.CREATED);
-    return res.json({ token, user: userTransformed });
+    return res.json({ ...userTransformed, sessionToken });
   } catch (error) {
     return next(User.checkDuplicateEmail(error));
   }
@@ -80,64 +63,35 @@ router.post('/login', validator([
     .isLength({ max: 128 })
 ]), async (req, res, next) => {
   try {
-    const { user, accessToken } = await User.findAndGenerateToken(req.body);
-    const token = generateTokenResponse(user, accessToken);
-    const userTransformed = user.transform();
-    return res.json({ token, user: userTransformed });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email }).exec();
+    if (user && await user.passwordMatches(password)) {
+      const sessionToken = SessionToken.generate(user).token;
+      const userTransformed = user.transform();
+      return res.json({ ...userTransformed, sessionToken });
+    }
+
+    throw new APIError({
+      status: httpStatus.UNAUTHORIZED,
+      message: 'Incorrect email or password'
+    });
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {post} v1/auth/refresh-token Refresh Token
- * @apiDescription Refresh expired accessToken
+ * @api {post} v1/auth/logout Logout Token
+ * @apiDescription Logout user
  * @apiVersion 1.0.0
- * @apiName RefreshToken
+ * @apiName Logout
  * @apiGroup Auth
  * @apiPermission public
  */
-router.post('/refresh-token', validator([
-  body('refreshToken', 'Is required')
-    .trim()
-    .isLength({ min: 1 })
-]), async (req, res, next) => {
+router.post('/logout', authorize(), async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
-    const refreshObject = await RefreshToken.findOneAndRemove({
-      token: refreshToken,
-    }).populate('user');
-    if (!refreshObject) {
-      throw new APIError({
-        status: httpStatus.UNAUTHORIZED,
-        message: 'Incorrect refreshToken'
-      });
-    }
-
-    if (moment(refreshObject.expiresAt).isBefore()) {
-      throw new APIError({
-        status: httpStatus.UNAUTHORIZED,
-        message: 'Invalid refresh token.'
-      });
-    }
-
-    const user = refreshObject.user;
-    const response = generateTokenResponse(user, user.token());
-    return res.json(response);
-  } catch (error) {
-    return next(error);
-  }
-});
-
-// TODO logout
-router.post('/logout', validator([
-  body('refreshToken', 'Is required')
-    .trim()
-    .isLength({ min: 1 })
-]), async (req, res, next) => {
-  try {
-    const { refreshToken } = req.body;
-    await RefreshToken.remove({ token: refreshToken });
+    const token = req.headers.authorization.replace('Bearer ', '');
+    await SessionToken.remove({ token });
     return res.status(httpStatus.NO_CONTENT).end();
   } catch (error) {
     return next(error);

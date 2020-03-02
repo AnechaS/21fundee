@@ -9,55 +9,27 @@ export const actionTypes = {
   Login: "[Login] Action",
   Logout: "[Logout] Action",
   Register: "[Register] Action",
-  RefreshToken: "[Refresh Token] Action",
   UserRequested: "[Request User] Action",
   UserLoaded: "[Load User] Auth API"
 };
 
 const initialAuthState = {
   user: undefined,
-  authToken: undefined,
-  refreshToken: undefined,
-  expiresAt: ""
+  authToken: undefined
 };
 
 export const reducer = persistReducer(
   {
     storage,
     key: "auth",
-    whitelist: ["user", "authToken", "refreshToken", "expiresAt"]
+    whitelist: ["user", "authToken"]
   },
   (state = initialAuthState, action) => {
-
     switch (action.type) {
       case actionTypes.Login: {
-        const { token, user } = action.payload;
+        const { authToken } = action.payload;
 
-        return {
-          authToken: token.accessToken,
-          expiresAt: token.expiresIn,
-          refreshToken: token.refreshToken,
-          user: {
-            pic: toAbsoluteUrl("/media/users/300_25.jpg"),
-            fullname: user.username,
-            occupation: "CEO",
-            companyName: "Keenthemes",
-            phone: "456669067890",
-            address: {
-              addressLine: "L-12-20 Vertex, Cybersquare",
-              city: "San Francisco",
-              state: "California",
-              postCode: "45000"
-            },
-            socialNetworks: {
-              linkedIn: "https://linkedin.com/admin",
-              facebook: "https://facebook.com/admin",
-              twitter: "https://twitter.com/admin",
-              instagram: "https://instagram.com/admin"
-            },
-            ...user
-          }
-        };
+        return { authToken, user: undefined };
       }
 
       case actionTypes.Register: {
@@ -74,8 +46,8 @@ export const reducer = persistReducer(
       case actionTypes.UserLoaded: {
         const { user } = action.payload;
 
-        return { 
-          ...state, 
+        return {
+          ...state,
           user: {
             pic: toAbsoluteUrl("/media/users/300_25.jpg"),
             fullname: user.username,
@@ -99,16 +71,6 @@ export const reducer = persistReducer(
         };
       }
 
-      case actionTypes.RefreshToken: {
-        const { token } = action.payload;
-        return {
-          ...state,
-          authToken: token.accessToken,
-          refreshToken: token.refreshToken,
-          expiresAt: token.expiresIn
-        };
-      }
-
       default: {
         return state;
       }
@@ -117,13 +79,9 @@ export const reducer = persistReducer(
 );
 
 export const actions = {
-  login: (token, user) => ({
+  login: (authToken, user) => ({
     type: actionTypes.Login,
-    payload: { token, user }
-  }),
-  requestToken: token => ({
-    type: actionTypes.RefreshToken,
-    payload: { token }
+    payload: { authToken, user }
   }),
   register: authToken => ({
     type: actionTypes.Register,
@@ -142,10 +100,9 @@ export function* saga() {
     }
   });
 
-  // action login
-  // yield takeLatest(actionTypes.Login, function* loginSaga() {
-  //   yield put(actions.requestUser());
-  // });
+  yield takeLatest(actionTypes.Login, function* loginSaga() {
+    yield put(actions.requestUser());
+  });
 
   yield takeLatest(actionTypes.Register, function* registerSaga() {
     yield put(actions.requestUser());

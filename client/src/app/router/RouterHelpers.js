@@ -1,6 +1,6 @@
 import * as utils from "../../_metronic/utils/utils";
 
-const localStorageLastLocationKey = "demo1-lastLocation";
+const localStorageLastLocationKey = "lastLocation";
 
 function acceptLocation(lastLocation) {
   if (

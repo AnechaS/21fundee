@@ -21,14 +21,14 @@ export default function AuthPage() {
                 backgroundImage: `url(${toAbsoluteUrl("/media/bg/bg-4.jpg")})`
               }}
             >
-              <div className="kt-grid__item">
+              {/* <div className="kt-grid__item">
                 <Link to="/" className="kt-login__logo">
                   <img
                     alt="Logo"
                     src={toAbsoluteUrl("/media/logos/logo-4.png")}
                   />
                 </Link>
-              </div>
+              </div> */}
               <div className="kt-grid__item kt-grid__item--fluid kt-grid kt-grid--ver">
                 <div className="kt-grid__item kt-grid__item--middle">
                   <h3 className="kt-login__title">Welcome to Metronic!</h3>

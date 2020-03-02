@@ -1,4 +1,5 @@
 const express = require('express');
+const { omit } = require('lodash');
 const authorize = require('../middlewares/auth');
 const User = require('../models/user.model');
 
@@ -15,8 +16,8 @@ router.get('/', authorize('admin'), async (req, res, next) => {
 
 router.get('/me', authorize(), async (req, res, next) => {
   try {
-    const users = await User.findById(req.user.id).select('-password');
-    res.json(users);
+    const user = omit(req.user, ['sessionToken']);
+    res.json(user);
   } catch (error) {
     next(error);
   }

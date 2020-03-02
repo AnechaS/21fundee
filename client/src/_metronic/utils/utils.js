@@ -1,7 +1,4 @@
-import moment from "moment";
-import { isEmpty } from "lodash";
-import { actions } from "../../app/store/ducks/auth.duck";
-import { REQUEST_TOKEN_INTERVAL_ADVANCE } from "./constants";
+import { actions } from '../../app/store/ducks/auth.duck';
 
 export function removeCSSClass(ele, cls) {
   const reg = new RegExp("(\\s|^)" + cls + "(\\s|$)");
@@ -14,60 +11,18 @@ export function addCSSClass(ele, cls) {
 
 export const toAbsoluteUrl = pathname => process.env.PUBLIC_URL + pathname;
 
+// TODO add headers api key
 export function setupAxios(axios, store) {
   axios.interceptors.request.use(
-    async config => {
-      const { authToken, refreshToken, expiresAt } = store.getState().auth;
-      let transformAuthToken = authToken;
+    config => {
+      const {
+        auth: { authToken }
+      } = store.getState();
 
-      // refresh token when expires
-      if (
-        !isEmpty(refreshToken) &&
-        !isEmpty(expiresAt) &&
-        moment(expiresAt)
-          .subtract(REQUEST_TOKEN_INTERVAL_ADVANCE, "minutes")
-          .isBefore()
-      ) {
-        try {
-          console.log('REFRASH_TOKEN_BEFORE_REQUEST');
-
-          // request to refresh token
-          const response = await fetch("/auth/refresh-token", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ refreshToken })
-          });
-
-          if (!response.ok) {
-            throw new Error(response.statusText);
-          }
-
-          const json = await response.json();
-          if (typeof json !== "undefined") {
-            // dispatch refresh token
-            store.dispatch(actions.requestToken(json));
-
-            transformAuthToken = json.accessToken;
-          }
-        } catch (error) {
-          if (error.message === "Unauthorized") {
-            // dispatch logout when request response status unauthorized
-            setTimeout(() => {
-              store.dispatch(actions.logout());
-            }, 250);
-            // Operation cancel request
-            throw new axios.Cancel("Unauthorized");
-          }
-        }
-      }
-
-      // set access token in headers request when auth
       if (authToken) {
-        config.headers.Authorization = `Bearer ${transformAuthToken}`;
+        config.headers.Authorization = `Bearer ${authToken}`;
       }
-      
+
       return config;
     },
     err => Promise.reject(err)
@@ -75,45 +30,9 @@ export function setupAxios(axios, store) {
 
   axios.interceptors.response.use(
     response => response,
-    async error => {
-      const {
-        response: { status, data },
-        config
-      } = error;
-      const { refreshToken } = store.getState().auth;
-
-      if (
-        status === 401 &&
-        Object.hasOwnProperty.call(data, "message") &&
-        data.message === "jwt expired" &&
-        !isEmpty(refreshToken) &&
-        config.__isRetryRequest
-      ) {
-        console.log('REFRASH_TOKEN_ARTER_REQUEST');
-
-        const response = await fetch("/auth/refresh-token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ refreshToken })
-        });
-        if (response.ok) {
-          config.__isRetryRequest = true;
-
-          const json = await response.json();
-
-          // dispatch refresh token
-          store.dispatch(actions.requestToken(json));
-
-          // replace the expired token and retry
-          config.headers.Authorization = "Bearer " + json.accessToken;
-          return axios(config);
-        }
-      }
-
+    error => {
       // dispatch logout where unauthorized
-      if (status === 401) {
+      if (error.response.status === 401) {
         setTimeout(() => {
           store.dispatch(actions.logout());
         }, 250);

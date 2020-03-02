@@ -1,17 +1,38 @@
-const { ExtractJwt, Strategy } = require('passport-jwt');
-const appConfig = require('./config');
+const Strategy = require('passport-http-bearer');
+const SessionToken = require('./models/sessionToken.model');
 
-const jwtOptions = {
-  secretOrKey: appConfig.jwtSecret,
-  jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('Bearer'),
+// SessionToken.findOne({ token })
+//   .populate('user', '-password')
+//   .then(result => {
+//     if (!result) { 
+//       return done(null, false);
+//     }
+
+//     const user = result.user.toObject();
+//     return done(null, {
+//       ...user,
+//       sessionToken: token
+//     });
+//   }).catch(error => {
+//     return done(error); 
+//   });
+  
+const bearer = async (token, done) => {
+  SessionToken.findOne({ token })
+    .populate('user', '-password')
+    .then(result => {
+      if (!result) { 
+        return done(null, false);
+      }
+
+      const user = result.user.toObject();
+      return done(null, {
+        ...user,
+        sessionToken: token
+      });
+    }).catch(error => {
+      return done(error); 
+    });
 };
 
-const jwt = async (payload, done) => {
-  try {
-    return done(null, payload.sub);
-  } catch (error) {
-    return done(error, false);
-  }
-};
-
-module.exports = new Strategy(jwtOptions, jwt);
+module.exports = new Strategy(bearer);

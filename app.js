@@ -19,9 +19,7 @@ const schedulesRouter = require('./routes/schedules');
 const messagesRouter = require('./routes/messages');
 const chatfuelRouter = require('./routes/chatfuel');
 
-// set mongoose Promise to Bluebird
 mongoose.Promise = Promise;
-
 mongoose.connect(appConfig.mongodb, {
   useNewUrlParser: true,
   keepAlive: 1,
@@ -41,7 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // enable authentication
 app.use(passport.initialize());
-passport.use('jwt', strategies);
+passport.use('bearer', strategies);
 
 // app.use('/', indexRouter);
 app.use('/auth', authRouter);
@@ -59,7 +57,6 @@ app.use((req, res, next) => {
 // error handler
 app.use((err, req, res, next) => {
   let convertedError = err;
-
   if (!(err instanceof APIError)) {
     convertedError = new APIError({
       message: err.message,

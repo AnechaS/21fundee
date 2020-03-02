@@ -83,7 +83,7 @@ const initialState = {
 export const reducer = persistReducer(
   {
     storage,
-    key: "build-demo1",
+    key: "build",
     blacklist: ["htmlClassServiceObjects"]
   },
   (state = initialState, { type, payload }) => {
