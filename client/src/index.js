@@ -22,7 +22,8 @@ import "./_metronic/_assets/plugins/flaticon2/flaticon.css";
  *
  * @see https://facebook.github.io/create-react-app/docs/using-the-public-folder
  */
-const { PUBLIC_URL } = process.env;
+const { PUBLIC_URL, REACT_APP_API_URL } = process.env;
+
 
 /**
  * Creates `axios-mock-adapter` instance for provided `axios` instance, add
@@ -37,6 +38,7 @@ const { PUBLIC_URL } = process.env;
  *
  * @see https://github.com/axios/axios#interceptors
  */
+axios.defaults.baseURL = REACT_APP_API_URL;
 setupAxios(axios, store);
 
 ReactDOM.render(
