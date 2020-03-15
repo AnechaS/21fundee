@@ -20,7 +20,9 @@
     "server-dev": "node ./bin/server",
     "client": "node ./bin/client",
     "seed": "md-seed run",
+    "seed-prod": "cross-env NODE_ENV=production md-seed run",
     "seed-drop": "md-seed run --dropdb",
+    "seed-drop-prod": "cross-env NODE_ENV=production md-seed run --dropdb",
     "test": "jest",
     "lint": "eslint .",
     "postinstall": "node postinstall.js"
@@ -38,9 +40,7 @@
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "mongoose": "^5.8.0",
-    "morgan": "~1.9.1",
-    "passport": "^0.4.1",
-    "passport-http-bearer": "^1.0.1"
+    "morgan": "~1.9.1"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "^1.1.3",

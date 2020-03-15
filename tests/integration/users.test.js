@@ -82,24 +82,22 @@ describe('GET /users', () => {
   it('should get all users', () => {
     return request(app)
       .get('/users')
-      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .set('Authorization', adminAccessToken)
       .expect(httpStatus.OK)
       .then(async (res) => {
-        console.log(res.body);
-        
-        // const bran = await format(dbUsers.branStark);
-        // const john = await format(dbUsers.jonSnow);
-        // // before comparing it is necessary to convert String to Date
-        // res.body[0].createdAt = new Date(res.body[0].createdAt);
-        // res.body[1].createdAt = new Date(res.body[1].createdAt);
+        const bran = await format(dbUsers.branStark);
+        const john = await format(dbUsers.jonSnow);
+        // before comparing it is necessary to convert String to Date
+        res.body[0].createdAt = new Date(res.body[0].createdAt);
+        res.body[1].createdAt = new Date(res.body[1].createdAt);
 
-        // const includesBranStark = some(res.body, bran);
-        // const includesjonSnow = some(res.body, john);
+        const includesBranStark = some(res.body, bran);
+        const includesjonSnow = some(res.body, john);
 
-        // expect(res.body).toBeInstanceOf(Array);
-        // expect(res.body).toHaveLength(2);
-        // expect(includesBranStark).toBeDefined();
-        // expect(includesjonSnow).toBeDefined();
+        expect(res.body).toBeInstanceOf(Array);
+        expect(res.body).toHaveLength(2);
+        expect(includesBranStark).toBeDefined();
+        expect(includesjonSnow).toBeDefined();
       });
   });
 
@@ -182,14 +180,12 @@ describe('GET /users/me', () => {
   it('should get user with token', () => {
     return request(app)
       .get('/users/me')
-      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .set('Authorization', adminAccessToken)
       .expect(httpStatus.OK)
       .then(async (res) => {
-        console.log(res.body);
-        
-        // const bran = await format(dbUsers.branStark);
-        // const includesBranStark = some(res.body, bran);
-        // expect(includesBranStark).toBeDefined();
+        const bran = await format(dbUsers.branStark);
+        const includesBranStark = some(res.body, bran);
+        expect(includesBranStark).toBeDefined();
       });
   });
 });

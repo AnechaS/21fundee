@@ -6,9 +6,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
-const passport = require('passport');
 const appConfig = require('./config');
-const strategies = require('./passport');
 const APIError = require('./utils/APIError');
 
 // const indexRouter = require('./routes/index');
@@ -20,7 +18,7 @@ const messagesRouter = require('./routes/messages');
 const chatfuelRouter = require('./routes/chatfuel');
 
 mongoose.Promise = Promise;
-mongoose.connect(appConfig.mongodb, {
+mongoose.connect(appConfig.mongoURI, {
   useNewUrlParser: true,
   keepAlive: 1,
   useUnifiedTopology: true,
@@ -36,10 +34,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-// enable authentication
-app.use(passport.initialize());
-passport.use('bearer', strategies);
 
 // app.use('/', indexRouter);
 app.use('/auth', authRouter);
@@ -69,11 +63,11 @@ app.use((err, req, res, next) => {
     code: convertedError.status,
     message: convertedError.message || httpStatus[convertedError.status],
     errors: convertedError.errors,
-    stack: convertedError.stack,
+    // stack: convertedError.stack,
   };
 
   // if (req.app.get('env') !== 'development') {
-  // delete response.stack;
+  //   delete response.stack;
   // }
 
   res.status(convertedError.status);

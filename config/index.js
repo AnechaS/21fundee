@@ -7,7 +7,7 @@ const env = process.env.NODE_ENV || 'development';
 switch (env) {
   case 'test': {
     parsed = {
-      mongodb: 'mongodb://localhost:27001/jest',
+      mongoURI: 'mongodb://localhost:27001/jest',
       port: 5561,
     };
     break;
@@ -27,5 +27,5 @@ switch (env) {
 }
 
 exports.env = env;
-exports.port = parsed.port;
-exports.mongodb = parsed.mongodb;
+exports.port = parsed.port || 3000;
+exports.mongoURI = parsed.mongoURI;

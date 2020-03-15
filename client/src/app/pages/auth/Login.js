@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Formik } from "formik";
 import { connect } from "react-redux";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { TextField } from "@material-ui/core";
 import clsx from "clsx";
 import * as auth from "../../store/ducks/auth.duck";
 import { login } from "../../crud/auth.crud";
@@ -27,15 +26,7 @@ function Login(props) {
 
   return (
     <>
-      <div className="kt-login__body">
-        <div className="kt-login__form">
-          <div className="kt-login__title">
-            <h3>
-              {/* https://github.com/formatjs/react-intl/blob/master/docs/Components.md#formattedmessage */}
-              <FormattedMessage id="AUTH.LOGIN.TITLE" />
-            </h3>
-          </div>
-
+      <div className="kt-login__signin">
           <Formik
             initialValues={{
               email: '',
@@ -45,7 +36,6 @@ function Login(props) {
               const errors = {};
 
               if (!values.email) {
-                // https://github.com/formatjs/react-intl/blob/master/docs/API.md#injection-api
                 errors.email = intl.formatMessage({
                   id: "AUTH.VALIDATION.REQUIRED_FIELD"
                 });
@@ -93,7 +83,8 @@ function Login(props) {
               handleChange,
               handleBlur,
               handleSubmit,
-              isSubmitting
+              isSubmitting,
+              submitCount
             }) => (
               <form
                 noValidate={true}
@@ -107,49 +98,64 @@ function Login(props) {
                   </div>
                 )}
 
-                <div className="form-group">
-                  <TextField
+                <div className="input-group">
+                  <input
                     type="email"
-                    label="Email"
-                    margin="normal"
-                    className="kt-width-full"
+                    className={`form-control ${clsx({ 
+                      'is-invalid': Boolean(submitCount && touched.email && errors.email) }) 
+                    }`}
                     name="email"
+                    placeholder="Email"
                     onBlur={handleBlur}
                     onChange={handleChange}
                     value={values.email}
-                    helperText={touched.email && errors.email}
-                    error={Boolean(touched.email && errors.email)}
                   />
+                  {(Boolean(submitCount && touched.email && errors.email)) && (
+                    <div id="email-error" className="error invalid-feedback">{errors.email}</div>
+                  )}
                 </div>
 
-                <div className="form-group">
-                  <TextField
+                <div className="input-group">
+                  <input
                     type="password"
-                    margin="normal"
-                    label="Password"
-                    className="kt-width-full"
+                    className="form-control"
+                    className={`form-control ${clsx({ 
+                      'is-invalid': Boolean(submitCount && touched.password && errors.password) }) 
+                    }`}
                     name="password"
+                    placeholder="Password"
                     onBlur={handleBlur}
                     onChange={handleChange}
                     value={values.password}
-                    helperText={touched.password && errors.password}
-                    error={Boolean(touched.password && errors.password)}
                   />
+                  {(Boolean(submitCount && touched.password && errors.password)) && (
+                    <div id="password-error" className="error invalid-feedback">{errors.password}</div>
+                  )}
+                </div>
+               
+                <div className="row kt-login__extra">
+                  <div className="col">
+                    <label className="kt-checkbox">
+                      <input type="checkbox" name="remember" /> Remember me
+                      <span></span>
+                    </label>
+                  </div>
+                  <div className="col kt-align-right">
+                    <Link
+                      to="/auth/forgot-password"
+                      className="kt-login__link"
+                    >
+                      <FormattedMessage id="AUTH.GENERAL.FORGOT_BUTTON" />
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="kt-login__actions">
-                  <Link
-                    to="/auth/forgot-password"
-                    className="kt-link kt-login__link-forgot"
-                  >
-                    <FormattedMessage id="AUTH.GENERAL.FORGOT_BUTTON" />
-                  </Link>
-
                   <button
                     id="kt_login_signin_submit"
                     type="submit"
                     disabled={isSubmitting}
-                    className={`btn btn-primary btn-elevate kt-login__btn-primary ${clsx(
+                    className={`btn btn-brand btn-elevate kt-login__btn-primary ${clsx(
                       {
                         "kt-spinner kt-spinner--right kt-spinner--md kt-spinner--light": loading
                       }
@@ -162,7 +168,7 @@ function Login(props) {
               </form>
             )}
           </Formik>
-        </div>
+        {/* </div> */}
       </div>
     </>
   );

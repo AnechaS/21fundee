@@ -27,7 +27,7 @@ RefreshTokenSchema.statics = {
    */
   generate(user) {
     const userId = user._id;
-    const token = `${userId}.${crypto.randomBytes(40).toString('hex')}`;
+    const token = `r:${userId}.${crypto.randomBytes(40).toString('hex')}`;
     const expiresAt = moment().add(30, 'days').toDate();
     const tokenObject = new RefreshToken({
       token, user, expiresAt,

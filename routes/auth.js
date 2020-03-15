@@ -71,10 +71,10 @@ router.post('/login', validator([
       return res.json({ ...userTransformed, sessionToken });
     }
 
-    throw new APIError({
+    return next(new APIError({
       status: httpStatus.UNAUTHORIZED,
       message: 'Incorrect email or password'
-    });
+    }));
   } catch (error) {
     return next(error);
   }
@@ -91,7 +91,7 @@ router.post('/login', validator([
 router.post('/logout', authorize(), async (req, res, next) => {
   try {
     const token = req.headers.authorization.replace('Bearer ', '');
-    await SessionToken.remove({ token });
+    await SessionToken.deleteOne({ token });
     return res.status(httpStatus.NO_CONTENT).end();
   } catch (error) {
     return next(error);

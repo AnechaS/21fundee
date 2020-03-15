@@ -19,7 +19,7 @@ const seedersList = {
  * Connect to mongodb implementation
  * @return {Promise}
  */
-const connect = async () => mongoose.connect(appConfig.mongodb, { 
+const connect = async () => mongoose.connect(appConfig.mongoURI, { 
   useNewUrlParser: true, 
   useUnifiedTopology: true 
 });

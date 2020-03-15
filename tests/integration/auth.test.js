@@ -9,8 +9,6 @@ const User = require('../../models/user.model');
 
 let dbUser;
 let user;
-let refreshToken;
-let expiredRefreshToken;
 
 beforeEach(async () => {
   dbUser = {
@@ -24,22 +22,6 @@ beforeEach(async () => {
     email: 'sousa.dfs@gmail.com',
     password: '123456',
     username: 'Daniel Sousa',
-  };
-
-  refreshToken = {
-    token: '5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d',
-    user: '5947397b323ae82d8c3a333b',
-    expiresAt: moment()
-      .add(1, 'day')
-      .toDate(),
-  };
-
-  expiredRefreshToken = {
-    token: '5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d',
-    user: '5947397b323ae82d8c3a333b',
-    expiresAt: moment()
-      .subtract(1, 'day')
-      .toDate(),
   };
 
   await User.deleteMany({});
@@ -126,7 +108,9 @@ describe('POST /auth/login', () => {
     delete dbUser.password;
     
     expect(agent.body).toHaveProperty('sessionToken');
-    expect(agent.body).toMatchObject(dbUser);
+    expect(agent.body.email).toBe(dbUser.email);
+    expect(agent.body.username).toBe(dbUser.username);
+    expect(agent.body).toHaveProperty('sessionToken');
   }); 
 
   it('should report error when email and password are not provided', async () => {
@@ -191,10 +175,31 @@ describe('POST /auth/logout', () => {
   it('should delete session token the user', async () => {
     const agent = await request(app)
       .post('/auth/logout')
-      .set('Authorization', `Bearer ${userLogined.sessionToken}`)
+      .set('Authorization', userLogined.sessionToken)
       .expect(httpStatus.NO_CONTENT);
     
     expect(agent.body).toEqual({});
     await expect(SessionToken.findOne({ token: userLogined.sessionToken })).resolves.toBeNull();
+  });
+
+  it('should report error when the sessionToken is expired', async () => {
+    const expires = moment()
+      .subtract(1, 'day')
+      .toDate();
+
+    await SessionToken.findOneAndUpdate(
+      { token: userLogined.sessionToken }, 
+      { expiresAt: expires }
+    );
+
+    const agent = await request(app)
+      .post('/auth/logout')
+      .set('Authorization', userLogined.sessionToken)
+      .expect(httpStatus.UNAUTHORIZED);
+    
+    const { code, message } = agent.body;
+
+    expect(code).toBe(401);
+    expect(message).toBe('Invalid session token.');
   });
 });

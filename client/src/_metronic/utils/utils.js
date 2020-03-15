@@ -20,7 +20,7 @@ export function setupAxios(axios, store) {
       } = store.getState();
 
       if (authToken) {
-        config.headers.Authorization = `Bearer ${authToken}`;
+        config.headers.Authorization = authToken;
       }
 
       return config;
