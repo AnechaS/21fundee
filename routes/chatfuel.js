@@ -18,98 +18,111 @@ const router = express.Router();
  * @apiDescription Update is exists or create a new people
  * @apiName UploadingPeopleData
  * @apiGroup Chatfuel
- * 
+ *
  * @apiPermission IP Chatfuel
  */
-router.post('/people', ipChatfuel, removeReqBodyWithNull, validator([  
-  body('uid', 'Is required').isLength({ min: 1 }) 
-]), async (req, res, next) => {
-  try {
-    const { uid, ...o } = req.body;
-    const people = await People.findByIdAndUpdate(uid, o, {
-      upsert: true,
-      new: true
-      // overwrite: true
-    });
-  
-    return res.status(httpStatus.CREATED).json(people);
-  } catch (error) {
-    return next(error);
+router.post(
+  '/people',
+  ipChatfuel,
+  removeReqBodyWithNull,
+  validator([body('uid', 'Is required').isLength({ min: 1 })]),
+  async (req, res, next) => {
+    try {
+      const { uid, ...o } = req.body;
+      const people = await People.findByIdAndUpdate(uid, o, {
+        upsert: true,
+        new: true,
+        // overwrite: true
+      });
+
+      return res.status(httpStatus.CREATED).json(people);
+    } catch (error) {
+      return next(error);
+    }
   }
-});
+);
 
 /**
  * @api {post} /chatfuel/message Uploading Message Data
  * @apiDescription Update is exists or create a new message
  * @apiName UploadingMessageData
  * @apiGroup Chatfuel
- * 
+ *
  * @apiPermission IP Chatfuel
  */
-router.post('/message', ipChatfuel, removeReqBodyWithNull, validator([
-  body('people', 'Is required')
-    .isLength({ min: 1 })
-    .bail()
-    .custom(value => People.findById(value).then(result => {
-      if (!result) {
-        return Promise.reject('Invalid value');
-      }
-    })),
-  body('schedule', 'Is required')
-    .isLength({ min: 1 })
-    .bail()
-    .isMongoId()
-    .withMessage('Invalid value')
-    .bail()
-    .custom(value => Schedule.findById(value).then(result => {
-      if (!result) {
-        return Promise.reject('Invalid value');
-      }
-    })),
-  body('quiz.answer')
-    .if(body('quiz').exists())
-    .isInt({ max: 10 })
-    .toInt(),
-  body('quiz.question')
-    .if(body('quiz').exists())
-    .notEmpty({ min: 1 })
-    .bail()
-    .isMongoId()
-    .withMessage('Invalid value'),
-]),
-async (req, res, next) => {
-  try {
-    const object = req.body;
-    if (typeof req.body.quiz !== 'undefined') {
-      // get question with id
-      const question = await Question.findById(req.body.quiz.question);
-      // if question not exists then throw
-      if (!question) {
-        throw new APIError({
-          message: 'Validation Error',
-          status: httpStatus.BAD_REQUEST,
-          errors: [{
-            field: 'quiz.question',
-            location: 'body',
-            message: 'Invalid value',
-          }],
-        });
+router.post(
+  '/message',
+  ipChatfuel,
+  removeReqBodyWithNull,
+  validator([
+    body('people', 'Is required')
+      .isLength({ min: 1 })
+      .bail()
+      .custom(value =>
+        People.findById(value).then(result => {
+          if (!result) {
+            return Promise.reject('Invalid value');
+          }
+        })
+      ),
+    body('schedule', 'Is required')
+      .isLength({ min: 1 })
+      .bail()
+      .isMongoId()
+      .withMessage('Invalid value')
+      .bail()
+      .custom(value =>
+        Schedule.findById(value).then(result => {
+          if (!result) {
+            return Promise.reject('Invalid value');
+          }
+        })
+      ),
+    body('quiz.answer')
+      .if(body('quiz').exists())
+      .isInt({ max: 10 })
+      .toInt(),
+    body('quiz.question')
+      .if(body('quiz').exists())
+      .notEmpty({ min: 1 })
+      .bail()
+      .isMongoId()
+      .withMessage('Invalid value'),
+  ]),
+  async (req, res, next) => {
+    try {
+      const object = req.body;
+      if (typeof req.body.quiz !== 'undefined') {
+        // get question with id
+        const question = await Question.findById(req.body.quiz.question);
+        // if question not exists then throw
+        if (!question) {
+          throw new APIError({
+            message: 'Validation Error',
+            status: httpStatus.BAD_REQUEST,
+            errors: [
+              {
+                field: 'quiz.question',
+                location: 'body',
+                message: 'Invalid value',
+              },
+            ],
+          });
+        }
+
+        object.quiz = {
+          question: question._id,
+          answer: req.body.quiz.answer,
+          isCorrect: question.corrects.includes(req.body.quiz.answer),
+        };
       }
 
-      object.quiz = {
-        question: question._id,
-        answer: req.body.quiz.answer,
-        isCorrect: question.corrects.includes(req.body.quiz.answer),
-      };
+      const message = await Message.create(object);
+      return res.status(httpStatus.CREATED).json(message);
+    } catch (error) {
+      return next(error);
     }
-
-    const message = await Message.create(object);
-    return res
-      .status(httpStatus.CREATED)
-      .json(message);
-  } catch (error) {
-    return next(error);
   }
-});
+);
 
 module.exports = router;

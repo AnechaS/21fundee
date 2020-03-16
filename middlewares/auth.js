@@ -23,7 +23,7 @@ const handleAuthorize = async (req, res, next, roles) => {
       'user',
       '-password'
     );
-    
+
     // check session token is exists database
     if (!sessionToken) {
       return next(apiError);
@@ -31,16 +31,16 @@ const handleAuthorize = async (req, res, next, roles) => {
 
     // check session token is expires
     if (moment(sessionToken.expiresAt).isBefore()) {
-      apiError.message = 'Invalid session token.';
+      apiError.message = 'Session token expired.';
       return next(apiError);
     }
 
-    const user = sessionToken.user.toObject();
+    const user = sessionToken.user;
 
     // check roles the user
     if (roles.length) {
       if (!roles.includes(user.role)) {
-        apiError.message = 'Invalid Forbidden token.';
+        apiError.message = 'Forbidden';
         apiError.status = httpStatus.FORBIDDEN;
         return next(apiError);
       }

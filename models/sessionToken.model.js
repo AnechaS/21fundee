@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const moment = require('moment');
 
-const RefreshTokenSchema = new mongoose.Schema({
+const SessionTokenSchema = new mongoose.Schema({
   token: {
     type: String,
     required: true,
@@ -14,28 +14,32 @@ const RefreshTokenSchema = new mongoose.Schema({
     required: true,
   },
   expiresAt: {
-    type: Date
-  }
+    type: Date,
+  },
 });
 
-RefreshTokenSchema.statics = {
+SessionTokenSchema.statics = {
   /**
    * Generate a refresh token object and saves it into the database
    *
    * @param {User} user
-   * @returns {RefreshToken}
+   * @returns {SessionToken}
    */
   generate(user) {
     const userId = user._id;
     const token = `r:${userId}.${crypto.randomBytes(40).toString('hex')}`;
-    const expiresAt = moment().add(30, 'days').toDate();
-    const tokenObject = new RefreshToken({
-      token, user, expiresAt,
+    const expiresAt = moment()
+      .add(30, 'days')
+      .toDate();
+    const tokenObject = new SessionToken({
+      token,
+      user,
+      expiresAt,
     });
     tokenObject.save();
     return tokenObject;
   },
 };
 
-const RefreshToken = mongoose.model('RefreshToken', RefreshTokenSchema);
-module.exports = RefreshToken;
+const SessionToken = mongoose.model('SessionToken', SessionTokenSchema);
+module.exports = SessionToken;

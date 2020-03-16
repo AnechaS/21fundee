@@ -5,8 +5,8 @@ const appConfig = require('../config');
 const APIError = require('../utils/APIError');
 
 /**
-* User Roles
-*/
+ * User Roles
+ */
 const roles = ['super-admin', 'admin'];
 
 const UserSchema = new mongoose.Schema({
@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 6,
-    maxlength: 128
+    maxlength: 128,
   },
   username: {
     type: String,
@@ -68,9 +68,9 @@ UserSchema.pre('save', async function save(next) {
 UserSchema.method({
   transform() {
     const transformed = {};
-    const fields = ['id', 'username', 'email', 'picture'];
+    const fields = ['_id', 'username', 'email'];
 
-    fields.forEach((field) => {
+    fields.forEach(field => {
       transformed[field] = this[field];
     });
 
@@ -98,11 +98,13 @@ UserSchema.statics = {
     if (error.name === 'MongoError' && error.code === 11000) {
       return new APIError({
         message: 'Validation Error',
-        errors: [{
-          field: 'email',
-          location: 'body',
-          message: 'already exists',
-        }],
+        errors: [
+          {
+            field: 'email',
+            location: 'body',
+            message: 'already exists',
+          },
+        ],
         status: httpStatus.CONFLICT,
         stack: error.stack,
       });

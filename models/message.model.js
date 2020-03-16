@@ -1,45 +1,48 @@
 const mongoose = require('mongoose');
 
-const MessageSchema = new mongoose.Schema({
-  people: {
-    type: String,
-    ref: 'People'
-  },
-  schedule: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Schedule',
-    required: true
-  },
-  text: {
-    type: String,
-    trim: true
-  },
-  image: {
-    type: String,
-    trim: true
-  },
-  botId: {
-    type: String,
-    trim: true
-  },
-  blockId: {
-    type: String,
-    trim: true
-  },
-  quiz: {
-    question: {
+const MessageSchema = new mongoose.Schema(
+  {
+    people: {
+      type: String,
+      ref: 'People',
+    },
+    schedule: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'question',
+      ref: 'Schedule',
+      required: true,
     },
-    answer: {
-      type: Number,
+    text: {
+      type: String,
+      trim: true,
     },
-    isCorrect: {
-      type: Boolean,
+    image: {
+      type: String,
+      trim: true,
     },
+    botId: {
+      type: String,
+      trim: true,
+    },
+    blockId: {
+      type: String,
+      trim: true,
+    },
+    quiz: {
+      question: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'question',
+      },
+      answer: {
+        type: Number,
+      },
+      isCorrect: {
+        type: Boolean,
+      },
+    },
+  },
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 module.exports = mongoose.model('Message', MessageSchema);

@@ -9,13 +9,7 @@ const mongoose = require('mongoose');
 const appConfig = require('./config');
 const APIError = require('./utils/APIError');
 
-// const indexRouter = require('./routes/index');
-const authRouter = require('./routes/auth');
-const usersRouter = require('./routes/users');
-const peoplesRouter = require('./routes/peoples');
-const schedulesRouter = require('./routes/schedules');
-const messagesRouter = require('./routes/messages');
-const chatfuelRouter = require('./routes/chatfuel');
+const routes = require('./routes');
 
 mongoose.Promise = Promise;
 mongoose.connect(appConfig.mongoURI, {
@@ -23,7 +17,7 @@ mongoose.connect(appConfig.mongoURI, {
   keepAlive: 1,
   useUnifiedTopology: true,
   useCreateIndex: true,
-  useFindAndModify: false
+  useFindAndModify: false,
 });
 
 const app = express();
@@ -35,13 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/', indexRouter);
-app.use('/auth', authRouter);
-app.use('/users', usersRouter);
-app.use('/peoples', peoplesRouter);
-app.use('/schedules', schedulesRouter);
-app.use('/messages', messagesRouter);
-app.use('/chatfuel', chatfuelRouter);
+app.use('/', routes);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

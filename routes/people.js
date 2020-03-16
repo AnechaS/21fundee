@@ -2,6 +2,7 @@ const express = require('express');
 const httpStatus = require('http-status');
 const People = require('../models/people.model');
 const APIError = require('../utils/APIError');
+const authorize = require('../middlewares/auth');
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.param('id', async (req, res, next, id) => {
     // object id is not exists
     throw new APIError({
       message: 'Object not found.',
-      status: httpStatus.NOT_FOUND
+      status: httpStatus.NOT_FOUND,
     });
   } catch (error) {
     return next(error);
@@ -34,7 +35,7 @@ router.param('id', async (req, res, next, id) => {
  * @apiName ListPeoples
  * @apiGroup People
  */
-router.get('/', async (req, res, next) => {
+router.get('/', authorize(), async (req, res, next) => {
   try {
     const peoples = await People.find();
     return res.json(peoples);
@@ -49,9 +50,10 @@ router.get('/', async (req, res, next) => {
  * @apiName CreatePeople
  * @apiGroup People
  */
-router.post('/', async (req, res, next) => {
+router.post('/', authorize(), async (req, res, next) => {
   try {
-    const people = await People.create(req.body);
+    const object = req.body;
+    const people = await People.create(object);
     return res.status(httpStatus.CREATED).json(people);
   } catch (error) {
     return next(error);
@@ -64,7 +66,7 @@ router.post('/', async (req, res, next) => {
  * @apiName Getpeople
  * @apiGroup people
  */
-router.get('/:id', async(req, res, next) => {
+router.get('/:id', authorize(), async (req, res, next) => {
   try {
     const people = req.people;
     return res.json(people);
@@ -73,21 +75,21 @@ router.get('/:id', async(req, res, next) => {
   }
 });
 
-
 /**
  * @api {put} /peoples/:id Update People
  * @apiDescription Update some fields of a people document
  * @apiName UpdatePeople
  * @apiGroup People
  */
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authorize(), async (req, res, next) => {
   try {
-    const people = Object.assign(req.people, req.body);
+    const object = req.body;
+    const people = Object.assign(req.people, object);
     const savedPeople = await people.save();
     return res.json(savedPeople);
   } catch (error) {
     console.log(error);
-    
+
     return next(error);
   }
 });
@@ -98,7 +100,7 @@ router.put('/:id', async (req, res, next) => {
  * @apiName DeleteUser
  * @apiGroup People
  */
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authorize(), async (req, res, next) => {
   try {
     const people = req.people;
     await people.remove();

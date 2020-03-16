@@ -1,8 +1,10 @@
 const express = require('express');
 const httpStatus = require('http-status');
-const Schedule = require('../models/schedule.model');
 const mongoose = require('mongoose');
 const APIError = require('../utils/APIError');
+const authorize = require('../middlewares/auth');
+
+const Schedule = require('../models/schedule.model');
 
 const router = express.Router();
 
@@ -35,7 +37,7 @@ router.param('id', async (req, res, next, id) => {
  * @apiName ListSchedules
  * @apiGroup Schedule
  */
-router.get('/', async (req, res, next) => {
+router.get('/', authorize(), async (req, res, next) => {
   try {
     const schedule = await Schedule.find();
     return res.json(schedule);
@@ -50,12 +52,11 @@ router.get('/', async (req, res, next) => {
  * @apiName CreateSchedule
  * @apiGroup Schedule
  */
-router.post('/', async (req, res, next) => {
+router.post('/', authorize(), async (req, res, next) => {
   try {
-    const schedule = await Schedule.create(req.body);
-    return res
-      .status(httpStatus.CREATED)
-      .json(schedule);
+    const object = req.body;
+    const schedule = await Schedule.create(object);
+    return res.status(httpStatus.CREATED).json(schedule);
   } catch (error) {
     return next(error);
   }
@@ -67,7 +68,7 @@ router.post('/', async (req, res, next) => {
  * @apiName GetSchedule
  * @apiGroup Schedule
  */
-router.get('/:id', async(req, res, next) => {
+router.get('/:id', authorize(), async (req, res, next) => {
   try {
     const schedule = req.schedule;
     return res.json(schedule);
@@ -81,10 +82,13 @@ router.get('/:id', async(req, res, next) => {
  * @apiDescription Update some fields of a schedule document
  * @apiName UpdateSchedule
  * @apiGroup Schedule
+ *
+ * TODO Update _id
  */
-router.put('/:id', async(req, res, next) => {
+router.put('/:id', authorize(), async (req, res, next) => {
   try {
-    const schedule = Object.assign(req.schedule, req.body);
+    const object = req.body;
+    const schedule = Object.assign(req.schedule, object);
     const savedSchedule = await schedule.save();
     return res.json(savedSchedule);
   } catch (error) {
@@ -98,7 +102,7 @@ router.put('/:id', async(req, res, next) => {
  * @apiName DeleteSchedule
  * @apiGroup Schedule
  */
-router.delete('/:id', async(req, res, next) => {
+router.delete('/:id', authorize(), async (req, res, next) => {
   try {
     const schedule = req.schedule;
     await schedule.remove();
