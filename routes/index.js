@@ -5,7 +5,7 @@ const userRouters = require('./user');
 const peopleRouters = require('./people');
 const scheduleRouters = require('./schedule');
 const questionRouters = require('./question');
-const messageRouters = require('./message');
+const conversationRouters = require('./conversation');
 const chatfuelRouters = require('./chatfuel');
 
 const router = express.Router();
@@ -15,7 +15,7 @@ router.use('/users', userRouters);
 router.use('/peoples', peopleRouters);
 router.use('/schedules', scheduleRouters);
 router.use('/questions', questionRouters);
-router.use('/messages', messageRouters);
+router.use('/conversations', conversationRouters);
 router.use('/chatfuel', chatfuelRouters);
 
 module.exports = router;

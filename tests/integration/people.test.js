@@ -11,7 +11,7 @@ const People = require('../../models/people.model');
 mongoose.Promise = global.Promise;
 
 let sessionToken;
-let peoples;
+let dbPeoples;
 let people;
 
 beforeEach(async () => {
@@ -20,25 +20,13 @@ beforeEach(async () => {
   await People.deleteMany({});
 
   const passwordHashed = await bcrypt.hash('1234', 1);
-  const dbUser = {
+  const savedUser = await User.create({
     email: 'jonsnow@gmail.com',
     password: passwordHashed,
     username: 'Jon Snow',
     role: 'admin',
-  };
-
-  const dbPeoples = [
-    {
-      firstName: 'Sara',
-      lastName: 'De',
-      province: 'สงขลา',
-      district: 'เทพา',
-      dentalId: 'x',
-      childName: 'Ant',
-      childBirthday: '2560',
-      gender: 'male',
-    },
-  ];
+  });
+  sessionToken = SessionToken.generate(savedUser).token;
 
   people = {
     firstName: 'Makus',
@@ -51,11 +39,19 @@ beforeEach(async () => {
     gender: 'male',
   };
 
-  const savedUser = await User.create(dbUser);
-  sessionToken = SessionToken.generate(savedUser).token;
-
-  const savedPeoples = await People.insertMany(dbPeoples);
-  peoples = JSON.parse(JSON.stringify(savedPeoples));
+  const savedPeoples = await People.insertMany([
+    {
+      firstName: 'Sara',
+      lastName: 'De',
+      province: 'สงขลา',
+      district: 'เทพา',
+      dentalId: 'x',
+      childName: 'Ant',
+      childBirthday: '2560',
+      gender: 'male',
+    },
+  ]);
+  dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
 });
 
 afterAll(async () => {
@@ -70,7 +66,7 @@ describe('GET /peoples', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(peoples);
+    expect(agent.body).toEqual(dbPeoples);
   });
 
   test.todo('add should get all peoples with pagination');
@@ -99,12 +95,12 @@ describe('POST /peoples', () => {
 describe('GET /peoples/:id', () => {
   test('should get the peoples', async () => {
     const agent = await request(app)
-      .get(`/peoples/${peoples[0]._id}`)
+      .get(`/peoples/${dbPeoples[0]._id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(peoples[0]);
+    expect(agent.body).toEqual(dbPeoples[0]);
   });
 
   test('should report error when peoples does not exists', async () => {
@@ -122,7 +118,7 @@ describe('GET /peoples/:id', () => {
 describe('PUT /peoples/:id', () => {
   test('should update the people', async () => {
     const agent = await request(app)
-      .put(`/peoples/${peoples[0]._id}`)
+      .put(`/peoples/${dbPeoples[0]._id}`)
       .send(people)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
@@ -147,11 +143,11 @@ describe('PUT /peoples/:id', () => {
 describe('DELETE /peoples', () => {
   test('should delete the people', async () => {
     const agent = await request(app)
-      .delete(`/peoples/${peoples[0]._id}`)
+      .delete(`/peoples/${dbPeoples[0]._id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(People.findById(peoples[0]._id)).resolves.toBeNull();
+    await expect(People.findById(dbPeoples[0]._id)).resolves.toBeNull();
   });
 
   test('should report error when people does not exists', async () => {

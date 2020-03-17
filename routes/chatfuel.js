@@ -7,9 +7,10 @@ const validator = require('../middlewares/validator');
 const ipChatfuel = require('../middlewares/ipChatfuel');
 
 const People = require('../models/people.model');
-const Message = require('../models/message.model');
+const Conversation = require('../models/conversation.model');
 const Schedule = require('../models/schedule.model');
 const Question = require('../models/question.model');
+const Quiz = require('../models/quiz.model');
 
 const router = express.Router();
 
@@ -25,11 +26,14 @@ router.post(
   '/people',
   ipChatfuel,
   removeReqBodyWithNull,
-  validator([body('uid', 'Is required').isLength({ min: 1 })]),
+  validator([
+    body('id', 'Is required').exists(),
+    body('botId', 'Is required').exists(),
+  ]),
   async (req, res, next) => {
     try {
-      const { uid, ...o } = req.body;
-      const people = await People.findByIdAndUpdate(uid, o, {
+      const { id, ...o } = req.body;
+      const people = await People.findByIdAndUpdate(id, o, {
         upsert: true,
         new: true,
         // overwrite: true
@@ -43,20 +47,21 @@ router.post(
 );
 
 /**
- * @api {post} /chatfuel/message Uploading Message Data
- * @apiDescription Update is exists or create a new message
+ * @api {post} /chatfuel/conversation Uploading Conversation Data
+ * @apiDescription Update is exists or create a new conversation
  * @apiName UploadingMessageData
  * @apiGroup Chatfuel
  *
  * @apiPermission IP Chatfuel
  */
 router.post(
-  '/message',
+  '/replies',
   ipChatfuel,
   removeReqBodyWithNull,
   validator([
-    body('people', 'Is required')
-      .isLength({ min: 1 })
+    body('people')
+      .exists()
+      .withMessage('Is required')
       .bail()
       .custom(value =>
         People.findById(value).then(result => {
@@ -65,11 +70,11 @@ router.post(
           }
         })
       ),
-    body('schedule', 'Is required')
-      .isLength({ min: 1 })
+    body('schedule')
+      .exists()
+      .withMessage('Is required')
       .bail()
       .isMongoId()
-      .withMessage('Invalid value')
       .bail()
       .custom(value =>
         Schedule.findById(value).then(result => {
@@ -78,6 +83,15 @@ router.post(
           }
         })
       ),
+    body('conversation')
+      .exists()
+      .withMessage('Is required')
+      .bail()
+      .custom(value => value.constructor === Object)
+      .bail()
+      .custom(value => Object.keys(value).length),
+    body('botId', 'Is required').exists(),
+    body('blockId', 'Is required').exists(),
     body('quiz.answer')
       .if(body('quiz').exists())
       .isInt({ max: 10 })
@@ -91,11 +105,17 @@ router.post(
   ]),
   async (req, res, next) => {
     try {
-      const object = req.body;
-      if (typeof req.body.quiz !== 'undefined') {
-        // get question with id
-        const question = await Question.findById(req.body.quiz.question);
-        // if question not exists then throw
+      const { conversation, quiz, ...o } = req.body;
+
+      const savedConversation = await Conversation.create({
+        ...o,
+        ...conversation,
+      });
+
+      // check body has quiz
+      if (typeof quiz !== 'undefined') {
+        const question = await Question.findById(quiz.question);
+        // check question is exists
         if (!question) {
           throw new APIError({
             message: 'Validation Error',
@@ -104,21 +124,22 @@ router.post(
               {
                 field: 'quiz.question',
                 location: 'body',
-                message: 'Invalid value',
+                conversation: 'Invalid value',
               },
             ],
           });
         }
 
-        object.quiz = {
+        await Quiz.create({
+          ...o,
+          conversation: savedConversation._id,
           question: question._id,
-          answer: req.body.quiz.answer,
-          isCorrect: question.corrects.includes(req.body.quiz.answer),
-        };
+          answer: quiz.answer,
+          isCorrectAnswer: question.correctAnswers.includes(quiz.answer),
+        });
       }
 
-      const message = await Message.create(object);
-      return res.status(httpStatus.CREATED).json(message);
+      return res.status(httpStatus.CREATED).json({ result: true });
     } catch (error) {
       return next(error);
     }

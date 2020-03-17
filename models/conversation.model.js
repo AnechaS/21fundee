@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 
-const MessageSchema = new mongoose.Schema(
+const replyTypes = ['button', 'freeform'];
+
+const ConversationSchema = new mongoose.Schema(
   {
     people: {
       type: String,
       ref: 'People',
+      required: true,
     },
     schedule: {
       type: mongoose.Schema.Types.ObjectId,
@@ -19,25 +22,25 @@ const MessageSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    reply: {
+      type: {
+        type: String,
+        enum: replyTypes,
+      },
+      value: {
+        type: String,
+        trim: true,
+      },
+    },
     botId: {
       type: String,
       trim: true,
+      required: true,
     },
     blockId: {
       type: String,
       trim: true,
-    },
-    quiz: {
-      question: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'question',
-      },
-      answer: {
-        type: Number,
-      },
-      isCorrect: {
-        type: Boolean,
-      },
+      required: true,
     },
   },
   {
@@ -45,4 +48,4 @@ const MessageSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Message', MessageSchema);
+module.exports = mongoose.model('Conversation', ConversationSchema);

@@ -120,20 +120,18 @@ describe('POST /auth/login', () => {
       .send({})
       .expect(httpStatus.BAD_REQUEST);
 
-    expect(agent.body).toMatchObject({
-      errors: [
-        {
-          field: 'email',
-          location: 'body',
-          message: 'Is required',
-        },
-        {
-          field: 'password',
-          location: 'body',
-          message: 'Is required',
-        },
-      ],
-    });
+    expect(agent.body.errors).toEqual([
+      {
+        field: 'email',
+        location: 'body',
+        message: 'Is required',
+      },
+      {
+        field: 'password',
+        location: 'body',
+        message: 'Is required',
+      },
+    ]);
   });
 
   it('should report error when the email provided is not valid', async () => {

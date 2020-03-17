@@ -9,7 +9,7 @@ const SessionToken = require('../../models/sessionToken.model');
 const app = require('../../app');
 
 let sessionToken;
-let users;
+let dbUsers;
 let admin;
 
 beforeEach(async () => {
@@ -19,7 +19,13 @@ beforeEach(async () => {
   const password = '123456';
   const passwordHashed = await bcrypt.hash(password, 1);
 
-  const dbUsers = [
+  admin = {
+    email: 'sousa.dfs@gmail.com',
+    password,
+    username: 'Daniel Sousa',
+  };
+
+  const savedUsers = await User.insertMany([
     {
       email: 'jonsnow@gmail.com',
       password: passwordHashed,
@@ -32,19 +38,10 @@ beforeEach(async () => {
       username: 'Bran Stark',
       role: 'admin',
     },
-  ];
-
-  admin = {
-    email: 'sousa.dfs@gmail.com',
-    password,
-    username: 'Daniel Sousa',
-  };
-
-  const savedUsers = await User.insertMany(dbUsers);
-  // eslint-disable-next-line no-unused-vars
+  ]);
   const transformedUsers = savedUsers.map(o => o.transform());
-  users = JSON.parse(JSON.stringify(transformedUsers));
-  sessionToken = SessionToken.generate(users[0]).token;
+  dbUsers = JSON.parse(JSON.stringify(transformedUsers));
+  sessionToken = SessionToken.generate(dbUsers[0]).token;
 });
 
 afterAll(async () => {
@@ -58,7 +55,7 @@ describe('GET /users', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(users);
+    expect(agent.body).toEqual(dbUsers);
   });
 
   test.todo('add should get all users with pagination');
@@ -78,7 +75,8 @@ describe('GET /users/me', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(users[0]);
+
+    expect(agent.body).toEqual(dbUsers[0]);
   });
 
   test('should report error without stacktrace when accessToken is expired', async () => {
@@ -120,17 +118,21 @@ describe('POST /users', () => {
 
 describe('GET /users/:id', () => {
   test('should get the user', async () => {
+    const id = dbUsers[0]._id;
+
     const agent = await request(app)
-      .get(`/users/${users[0]._id}`)
+      .get(`/users/${id}`)
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toMatchObject(users[0]);
+    expect(agent.body).toMatchObject(dbUsers[0]);
   });
 
   test('should resport error when user does not exists', async () => {
+    const id = mongoose.Types.ObjectId();
+
     const agent = await request(app)
-      .get('/users/asdf')
+      .get(`/users/${id}`)
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.NOT_FOUND);
@@ -141,8 +143,10 @@ describe('GET /users/:id', () => {
 
 describe('PUT /users/:id', () => {
   test('should update the user', async () => {
+    const id = dbUsers[0]._id;
+
     const agent = await request(app)
-      .put(`/users/${users[0]._id}`)
+      .put(`/users/${id}`)
       .send(admin)
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -154,8 +158,10 @@ describe('PUT /users/:id', () => {
   });
 
   test('should resport error when user does not exists', async () => {
+    const id = mongoose.Types.ObjectId();
+
     const agent = await request(app)
-      .put('/users/asdf')
+      .put(`/users/${id}`)
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.NOT_FOUND);
@@ -166,17 +172,21 @@ describe('PUT /users/:id', () => {
 
 describe('DELETE /users/:id', () => {
   test('should delete the user', async () => {
+    const id = dbUsers[0]._id;
+
     const agent = await request(app)
-      .delete(`/users/${users[0]._id}`)
+      .delete(`/users/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(User.findById(users[0]._id)).resolves.toBeNull();
+    await expect(User.findById(dbUsers[0]._id)).resolves.toBeNull();
   });
 
   test('should resport error when user does not exists', async () => {
+    const id = mongoose.Types.ObjectId();
+
     const agent = await request(app)
-      .delete('/users/asdf')
+      .delete(`/users/${id}`)
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.NOT_FOUND);

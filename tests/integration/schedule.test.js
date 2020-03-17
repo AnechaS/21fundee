@@ -11,7 +11,7 @@ const Schedule = require('../../models/schedule.model');
 mongoose.Promise = global.Promise;
 
 let sessionToken;
-let schedules;
+let dbSchedules;
 let schedule;
 
 beforeEach(async () => {
@@ -20,29 +20,25 @@ beforeEach(async () => {
   await Schedule.deleteMany({});
 
   const passwordHashed = await bcrypt.hash('1234', 1);
-  const dbUser = {
+  const savedUser = await User.create({
     email: 'jonsnow@gmail.com',
     password: passwordHashed,
     username: 'Jon Snow',
     role: 'admin',
-  };
+  });
+  sessionToken = SessionToken.generate(savedUser).token;
 
-  const dbSchedules = [
+  schedule = { name: 'Day 3' };
+
+  const savedSchedules = await Schedule.insertMany([
     {
       name: 'Day 1',
     },
     {
       name: 'Day 2',
     },
-  ];
-
-  schedule = { name: 'Day 3' };
-
-  const savedUser = await User.create(dbUser);
-  sessionToken = SessionToken.generate(savedUser).token;
-
-  const savedSchedules = await Schedule.insertMany(dbSchedules);
-  schedules = JSON.parse(JSON.stringify(savedSchedules));
+  ]);
+  dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 });
 
 afterAll(async () => {
@@ -57,7 +53,7 @@ describe('GET /schedules', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(schedules);
+    expect(agent.body).toEqual(dbSchedules);
   });
 
   test.todo('add should get all schedules with pagination');
@@ -85,18 +81,22 @@ describe('POST /schedules', () => {
 
 describe('GET /schedules/:id', () => {
   test('should get the schedule', async () => {
+    const id = dbSchedules[0]._id;
+
     const agent = await request(app)
-      .get(`/schedules/${schedules[0]._id}`)
+      .get(`/schedules/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(schedules[0]);
+    expect(agent.body).toEqual(dbSchedules[0]);
   });
 
   test('should report error when schedules does not exists', async () => {
+    const id = mongoose.Types.ObjectId();
+
     const agent = await request(app)
-      .get('/schedules/asdfghj')
+      .get(`/schedules/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -108,22 +108,26 @@ describe('GET /schedules/:id', () => {
 
 describe('PUT /schedules', () => {
   test('should update the schedule', async () => {
+    const id = dbSchedules[0]._id;
+
     const agent = await request(app)
-      .put(`/schedules/${schedules[0]._id}`)
+      .put(`/schedules/${id}`)
       .send(schedule)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body._id).toBe(schedules[0]._id);
+    expect(agent.body._id).toBe(dbSchedules[0]._id);
     expect(agent.body.name).toBe(schedule.name);
   });
 
   test.todo('add should update and change "_id" the schedule');
 
   test('should report error when schedules does not exists', async () => {
+    const id = mongoose.Types.ObjectId();
+
     const agent = await request(app)
-      .put('/schedules/asdfghj')
+      .put(`/schedules/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -135,17 +139,21 @@ describe('PUT /schedules', () => {
 
 describe('DELETE /schedules', () => {
   test('should delete the schedule', async () => {
+    const id = dbSchedules[0]._id;
+
     const agent = await request(app)
-      .delete(`/schedules/${schedules[0]._id}`)
+      .delete(`/schedules/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(Schedule.findById(schedules[0]._id)).resolves.toBeNull();
+    await expect(Schedule.findById(dbSchedules[0]._id)).resolves.toBeNull();
   });
 
   test('should report error when schedules does not exists', async () => {
+    const id = mongoose.Types.ObjectId();
+
     const agent = await request(app)
-      .delete('/schedules/5e412c6d163c750001096478')
+      .delete(`/schedules/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NOT_FOUND);
     expect(agent.body.code).toBe(404);

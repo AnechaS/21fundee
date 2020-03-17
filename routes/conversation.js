@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const APIError = require('../utils/APIError');
 const authorize = require('../middlewares/auth');
 
-const Message = require('../models/message.model');
+const Conversation = require('../models/conversation.model');
 
 const router = express.Router();
 
@@ -14,9 +14,9 @@ const router = express.Router();
 router.param('id', async (req, res, next, id) => {
   try {
     if (mongoose.Types.ObjectId.isValid(id)) {
-      const message = await Message.findById(id);
-      if (message) {
-        req.message = message;
+      const conversation = await Conversation.findById(id);
+      if (conversation) {
+        req.conversation = conversation;
         return next();
       }
     }
@@ -32,14 +32,14 @@ router.param('id', async (req, res, next, id) => {
 });
 
 /**
- * @api {get} /messages List Messages
+ * @api {get} /conversations List Conversations
  * @apiDescription Get a list of messages
- * @apiName ListMessages
- * @apiGroup Message
+ * @apiName ListConversations
+ * @apiGroup Conversation
  */
 router.get('/', authorize(), async (req, res, next) => {
   try {
-    const message = await Message.find()
+    const message = await Conversation.find()
       .populate('people')
       .populate('schedule');
     return res.json(message);
@@ -49,46 +49,60 @@ router.get('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {post} /messages Create Message
+ * @api {post} /conversations Create Conversation
  * @apiDescription Create a new message
- * @apiName CreateMessage
- * @apiGroup Message
+ * @apiName CreateConversation
+ * @apiGroup Conversation
  */
 router.post('/', authorize(), async (req, res, next) => {
   try {
-    const message = await Message.create(req.body);
-    return res.status(httpStatus.CREATED).json(message);
+    const object = req.body;
+    const conversation = await Conversation.create(object);
+    return res.status(httpStatus.CREATED).json(conversation);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/:id', authorize(), async (req, res, next) => {
+  try {
+    const conversation = await req.conversation
+      .populate('people')
+      .populate('schedule')
+      .execPopulate();
+    return res.json(conversation);
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {put} /messages/:id Update Message
+ * @api {put} /conversations/:id Update Conversation
  * @apiDescription Update some fields of a message document
- * @apiName UpdateMessage
- * @apiGroup Message
+ * @apiName UpdateConversation
+ * @apiGroup Conversation
  */
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
-    const message = Object.assign(req.message, req.body);
-    const savedMessage = await message.save();
-    return res.json(savedMessage);
+    const object = req.body;
+    const conversation = Object.assign(req.conversation, object);
+    const savedConversation = await conversation.save();
+    return res.json(savedConversation);
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {delete} /messages/:id Delete a schedule
+ * @api {delete} /conversations/:id Delete a schedule
  * @apiDescription Delete a schedule
- * @apiName DeleteMessage
- * @apiGroup Message
+ * @apiName DeleteConversation
+ * @apiGroup Conversation
  */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {
-    const message = req.message;
-    await message.remove();
+    const conversation = req.conversation;
+    await conversation.remove();
     return res.status(httpStatus.NO_CONTENT).end();
   } catch (error) {
     return next(error);
