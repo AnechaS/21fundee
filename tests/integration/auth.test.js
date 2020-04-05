@@ -14,14 +14,14 @@ beforeEach(async () => {
   dbUser = {
     email: 'branstark@gmail.com',
     password: 'mypassword',
-    username: 'Bran Stark',
-    role: 'admin',
+    name: 'Bran Stark',
+    role: 'admin'
   };
 
   user = {
     email: 'sousa.dfs@gmail.com',
     password: '123456',
-    username: 'Daniel Sousa',
+    name: 'Daniel Sousa'
   };
 
   await User.deleteMany({});
@@ -110,7 +110,7 @@ describe('POST /auth/login', () => {
 
     expect(agent.body).toHaveProperty('sessionToken');
     expect(agent.body.email).toBe(dbUser.email);
-    expect(agent.body.username).toBe(dbUser.username);
+    expect(agent.body.name).toBe(dbUser.name);
     expect(agent.body).toHaveProperty('sessionToken');
   });
 
@@ -124,13 +124,13 @@ describe('POST /auth/login', () => {
       {
         field: 'email',
         location: 'body',
-        message: 'Is required',
+        message: 'Is required'
       },
       {
         field: 'password',
         location: 'body',
-        message: 'Is required',
-      },
+        message: 'Is required'
+      }
     ]);
   });
 

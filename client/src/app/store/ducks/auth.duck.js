@@ -1,4 +1,4 @@
-import { persistReducer, REHYDRATE } from "redux-persist";
+import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { put, takeLatest } from "redux-saga/effects";
 import { getUserByToken } from "../../crud/auth.crud";
@@ -49,24 +49,8 @@ export const reducer = persistReducer(
         return {
           ...state,
           user: {
-            pic: toAbsoluteUrl("/media/users/300_25.jpg"),
-            fullname: user.username,
-            occupation: "CEO",
-            companyName: "Keenthemes",
-            phone: "456669067890",
-            address: {
-              addressLine: "L-12-20 Vertex, Cybersquare",
-              city: "San Francisco",
-              state: "California",
-              postCode: "45000"
-            },
-            socialNetworks: {
-              linkedIn: "https://linkedin.com/admin",
-              facebook: "https://facebook.com/admin",
-              twitter: "https://twitter.com/admin",
-              instagram: "https://instagram.com/admin"
-            },
-            ...user
+            ...user,
+            pic: toAbsoluteUrl(user.pic || "/media/users/300_25.jpg")
           }
         };
       }
@@ -93,13 +77,6 @@ export const actions = {
 };
 
 export function* saga() {
-  // init page
-  yield takeLatest(REHYDRATE, function* userCurrent(action) {
-    if (action.key === "auth" && typeof action.payload.user !== "undefined") {
-      yield put(actions.requestUser());
-    }
-  });
-
   yield takeLatest(actionTypes.Login, function* loginSaga() {
     yield put(actions.requestUser());
   });
@@ -108,9 +85,8 @@ export function* saga() {
     yield put(actions.requestUser());
   });
 
-  yield takeLatest(actionTypes.UserRequested, function*() {
+  yield takeLatest(actionTypes.UserRequested, function* userRequested() {
     const { data: user } = yield getUserByToken();
-
     yield put(actions.fulfillUser(user));
   });
 }

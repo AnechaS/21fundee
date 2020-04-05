@@ -14,6 +14,16 @@ const ConversationSchema = new mongoose.Schema(
       ref: 'Schedule',
       required: true,
     },
+    botId: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    blockId: {
+      type: String,
+      trim: true,
+      required: true,
+    },
     text: {
       type: String,
       trim: true,
@@ -31,16 +41,6 @@ const ConversationSchema = new mongoose.Schema(
         type: String,
         trim: true,
       },
-    },
-    botId: {
-      type: String,
-      trim: true,
-      required: true,
-    },
-    blockId: {
-      type: String,
-      trim: true,
-      required: true,
     },
   },
   {

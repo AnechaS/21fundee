@@ -13,6 +13,7 @@ mongoose.Promise = global.Promise;
 let sessionToken;
 let dbPeoples;
 let people;
+const botId = 'asdfqwer';
 
 beforeEach(async () => {
   await User.deleteMany({});
@@ -24,7 +25,7 @@ beforeEach(async () => {
     email: 'jonsnow@gmail.com',
     password: passwordHashed,
     username: 'Jon Snow',
-    role: 'admin',
+    role: 'admin'
   });
   sessionToken = SessionToken.generate(savedUser).token;
 
@@ -37,6 +38,7 @@ beforeEach(async () => {
     childName: 'Bee',
     childBirthday: '2560',
     gender: 'male',
+    botId
   };
 
   const savedPeoples = await People.insertMany([
@@ -49,7 +51,8 @@ beforeEach(async () => {
       childName: 'Ant',
       childBirthday: '2560',
       gender: 'male',
-    },
+      botId
+    }
   ]);
   dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
 });
@@ -94,8 +97,10 @@ describe('POST /peoples', () => {
 
 describe('GET /peoples/:id', () => {
   test('should get the peoples', async () => {
+    const id = dbPeoples[0]._id;
+
     const agent = await request(app)
-      .get(`/peoples/${dbPeoples[0]._id}`)
+      .get(`/peoples/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -117,13 +122,16 @@ describe('GET /peoples/:id', () => {
 
 describe('PUT /peoples/:id', () => {
   test('should update the people', async () => {
+    const id = dbPeoples[0]._id;
+
     const agent = await request(app)
-      .put(`/peoples/${dbPeoples[0]._id}`)
+      .put(`/peoples/${id}`)
       .send(people)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
+    expect(agent.body._id).toBe(id);
     expect(agent.body).toMatchObject(people);
   });
 

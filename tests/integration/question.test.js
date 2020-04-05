@@ -122,6 +122,7 @@ describe('PUT /questions', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
+    expect(agent.body._id).toBe(id);
     expect(agent.body).toMatchObject(question);
   });
 

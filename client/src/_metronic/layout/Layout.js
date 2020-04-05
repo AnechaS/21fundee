@@ -5,14 +5,14 @@ import Header from "./header/Header";
 import SubHeader from "./sub-header/SubHeader";
 import HeaderMobile from "./header/HeaderMobile";
 import AsideLeft from "./aside/AsideLeft";
-import Footer from "./footer/Footer";
+// import Footer from "./footer/Footer";
 import ScrollTop from "../../app/partials/layout/ScrollTop";
 // import StickyToolbar from "../../app/partials/layout/StickyToolbar";
 import HTMLClassService from "./HTMLClassService";
 import LayoutConfig from "./LayoutConfig";
 import MenuConfig from "./MenuConfig";
 import LayoutInitializer from "./LayoutInitializer";
-import QuickPanel from "../../app/partials/layout/QuickPanel";
+// import QuickPanel from "../../app/partials/layout/QuickPanel";
 import KtContent from "./KtContent";
 import "./assets/Base.scss";
 
@@ -67,34 +67,28 @@ function Layout({
               className={`kt-content ${contentCssClasses} kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor`}
             >
               {/* <!-- begin:: Content Head --> */}
-              {subheaderDisplay && (
-                <SubHeader />
-              )}
+              {subheaderDisplay && <SubHeader />}
               {/* <!-- end:: Content Head --> */}
 
               {/* <!-- begin:: Content Body --> */}
               {/* TODO: add class to animate  kt-grid--animateContent-finished */}
-              <KtContent>
-                {children}
-              </KtContent>
+              <KtContent>{children}</KtContent>
               {/*<!-- end:: Content Body -->*/}
             </div>
             {/* <!-- end:: Content --> */}
-            <Footer />
+            {/* <Footer /> */}
           </div>
         </div>
         {/* <!-- end:: Body --> */}
       </div>
-      <QuickPanel />
+      {/* <QuickPanel /> */}
       <ScrollTop />
       {/* <StickyToolbar /> */}
     </LayoutInitializer>
   ) : (
     // BLANK LAYOUT
     <div className="kt-grid kt-grid--ver kt-grid--root">
-      <KtContent>
-        {children}
-      </KtContent>
+      <KtContent>{children}</KtContent>
     </div>
   );
 }

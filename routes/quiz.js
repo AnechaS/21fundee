@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const APIError = require('../utils/APIError');
 const authorize = require('../middlewares/auth');
 
-const Conversation = require('../models/conversation.model');
+const Quiz = require('../models/quiz.model');
 
 const router = express.Router();
 
@@ -14,9 +14,9 @@ const router = express.Router();
 router.param('id', async (req, res, next, id) => {
   try {
     if (mongoose.Types.ObjectId.isValid(id)) {
-      const conversation = await Conversation.findById(id);
-      if (conversation) {
-        req.conversation = conversation;
+      const quiz = await Quiz.findById(id);
+      if (quiz) {
+        req.quiz = quiz;
         return next();
       }
     }
@@ -24,7 +24,7 @@ router.param('id', async (req, res, next, id) => {
     // object id is not exists
     throw new APIError({
       message: 'Object not found.',
-      status: httpStatus.NOT_FOUND
+      status: httpStatus.NOT_FOUND,
     });
   } catch (error) {
     return next(error);
@@ -32,33 +32,34 @@ router.param('id', async (req, res, next, id) => {
 });
 
 /**
- * @api {get} /conversations List Conversations
- * @apiDescription Get a list of quiz
- * @apiName ListConversations
- * @apiGroup Conversation
+ * @api {get} /quizs List Quizs
+ * @apiDescription Get a list of quizs
+ * @apiName ListQuizs
+ * @apiGroup Quiz
  */
 router.get('/', authorize(), async (req, res, next) => {
   try {
-    const conversation = await Conversation.find()
+    const quiz = await Quiz.find()
       .populate('people')
-      .populate('schedule');
-    return res.json(conversation);
+      .populate('schedule')
+      .populate('conversation');
+    return res.json(quiz);
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {post} /conversations Create Conversation
- * @apiDescription Create a new convaersaiton
- * @apiName CreateConversation
- * @apiGroup Conversation
+ * @api {post} /quizs Create Quiz
+ * @apiDescription Create a new quiz
+ * @apiName CreateQuiz
+ * @apiGroup Quiz
  */
 router.post('/', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
-    const conversation = await Conversation.create(object);
-    return res.status(httpStatus.CREATED).json(conversation);
+    const quiz = await Quiz.create(object);
+    return res.status(httpStatus.CREATED).json(quiz);
   } catch (error) {
     return next(error);
   }
@@ -66,43 +67,44 @@ router.post('/', authorize(), async (req, res, next) => {
 
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
-    const conversation = await req.conversation
+    const quiz = await req.quiz
       .populate('people')
       .populate('schedule')
+      .populate('conversation')
       .execPopulate();
-    return res.json(conversation);
+    return res.json(quiz);
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {put} /conversations/:id Update Conversation
- * @apiDescription Update some fields of a conversation document
- * @apiName UpdateConversation
- * @apiGroup Conversation
+ * @api {put} /quizs/:id Update Quiz
+ * @apiDescription Update some fields of a quiz document
+ * @apiName UpdateQuiz
+ * @apiGroup Quiz
  */
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
-    const conversation = Object.assign(req.conversation, object);
-    const savedConversation = await conversation.save();
-    return res.json(savedConversation);
+    const quiz = Object.assign(req.quiz, object);
+    const savedQuiz = await quiz.save();
+    return res.json(savedQuiz);
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {delete} /conversations/:id Delete a schedule
+ * @api {delete} /quizs/:id Delete a schedule
  * @apiDescription Delete a schedule
- * @apiName DeleteConversation
- * @apiGroup Conversation
+ * @apiName DeleteQuiz
+ * @apiGroup Quiz
  */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {
-    const conversation = req.conversation;
-    await conversation.remove();
+    const quiz = req.quiz;
+    await quiz.remove();
     return res.status(httpStatus.NO_CONTENT).end();
   } catch (error) {
     return next(error);

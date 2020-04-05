@@ -11,17 +11,21 @@ import HeaderDropdownToggle from "../content/CustomDropdowns/HeaderDropdownToggl
 class UserProfile extends React.Component {
   state = {
     isLogouted: false
-  }
+  };
 
   render() {
     const { user, showHi, showAvatar, showBadge } = this.props;
 
     if (this.state.isLogouted) {
-      return <Redirect to="/logout" />
+      return <Redirect to="/logout" />;
     }
 
     return (
-      <Dropdown className="kt-header__topbar-item kt-header__topbar-item--user" drop="down" alignRight>
+      <Dropdown
+        className="kt-header__topbar-item kt-header__topbar-item--user"
+        drop="down"
+        alignRight
+      >
         <Dropdown.Toggle
           as={HeaderDropdownToggle}
           id="dropdown-toggle-user-profile"
@@ -35,7 +39,7 @@ class UserProfile extends React.Component {
 
             {showHi && (
               <span className="kt-header__topbar-username kt-hidden-mobile">
-                {user.fullname}
+                {user.name}
               </span>
             )}
 
@@ -129,7 +133,7 @@ class UserProfile extends React.Component {
                 onClick={() => {
                   logout().finally(() => {
                     this.setState({ isLogouted: true });
-                  })
+                  });
                 }}
               >
                 Sign Out
@@ -143,7 +147,7 @@ class UserProfile extends React.Component {
 }
 
 const mapStateToProps = ({ auth: { user } }) => ({
-  user,
+  user
 });
 
 export default connect(mapStateToProps, auth.actions)(UserProfile);

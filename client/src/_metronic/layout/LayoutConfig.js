@@ -1,7 +1,6 @@
 import { toAbsoluteUrl } from "../utils/utils";
 
 export const initLayoutConfig = {
-  demo: "demo1",
   // == Base Layout
   self: {
     layout: "fluid",
@@ -58,7 +57,7 @@ export const initLayoutConfig = {
     },
     menu: {
       self: {
-        display: true,
+        display: false,
         layout: "default",
         "root-arrow": false,
         "icon-style": "duotone"
@@ -85,9 +84,9 @@ export const initLayoutConfig = {
     displayDaterangepicker: true,
     layout: "subheader-v1",
     fixed: true,
-    width: 'fluid', // fixed|fluid,
+    width: "fluid", // fixed|fluid,
     clear: false,
-    style: 'solid'
+    style: "solid"
   },
   content: {
     width: "fluid"
@@ -127,7 +126,7 @@ export const initLayoutConfig = {
   },
   footer: {
     self: {
-      width: 'fluid',
+      width: "fluid",
       fixed: false
     }
   }

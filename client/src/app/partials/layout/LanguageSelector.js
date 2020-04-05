@@ -10,32 +10,32 @@ const languages = [
     lang: "en",
     name: "English",
     flag: toAbsoluteUrl("/media/flags/260-united-kingdom.svg")
-  },
-  {
-    lang: "zh",
-    name: "Mandarin",
-    flag: toAbsoluteUrl("/media/flags/034-china.svg")
-  },
-  {
-    lang: "es",
-    name: "Spanish",
-    flag: toAbsoluteUrl("/media/flags/128-spain.svg")
-  },
-  {
-    lang: "ja",
-    name: "Japanese",
-    flag: toAbsoluteUrl("/media/flags/063-japan.svg")
-  },
-  {
-    lang: "de",
-    name: "German",
-    flag: toAbsoluteUrl("/media/flags/162-germany.svg")
-  },
-  {
-    lang: "fr",
-    name: "French",
-    flag: toAbsoluteUrl("/media/flags/195-france.svg")
   }
+  // {
+  //   lang: "zh",
+  //   name: "Mandarin",
+  //   flag: toAbsoluteUrl("/media/flags/034-china.svg")
+  // },
+  // {
+  //   lang: "es",
+  //   name: "Spanish",
+  //   flag: toAbsoluteUrl("/media/flags/128-spain.svg")
+  // },
+  // {
+  //   lang: "ja",
+  //   name: "Japanese",
+  //   flag: toAbsoluteUrl("/media/flags/063-japan.svg")
+  // },
+  // {
+  //   lang: "de",
+  //   name: "German",
+  //   flag: toAbsoluteUrl("/media/flags/162-germany.svg")
+  // },
+  // {
+  //   lang: "fr",
+  //   name: "French",
+  //   flag: toAbsoluteUrl("/media/flags/195-france.svg")
+  // }
 ];
 
 class LanguageSelector extends React.Component {
@@ -45,7 +45,8 @@ class LanguageSelector extends React.Component {
     return (
       <Dropdown
         className="kt-header__topbar-item kt-header__topbar-item--langs"
-        drop="down" alignRight
+        drop="down"
+        alignRight
       >
         <Dropdown.Toggle as={HeaderDropdownToggle} id="dropdown-toggle-my-cart">
           <span
@@ -69,7 +70,7 @@ class LanguageSelector extends React.Component {
                   onClick={() => {
                     setLanguage(language.lang);
                     this.setState({ open: false });
-                    setTimeout(()=> window.location.reload(), 400);
+                    setTimeout(() => window.location.reload(), 400);
                   }}
                   className={clsx("kt-nav__link", {
                     "kt-nav__link--active":

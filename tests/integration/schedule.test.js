@@ -118,7 +118,7 @@ describe('PUT /schedules', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
     expect(agent.body._id).toBe(dbSchedules[0]._id);
-    expect(agent.body.name).toBe(schedule.name);
+    expect(agent.body).toMatchObject(schedule);
   });
 
   test.todo('add should update and change "_id" the schedule');

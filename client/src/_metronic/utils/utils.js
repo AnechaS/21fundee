@@ -1,4 +1,4 @@
-import { actions } from '../../app/store/ducks/auth.duck';
+import { actions } from "../../app/store/ducks/auth.duck";
 
 export function removeCSSClass(ele, cls) {
   const reg = new RegExp("(\\s|^)" + cls + "(\\s|$)");
@@ -11,7 +11,6 @@ export function addCSSClass(ele, cls) {
 
 export const toAbsoluteUrl = pathname => process.env.PUBLIC_URL + pathname;
 
-// TODO add headers api key
 export function setupAxios(axios, store) {
   axios.interceptors.request.use(
     config => {
@@ -31,11 +30,15 @@ export function setupAxios(axios, store) {
   axios.interceptors.response.use(
     response => response,
     error => {
-      // dispatch logout where unauthorized
+      const {
+        auth: { authToken }
+      } = store.getState();
       if (error.response.status === 401) {
-        setTimeout(() => {
-          store.dispatch(actions.logout());
-        }, 250);
+        if (authToken) {
+          setTimeout(() => {
+            store.dispatch(actions.logout());
+          }, 250);
+        }
       }
 
       return Promise.reject(error);

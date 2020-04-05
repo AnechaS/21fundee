@@ -15,9 +15,10 @@
     "react"
   ],
   "scripts": {
-    "start": "node ./bin/server",
-    "server": "cross-env NODE_ENV=production node ./bin/server",
-    "server-dev": "node ./bin/server",
+    "start": "npm run server",
+    "start-prod": "npm run server-prod",
+    "server": "node ./bin/server",
+    "server-prod": "cross-env NODE_ENV=production node ./bin/server",
     "client": "node ./bin/client",
     "seed": "md-seed run",
     "seed-prod": "cross-env NODE_ENV=production md-seed run",

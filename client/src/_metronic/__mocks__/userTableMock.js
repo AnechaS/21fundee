@@ -3,11 +3,10 @@ import { toAbsoluteUrl } from "../utils/utils";
 export default [
   {
     id: 1,
-    username: "admin",
+    name: "admin",
     password: "demo",
     email: "admin@demo.com",
-    accessToken: "access-token-8f3ae836da744329a6f93bf20594b5cc",
-    refreshToken: "access-token-f8c137a2c98743f48b643e71161d90aa",
+    sessionToken: "8f3ae836da744329a6f93bf20594b5cc",
     roles: [1], // Administrator
     pic: toAbsoluteUrl("/media/users/300_25.jpg"),
     fullname: "Sean",
@@ -29,11 +28,10 @@ export default [
   },
   {
     id: 2,
-    username: "user",
+    name: "user",
     password: "demo",
     email: "user@demo.com",
-    accessToken: "access-token-6829bba69dd3421d8762-991e9e806dbf",
-    refreshToken: "access-token-f8e4c61a318e4d618b6c199ef96b9e55",
+    sessionToken: "6829bba69dd3421d8762-991e9e806dbf",
     roles: [2], // Manager
     pic: toAbsoluteUrl("/media/users/100_2.jpg"),
     fullname: "Megan",
@@ -55,11 +53,10 @@ export default [
   },
   {
     id: 3,
-    username: "guest",
+    name: "guest",
     password: "demo",
     email: "guest@demo.com",
-    accessToken: "access-token-d2dff7b82f784de584b60964abbe45b9",
-    refreshToken: "access-token-c999ccfe74aa40d0aa1a64c5e620c1a5",
+    sessionToken: "d2dff7b82f784de584b60964abbe45b9",
     roles: [3], // Guest
     pic: toAbsoluteUrl("/media/users/default.jpg"),
     fullname: "Ginobili Maccari",

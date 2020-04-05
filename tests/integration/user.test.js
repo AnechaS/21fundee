@@ -154,6 +154,7 @@ describe('PUT /users/:id', () => {
 
     delete admin.password;
 
+    expect(agent.body._id).toBe(id);
     expect(agent.body).toMatchObject(admin);
   });
 

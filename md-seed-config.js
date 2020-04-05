@@ -10,27 +10,28 @@ const Schedule = require('./seeders/schedule.seeder');
  * order is important
  * @type {Object}
  */
-const seedersList = {
+exports.seedersList = {
   User,
   Question,
   Schedule
 };
+
 /**
  * Connect to mongodb implementation
  * @return {Promise}
  */
-const connect = async () => mongoose.connect(appConfig.mongoURI, { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true 
-});
+exports.connect = async function() {
+  const conn = await mongoose.connect(appConfig.mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
+
+  return conn;
+};
 /**
  * Drop/Clear the database implementation
  * @return {Promise}
  */
-const dropdb = async () => mongoose.connection.db.dropDatabase();
-
-module.exports = {
-  seedersList,
-  connect,
-  dropdb
+exports.dropdb = function() {
+  return mongoose.connection.db.dropDatabase();
 };

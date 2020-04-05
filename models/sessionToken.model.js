@@ -41,5 +41,9 @@ SessionTokenSchema.statics = {
   },
 };
 
-const SessionToken = mongoose.model('SessionToken', SessionTokenSchema);
+const SessionToken = mongoose.model(
+  'SessionToken',
+  SessionTokenSchema,
+  'sessionToken'
+);
 module.exports = SessionToken;

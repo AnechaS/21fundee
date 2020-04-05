@@ -5,9 +5,10 @@ const data = [
   {
     email: 'administration@email.com',
     password: '123123',
-    username: 'administration',
-    role: 'super-admin'
-  },
+    name: 'root',
+    pic: '/media/users/300_25.jpg',
+    role: 'admin'
+  }
 ];
 
 class UserSeeder extends Seeder {

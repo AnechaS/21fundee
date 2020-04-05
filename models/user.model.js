@@ -7,7 +7,7 @@ const APIError = require('../utils/APIError');
 /**
  * User Roles
  */
-const roles = ['super-admin', 'admin'];
+const roles = ['admin'];
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -16,29 +16,29 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-    lowercase: true,
+    lowercase: true
   },
   password: {
     type: String,
     required: true,
     minlength: 6,
-    maxlength: 128,
+    maxlength: 128
   },
-  username: {
+  name: {
     type: String,
     maxlength: 128,
     index: true,
-    trim: true,
+    trim: true
   },
   role: {
     type: String,
     enum: roles,
-    default: 'admin',
+    default: 'admin'
   },
-  picture: {
+  pic: {
     type: String,
-    trim: true,
-  },
+    trim: true
+  }
 });
 
 /**
@@ -68,7 +68,7 @@ UserSchema.pre('save', async function save(next) {
 UserSchema.method({
   transform() {
     const transformed = {};
-    const fields = ['_id', 'username', 'email'];
+    const fields = ['_id', 'name', 'email'];
 
     fields.forEach(field => {
       transformed[field] = this[field];
@@ -78,7 +78,7 @@ UserSchema.method({
   },
   async passwordMatches(password) {
     return bcrypt.compare(password, this.password);
-  },
+  }
 });
 
 /**
@@ -102,15 +102,15 @@ UserSchema.statics = {
           {
             field: 'email',
             location: 'body',
-            message: 'already exists',
-          },
+            message: 'already exists'
+          }
         ],
         status: httpStatus.CONFLICT,
-        stack: error.stack,
+        stack: error.stack
       });
     }
     return error;
-  },
+  }
 };
 
 module.exports = mongoose.model('User', UserSchema);
