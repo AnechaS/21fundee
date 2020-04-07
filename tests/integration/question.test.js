@@ -29,17 +29,17 @@ beforeEach(async () => {
   sessionToken = SessionToken.generate(savedUser).token;
 
   question = {
-    title: 'c',
+    name: 'c',
     correctAnswers: [2],
   };
 
   const savedQuestion = await Question.insertMany([
     {
-      title: 'a',
+      name: 'a',
       correctAnswers: [1],
     },
     {
-      title: 'b',
+      name: 'b',
       correctAnswers: [1],
     },
   ]);

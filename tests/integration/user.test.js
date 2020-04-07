@@ -22,20 +22,20 @@ beforeEach(async () => {
   admin = {
     email: 'sousa.dfs@gmail.com',
     password,
-    username: 'Daniel Sousa',
+    name: 'Daniel Sousa',
   };
 
   const savedUsers = await User.insertMany([
     {
       email: 'jonsnow@gmail.com',
       password: passwordHashed,
-      username: 'Jon Snow',
+      name: 'Jon Snow',
       role: 'admin',
     },
     {
       email: 'branstark@gmail.com',
       password: passwordHashed,
-      username: 'Bran Stark',
+      name: 'Bran Stark',
       role: 'admin',
     },
   ]);

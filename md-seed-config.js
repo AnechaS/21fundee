@@ -4,6 +4,9 @@ const appConfig = require('./config');
 const User = require('./seeders/user.seeder');
 const Question = require('./seeders/question.seeder');
 const Schedule = require('./seeders/schedule.seeder');
+const People = require('./seeders/people.seeder');
+const Conversation = require('./seeders/conversation.seed');
+const Quiz = require('./seeders/quiz.seeder');
 
 /**
  * Seeders List
@@ -13,7 +16,10 @@ const Schedule = require('./seeders/schedule.seeder');
 exports.seedersList = {
   User,
   Question,
-  Schedule
+  Schedule,
+  People,
+  Conversation,
+  Quiz
 };
 
 /**

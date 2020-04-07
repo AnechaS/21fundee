@@ -42,7 +42,8 @@ router.get('/', authorize(), async (req, res, next) => {
     const quiz = await Quiz.find()
       .populate('people')
       .populate('schedule')
-      .populate('conversation');
+      .populate('conversation')
+      .populate('question');
     return res.json(quiz);
   } catch (error) {
     return next(error);

@@ -35,19 +35,14 @@ export default {
         icon: "flaticon2-cube",
         submenu: [
           {
-            title: "Messages",
+            title: "Conversation",
             root: true,
-            page: "#"
+            page: "database/conversation"
           },
           {
             title: "People",
             root: true,
-            page: "#"
-          },
-          {
-            title: "Schedule",
-            root: true,
-            page: "database/schedule"
+            page: "database/people"
           },
           {
             title: "Question",
@@ -57,7 +52,12 @@ export default {
           {
             title: "Quiz",
             root: true,
-            page: "#"
+            page: "database/quiz"
+          },
+          {
+            title: "Schedule",
+            root: true,
+            page: "database/schedule"
           }
         ]
       },

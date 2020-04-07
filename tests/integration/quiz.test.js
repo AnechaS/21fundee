@@ -119,11 +119,11 @@ beforeEach(async () => {
 
   const savedQuestions = await Question.create([
     {
-      title: 'a',
+      name: 'a',
       correctAnswers: [1],
     },
     {
-      title: 'b',
+      name: 'b',
       correctAnswers: [1],
     },
   ]);
