@@ -25,8 +25,7 @@
     "seed-drop": "md-seed run --dropdb",
     "seed-drop-prod": "cross-env NODE_ENV=production md-seed run --dropdb",
     "test": "jest tests --runInBand",
-    "lint": "eslint .",
-    "postinstall": "node postinstall.js"
+    "lint": "eslint ."
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import objectPath from "object-path";
 import Header from "./header/Header";
-import SubHeader from "./sub-header/SubHeader";
+// import SubHeader from "./sub-header/SubHeader";
 import HeaderMobile from "./header/HeaderMobile";
 import AsideLeft from "./aside/AsideLeft";
 // import Footer from "./footer/Footer";
@@ -67,12 +67,13 @@ function Layout({
               className={`kt-content ${contentCssClasses} kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor`}
             >
               {/* <!-- begin:: Content Head --> */}
-              {subheaderDisplay && <SubHeader />}
+              {/* {subheaderDisplay && <SubHeader />} */}
               {/* <!-- end:: Content Head --> */}
 
               {/* <!-- begin:: Content Body --> */}
               {/* TODO: add class to animate  kt-grid--animateContent-finished */}
-              <KtContent>{children}</KtContent>
+              {/* <KtContent>{children}</KtContent> */}
+              {children}
               {/*<!-- end:: Content Body -->*/}
             </div>
             {/* <!-- end:: Content --> */}

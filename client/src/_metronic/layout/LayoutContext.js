@@ -102,6 +102,7 @@ function init({ pathname, menuConfig }) {
 function reducer(state, { type, payload }) {
   if (type === actionTypes.INIT) {
     const nextState = init(payload);
+    console.log(nextState);
 
     // Update only subheader.
     return { ...state, subheader: nextState.subheader };

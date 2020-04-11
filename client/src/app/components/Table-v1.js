@@ -1,11 +1,5 @@
 import React, { useState, useEffect, forwardRef, useRef } from "react";
-import {
-  useTable,
-  usePagination,
-  useRowSelect,
-  useBlockLayout,
-  useResizeColumns
-} from "react-table";
+import { useTable, usePagination, useRowSelect } from "react-table";
 import clsx from "clsx";
 import pagination from "../utils/pagination";
 
@@ -37,7 +31,7 @@ const Edit = ({ initialValue, disabled = true, type, onBlurInput }) => {
 
   return (
     <span
-      // style={{ width: "180px" }}
+      style={{ width: "180px" }}
       {...{
         onDoubleClick: disabled
           ? () => {
@@ -54,7 +48,6 @@ const Edit = ({ initialValue, disabled = true, type, onBlurInput }) => {
         )
       ) : (
         <input
-          style={{ width: "100%" }}
           value={val || ""}
           onChange={e => {
             setValue(e.target.value);
@@ -93,10 +86,8 @@ const EditableCell = ({
 };
 
 const defaultColumn = {
-  Cell: EditableCell,
-  minWidth: 50,
-  width: 150,
-  maxWidth: 400
+  Cell: EditableCell
+  // width: 180
 };
 
 const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref) => {
@@ -152,15 +143,12 @@ export default function Table({
       defaultColumn,
       updateData
     },
-    useBlockLayout,
-    useResizeColumns,
     usePagination,
     useRowSelect,
     hooks => {
       hooks.visibleColumns.push(columns => [
         {
           id: "selection",
-          width: 50,
           Header: ({ getToggleAllRowsSelectedProps }) => (
             <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
           ),
@@ -205,68 +193,64 @@ export default function Table({
         </code>
       </pre> */}
 
-      <div
+      <table
         className="kt-datatable__table"
         {...getTableProps()}
-        style={{
-          display: "inline-block",
-          height: data.length < 15 ? "650px" : "auto"
-        }}
+        style={{ display: "block" }}
       >
-        <div className="kt-datatable__head">
-          <div
+        <thead className="kt-datatable__head">
+          <tr
             className="kt-datatable__row __web-inspector-hide-shortcut__"
             style={{ left: "0px" }}
           >
             {headers.map(column => {
               if (column.id === "selection") {
                 return (
-                  <div
+                  <th
                     className={
                       "kt-datatable__cell--center kt-datatable__cell kt-datatable__cell--check"
                     }
                     {...column.getHeaderProps()}
                   >
                     <span>{column.render("Header")}</span>
-                  </div>
+                  </th>
                 );
               }
 
               return (
-                <div
+                <th
                   className={"kt-datatable__cell kt-datatable__cell--sort"}
                   {...column.getHeaderProps()}
                 >
-                  <span>
-                    <div className="kt-datatable__column--name">
+                  <span
+                    className="kt-datatable__head-text"
+                    style={{ width: "180px" }}
+                  >
+                    <div className="kt-datatable__head-text--name">
                       {column.render("Header")}
                     </div>
-                    <div className="kt-datatable__column--type">
+                    <div className="kt-datatable__head-text--type">
                       {column.type}
                     </div>
                   </span>
-                  <div
-                    {...column.getResizerProps()}
-                    className="kt-datatable__resizer"
-                  ></div>
-                </div>
+                </th>
               );
             })}
-          </div>
-        </div>
-        <div className="kt-datatable__body" {...getTableBodyProps()}>
+          </tr>
+        </thead>
+        <tbody className="kt-datatable__body" {...getTableBodyProps()}>
           {showRowCreateData && (
-            <div className="kt-datatable__row">
-              <div className="kt-datatable__cell--center kt-datatable__cell kt-datatable__cell--check">
+            <tr className="kt-datatable__row">
+              <td className="kt-datatable__cell--center kt-datatable__cell kt-datatable__cell--check">
                 <span>
                   <label className="kt-checkbox kt-checkbox--single kt-checkbox--solid kt-checkbox--disabled">
                     <input type="checkbox" disabled={true} />
                     &nbsp;<span></span>
                   </label>
                 </span>
-              </div>
+              </td>
               {columns.map(({ accessor, edit }, index) => (
-                <div
+                <td
                   key={(index + 1).toString()}
                   className="kt-datatable__cell kt-datatable__cell--edit"
                 >
@@ -276,43 +260,43 @@ export default function Table({
                       createData({ [accessor]: value });
                     }}
                   />
-                </div>
+                </td>
               ))}
-            </div>
+            </tr>
           )}
 
           {page.map(row => {
             prepareRow(row);
             return (
-              <div className="kt-datatable__row" {...row.getRowProps()}>
+              <tr className="kt-datatable__row" {...row.getRowProps()}>
                 {row.cells.map(cell => {
                   if (cell.column.id === "selection") {
                     return (
-                      <div
+                      <td
                         className="kt-datatable__cell kt-datatable__cell--center kt-datatable__cell--check"
                         {...cell.getCellProps()}
                       >
                         <span>{cell.render("Cell")}</span>
-                      </div>
+                      </td>
                     );
                   }
 
                   return (
-                    <div
+                    <td
                       className={clsx("kt-datatable__cell", {
                         "kt-datatable__cell--edit": cell.column.edit
                       })}
                       {...cell.getCellProps()}
                     >
                       {cell.render("Cell")}
-                    </div>
+                    </td>
                   );
                 })}
-              </div>
+              </tr>
             );
           })}
-        </div>
-      </div>
+        </tbody>
+      </table>
 
       <div className="kt-datatable__pager kt-datatable--paging-loaded">
         <ul className="kt-datatable__pager-nav">
