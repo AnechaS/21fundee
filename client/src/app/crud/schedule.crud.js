@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const SCHEDULE_URL = "/schedules";
 
-export function getSchedule(query = {}) {
-  return axios.get(SCHEDULE_URL, query);
+export function getSchedule() {
+  return axios.get(SCHEDULE_URL);
 }
 
 export function getScheduleById(id) {

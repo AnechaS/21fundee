@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import objectPath from "object-path";
 import { withRouter } from "react-router-dom";
+import clsx from "clsx";
 import { LayoutContextConsumer } from "../../../_metronic/layout/LayoutContext";
 import * as builder from "../../../_metronic/ducks/builder";
 import { ReactComponent as SearchIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Search.svg";
@@ -51,11 +52,18 @@ const Desc = ({ children }) => (
   <span className="kt-subheader__desc">{children}</span>
 );
 
-const Button = ({ children, onClick, color = "primary", ...rest }) => (
+const Button = ({
+  children,
+  onClick,
+  color = "primary",
+  disabled = false,
+  ...rest
+}) => (
   <button
     type="button"
-    className={`btn kt-subheader__btn-${color}`}
+    className={clsx(`btn kt-subheader__btn-${color}`, { disabled })}
     onClick={onClick}
+    disabled={disabled}
     {...rest}
   >
     {children}
@@ -101,11 +109,11 @@ class Dropdown extends Component {
     </div>
   );
 
-  static Item = ({ children, onClick, ...rest }) => (
+  static Item = ({ children, onClick, disabled = false, ...rest }) => (
     <li className="kt-nav__item">
       <button
         type="button"
-        className="kt-nav__link kt-nav__link-button"
+        className={clsx("kt-nav__link kt-nav__link-button", { disabled })}
         onClick={onClick}
         {...rest}
       >

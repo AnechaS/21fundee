@@ -1,4 +1,5 @@
 const { Seeder } = require('mongoose-data-seed');
+const faker = require('faker');
 const Question = require('../models/question.model');
 
 class QuestionSeeder extends Seeder {
@@ -8,12 +9,14 @@ class QuestionSeeder extends Seeder {
   }
 
   async run() {
-    const data = [
-      {
-        name: 'คุณคิดว่าฟันน้ำนมสำคัญยังไงเอ่ย?',
-        correctAnswers: [1, 2, 3, 4, 5],
-      },
-    ];
+    const data = Array.from({ length: 100 }, () => ({
+      name: faker.lorem.sentence(),
+      correctAnswers: Array.from(
+        { length: faker.random.number({ min: 1, max: 5 }) },
+        () => faker.random.number({ min: 1, max: 5 })
+      )
+    }));
+
     return Question.create(data);
   }
 }

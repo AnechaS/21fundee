@@ -8,7 +8,6 @@
   $page-size: 2.25rem;
   $table-space: kt-get($kt-portlet, space, desktop);
   $table-space-mobile: kt-get($kt-portlet, space, mobile);
-  $scrollbar_color: darken(kt-base-color(shape, 2), 3%);
 
   .kt-datatable {
     display: none;
@@ -97,7 +96,6 @@
             // Row checkbox
             &.kt-datatable__cell--check {
               text-align: center;
-              width: 20px;
 
               > span {
                 overflow: visible;
@@ -176,29 +174,6 @@
           > .kt-datatable__cell {
             padding: 16px 10px;
 
-            > .kt-datatable__resizer {
-              display: inline-block;
-              width: 10px;
-              height: 100%;
-              position: absolute;
-              right: 0;
-              top: 0;
-              transform: translateX(50%);
-              z-index: 1;
-              touch-action: none;
-
-              &::before {
-                content: "";
-                position: absolute;
-                height: 30px;
-                width: 2px;
-                background-color: transparent;
-                top: 12px;
-                left: 4px;
-                transition: background-color 60ms;
-              }
-            }
-
             > span {
               > i {
                 display: inline-block;
@@ -221,26 +196,11 @@
         .kt-datatable__row {
           > .kt-datatable__cell {
             font-weight: regular;
-            white-space: nowrap;
 
             &.kt-datatable__cell--check {
               > span {
                 > .kt-checkbox {
                   top: 1px;
-                }
-              }
-            }
-
-            // Row input
-            &.kt-datatable__cell--edit {
-              > span {
-                > input {
-                  padding: 0;
-                  margin: 0;
-                  border: 0;
-                  // text-overflow: ellipsis;
-                  // white-space: nowrap;
-                  // overflow: hidden;
                 }
               }
             }
@@ -310,39 +270,12 @@
 
       > .kt-datatable__table {
         display: block;
-        overflow-x: auto;
-
-        // Scroll
-        &::-webkit-scrollbar {
-          background: transparent;
-          opacity: 0;
-          height: 4px;
-          left: 0px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          opacity: 1;
-          border-radius: 4px;
-          height: 4px;
-          background: $scrollbar_color;
-        }
-
-        &::-webkit-scrollbar-thumb:hover,
-        ::-webkit-scrollbar-thumb:focus {
-          opacity: 1;
-          background: $scrollbar_color;
-        }
 
         > .kt-datatable__head,
         > .kt-datatable__body,
         > .kt-datatable__foot {
           visibility: visible;
-          // display: block;
-          display: table-header-group;
+          display: block;
           position: relative;
 
           .kt-datatable__row {
@@ -417,7 +350,6 @@
             min-width: $page-size;
             padding: 0.5rem;
             border-radius: 3px;
-            border: none;
 
             @include kt-not-rounded {
               border-radius: 0;
@@ -593,9 +525,6 @@
     // Lock table shadow
     $lock-shadow: 0px 0px 17px 5px rgba(113, 106, 202, 0.14);
 
-    // Resize
-    $resize-bg: $row-border-color;
-
     // Subtable
     $subtable_toggle_icon: kt-state-color(brand);
     $subtable_expanded: $row-active;
@@ -709,38 +638,8 @@
         .kt-datatable__row {
           > .kt-datatable__cell {
             > span {
-              position: relative;
-              display: block;
-              white-space: nowrap;
-              overflow: hidden;
-              padding: 1;
-
               > i {
                 color: $head_cell_icon_color;
-              }
-
-              > .kt-datatable__column--name {
-                line-height: 22px;
-                margin-right: 8px;
-                float: left;
-                max-width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-              }
-
-              > .kt-datatable__column--type {
-                color: #a2a6b1;
-                font-size: 10px;
-                height: 22px;
-                line-height: 22px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-              }
-            }
-
-            > .kt-datatable__resizer {
-              &:hover::before {
-                background-color: $resize-bg;
               }
             }
           }
@@ -775,10 +674,6 @@
                 background: $page-hover;
                 color: $page-hover-font;
               }
-            }
-
-            &.kt-datatable__pager-link-number {
-              background-color: $base_bg;
             }
 
             &:hover {
@@ -888,14 +783,6 @@
               &.kt-datatable__cell--hover {
                 transition: background 0.3s ease;
                 background: $row-hover;
-              }
-
-              &.kt-datatable__cell--edit {
-                > span {
-                  > input {
-                    color: $body_cell_font_color;
-                  }
-                }
               }
             }
 

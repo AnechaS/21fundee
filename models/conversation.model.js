@@ -7,44 +7,44 @@ const ConversationSchema = new mongoose.Schema(
     people: {
       type: String,
       ref: 'People',
-      required: true,
+      required: true
     },
     schedule: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Schedule',
-      required: true,
+      required: true
     },
     botId: {
       type: String,
       trim: true,
-      required: true,
+      required: true
     },
     blockId: {
       type: String,
       trim: true,
-      required: true,
+      required: true
     },
     text: {
       type: String,
-      trim: true,
+      trim: true
     },
     image: {
       type: String,
-      trim: true,
+      trim: true
     },
     reply: {
       type: {
         type: String,
-        enum: replyTypes,
+        enum: replyTypes
       },
       value: {
         type: String,
-        trim: true,
-      },
-    },
+        trim: true
+      }
+    }
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 

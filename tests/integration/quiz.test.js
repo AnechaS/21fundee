@@ -38,7 +38,7 @@ beforeEach(async () => {
   const dbUser = {
     email: 'jonsnow@gmail.com',
     password: passwordHashed,
-    username: 'Jon Snow',
+    username: 'Jon Snow'
   };
 
   const savedUser = await User.create(dbUser);
@@ -54,7 +54,7 @@ beforeEach(async () => {
       childName: 'Ant',
       childBirthday: '2560',
       gender: 'male',
-      botId,
+      botId
     },
     {
       firstName: 'Makus',
@@ -65,18 +65,18 @@ beforeEach(async () => {
       childName: 'Bee',
       childBirthday: '2560',
       gender: 'male',
-      botId,
-    },
+      botId
+    }
   ]);
   dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
 
   const savedSchedules = await Schedule.create([
     {
-      name: 'Day 1',
+      name: 'Day 1'
     },
     {
-      name: 'Day 2',
-    },
+      name: 'Day 2'
+    }
   ]);
   dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 
@@ -87,10 +87,10 @@ beforeEach(async () => {
       text: 'a',
       reply: {
         type: 'button',
-        value: 'a',
+        value: 'a'
       },
       botId,
-      blockId: blockIds[0],
+      blockId: blockIds[0]
     },
     {
       people: dbPeoples[1]._id,
@@ -98,10 +98,10 @@ beforeEach(async () => {
       text: 'b',
       reply: {
         type: 'button',
-        value: 'b',
+        value: 'b'
       },
       botId,
-      blockId: blockIds[0],
+      blockId: blockIds[0]
     },
     {
       people: dbPeoples[0]._id,
@@ -109,23 +109,23 @@ beforeEach(async () => {
       text: 'a',
       reply: {
         type: 'button',
-        value: 'a',
+        value: 'a'
       },
       botId,
-      blockId: blockIds[1],
-    },
+      blockId: blockIds[1]
+    }
   ]);
   dbConversations = JSON.parse(JSON.stringify(savedConversations));
 
   const savedQuestions = await Question.create([
     {
       name: 'a',
-      correctAnswers: [1],
+      correctAnswers: [1]
     },
     {
       name: 'b',
-      correctAnswers: [1],
-    },
+      correctAnswers: [1]
+    }
   ]);
   dbQuestions = JSON.parse(JSON.stringify(savedQuestions));
 
@@ -138,7 +138,7 @@ beforeEach(async () => {
       blockId: blockIds[0],
       question: dbQuestions[0]._id,
       answer: 1,
-      isCorrectAnswer: true,
+      isCorrectAnswer: true
     },
     {
       people: dbPeoples[1]._id,
@@ -148,8 +148,8 @@ beforeEach(async () => {
       blockId: blockIds[0],
       question: dbQuestions[0]._id,
       answer: 2,
-      isCorrectAnswer: false,
-    },
+      isCorrectAnswer: false
+    }
   ]);
   dbQuizs = JSON.parse(JSON.stringify(savedQuizs));
 
@@ -161,7 +161,7 @@ beforeEach(async () => {
     blockId: blockIds[1],
     question: dbQuestions[1]._id,
     answer: 1,
-    isCorrectAnswer: true,
+    isCorrectAnswer: true
   };
 });
 
@@ -175,31 +175,34 @@ const format = object => {
   const getConversation = dbConversations.find(
     o => o._id === object.conversation
   );
+  const getQuestion = dbQuestions.find(o => o._id === object.question);
   return {
     ...object,
     people: getPeople,
     schedule: getSchedule,
     conversation: getConversation,
+    question: getQuestion
   };
 };
 
-describe('GET /quizs', () => {
+describe('GET /quizzes', () => {
   test('should get all quiz', async () => {
     const agent = await request(app)
-      .get('/quizs')
+      .get('/quizzes')
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(200);
+
     const quizTransformed = dbQuizs.map(o => format(o));
     expect(agent.body).toEqual(quizTransformed);
   });
 });
 
-describe('POST /quizs', () => {
+describe('POST /quizzes', () => {
   test('should reate a new quiz', async () => {
     const agent = await request(app)
-      .post('/quizs')
+      .post('/quizzes')
       .set('Authorization', sessionToken)
       .send(quiz)
       .set('Accept', 'application/json')
@@ -214,7 +217,7 @@ describe('GET /quiz/:id', () => {
     const id = dbQuizs[0]._id;
 
     const agent = await request(app)
-      .get(`/quizs/${id}`)
+      .get(`/quizzes/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -229,7 +232,7 @@ describe('GET /quiz/:id', () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .get(`/quizs/${id}`)
+      .get(`/quizzes/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -239,12 +242,12 @@ describe('GET /quiz/:id', () => {
   });
 });
 
-describe('PUT /quizs', () => {
+describe('PUT /quizzes', () => {
   test('should update the quiz', async () => {
     const id = dbQuizs[0]._id;
 
     const agent = await request(app)
-      .put(`/quizs/${id}`)
+      .put(`/quizzes/${id}`)
       .send(quiz)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
@@ -254,11 +257,11 @@ describe('PUT /quizs', () => {
     expect(agent.body).toMatchObject(quiz);
   });
 
-  test('should report error when quizs does not exists', async () => {
+  test('should report error when quizzes does not exists', async () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .put(`/quizs/${id}`)
+      .put(`/quizzes/${id}`)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.NOT_FOUND);
@@ -267,23 +270,23 @@ describe('PUT /quizs', () => {
   });
 });
 
-describe('DELETE /quizs', () => {
+describe('DELETE /quizzes', () => {
   test('should delete the quiz', async () => {
     const id = dbQuizs[0]._id;
 
     const agent = await request(app)
-      .delete(`/quizs/${id}`)
+      .delete(`/quizzes/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
     await expect(Quiz.findById(id)).resolves.toBeNull();
   });
 
-  test('should report error when quizs does not exists', async () => {
+  test('should report error when quizzes does not exists', async () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .delete(`/quizs/${id}`)
+      .delete(`/quizzes/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NOT_FOUND);
     expect(agent.body.code).toBe(404);

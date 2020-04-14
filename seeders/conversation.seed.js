@@ -1,4 +1,5 @@
 const { Seeder } = require('mongoose-data-seed');
+const faker = require('faker');
 const Conversation = require('../models/conversation.model');
 const People = require('../models/people.model');
 const Schedule = require('../models/schedule.model');
@@ -10,17 +11,26 @@ class ConversationSeeder extends Seeder {
   }
 
   async run() {
-    const people = await People.findOne({});
+    const peoples = await People.find({}).limit(300);
     const schedule = await Schedule.findOne({});
-    const data = [
-      {
-        people,
+    const data = peoples.map(o => {
+      const obj = {
+        people: o,
         schedule,
-        text: 'Hello',
+        text: faker.lorem.text(),
         botId: 'asdfqwer',
         blockId: 'zxcvbnm'
+      };
+
+      if (faker.random.boolean()) {
+        obj.reply = {
+          type: faker.random.arrayElement(['button', 'freeform']),
+          value: faker.random.arrayElement([1, 2, 3, 4, 5])
+        };
       }
-    ];
+
+      return obj;
+    });
     return Conversation.create(data);
   }
 }

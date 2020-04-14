@@ -13,19 +13,19 @@
 
 // Header Skins
 .kt-header-base-light {
-    @import "./_metronic/_assets/sass/global/layout/header/skins/base/light.scss";
+  @import "./_metronic/_assets/sass/global/layout/header/skins/base/light.scss";
 }
 
 .kt-header-base-dark {
-    @import "./_metronic/_assets/sass/global/layout/header/skins/base/dark.scss";
+  @import "./_metronic/_assets/sass/global/layout/header/skins/base/dark.scss";
 }
 
 // Header Menu Skins
 .kt-header-menu-light {
-    @import "./_metronic/_assets/sass/global/layout/header/skins/menu/light.scss";
+  @import "./_metronic/_assets/sass/global/layout/header/skins/menu/light.scss";
 }
 .kt-header-menu-dark {
-    @import "./_metronic/_assets/sass/global/layout/header/skins/menu/dark.scss";
+  @import "./_metronic/_assets/sass/global/layout/header/skins/menu/dark.scss";
 }
 
 // Brand Skins
@@ -53,6 +53,17 @@
 // @import "./_metronic/_assets/plugins/flaticon/flaticon.css";
 // @import "./_metronic/_assets/plugins/flaticon2/flaticon.css";
 
+// React loader
+@import "~react-block-ui/style.css";
+
+.block-ui-container {
+  z-index: 10;
+  .loading-indicator {
+    .loading-bullet {
+      color: #5d78ff;
+    }
+  }
+}
 
 @-webkit-keyframes fadeInUpContent {
   from {

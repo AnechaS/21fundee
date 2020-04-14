@@ -17,7 +17,7 @@ router.use('/peoples', peopleRouters);
 router.use('/schedules', scheduleRouters);
 router.use('/questions', questionRouters);
 router.use('/conversations', conversationRouters);
-router.use('/quizs', quizRouters);
+router.use('/quizzes', quizRouters);
 router.use('/chatfuel', chatfuelRouters);
 
 module.exports = router;

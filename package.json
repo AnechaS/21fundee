@@ -21,9 +21,7 @@
     "server-prod": "cross-env NODE_ENV=production node ./bin/server",
     "client": "node ./bin/client",
     "seed": "md-seed run",
-    "seed-prod": "cross-env NODE_ENV=production md-seed run",
     "seed-drop": "md-seed run --dropdb",
-    "seed-drop-prod": "cross-env NODE_ENV=production md-seed run --dropdb",
     "test": "jest tests --runInBand",
     "lint": "eslint ."
   },
@@ -45,6 +43,7 @@
   "devDependencies": {
     "@shelf/jest-mongodb": "^1.1.3",
     "eslint": "^6.7.2",
+    "faker": "^4.1.0",
     "jest": "^24.9.0",
     "mongoose-data-seed": "^2.1.6",
     "prettier": "^1.19.1",

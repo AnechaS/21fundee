@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import axios from "axios";
+import React, { Component, createRef } from "react";
+import BlockUi from "react-block-ui";
 import SubHeader from "../../partials/layout/SubHeader";
 import { ReactComponent as PlusIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Plus.svg";
 import { ReactComponent as UpdateIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Update.svg";
@@ -7,8 +7,14 @@ import { ReactComponent as FilterIcon } from "../../../_metronic/layout/assets/l
 import { ReactComponent as WriteIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Write.svg";
 import KTContent from "../../../_metronic/layout/KtContent";
 import Table from "../../components/Table";
+import {
+  getSchedule,
+  createSchedule,
+  updateSchedule,
+  deleteSchedule
+} from "../../crud/schedule.crud";
 
-export default class Question extends Component {
+export default class Schedule extends Component {
   columns = [
     {
       Header: "id",
@@ -35,14 +41,15 @@ export default class Question extends Component {
 
   state = {
     data: [],
+    isLoading: true,
     isCreatingData: false,
-    selectedRows: {}
+    skipPageReset: false
   };
 
+  tableRef = createRef();
+
   componentDidMount() {
-    axios.get("/schedules").then(response => {
-      this.setState({ data: response.data });
-    });
+    this.fetchData();
 
     document.addEventListener("keydown", this.handleKeyDown, false);
   }
@@ -51,29 +58,40 @@ export default class Question extends Component {
     document.removeEventListener("keydown", this.handleKeyDown, false);
   }
 
-  createData = data => {
-    this.setState({ isCreatingData: false });
-    console.log("Call method createData");
+  // TODO handle error
+  createData = async body => {
+    this.setState({ isLoading: true });
+    const response = await createSchedule(body);
+    this.setState(prevState => ({
+      isCreatingData: false,
+      isLoading: false,
+      data: [response.data, ...prevState.data]
+    }));
+  };
 
-    // setData(prev => [{ _id: "1234", ...data }, ...prev]);
+  // TODO Query with uri parameter
+  fetchData = async () => {
+    try {
+      this.setState({ isLoading: true });
+      const response = await getSchedule();
+
+      this.setState({ data: response.data, isLoading: false });
+    } catch (error) {
+      // TODO handle error
+      this.setState({ isLoading: false });
+    }
   };
 
   handleCreateDataClick = () => {
     this.setState({ isCreatingData: true });
-    console.log("Call method handleCreateDataClick");
   };
 
   handleDeleteDataClick = () => {
-    const { selectedRowIds } = this.state;
-    if (!selectedRowIds.length) {
-      return;
-    }
-
-    console.log("Call method handleDeleteDataClick: ", selectedRowIds);
+    this.deleteData();
   };
 
   handleDeleteAllDataClick = () => {
-    console.log("Call method handleDeleteAllDataClick");
+    // TODO delete all data
   };
 
   handleKeyDown = e => {
@@ -83,51 +101,72 @@ export default class Question extends Component {
   };
 
   handleRefreshClick = () => {
-    console.log("Call method handleRefreshClick");
+    this.setState({ isCreatingData: false });
+    this.fetchData();
   };
 
-  handleSelectedRowIdsChange = o => {
-    this.setState({ selectedRowIds: o });
-    console.log("Call method handleSelectedRowIdsChange");
-  };
+  updateData = async (rowIndex, column, value) => {
+    this.setState({ skipPageReset: true, isLoading: true });
 
-  updateData = (rowIndex, column, value) => {
-    console.log("Call method updateData");
+    const { data } = this.state;
 
-    this.setState(({ data }) => {
-      const newData = data.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...data[rowIndex],
-            [column]: value
-          };
-        }
-        return row;
+    try {
+      const newData = [...data];
+      newData[rowIndex] = { ...data[rowIndex], [column]: value };
+      this.setState({ data: newData });
+
+      /* const response =  */ await updateSchedule(data[rowIndex]._id, {
+        [column]: value
       });
-      return { data: newData };
+    } catch (error) {
+      this.setState({ data });
+    }
+
+    this.setState({ skipPageReset: false, isLoading: false });
+  };
+
+  deleteData = async () => {
+    const { data } = this.state;
+    const selectedRowIds = this.tableRef.current.selectedRowIds;
+    const indexes = Object.keys(selectedRowIds).map(v => Number(v));
+    if (!indexes.length) {
+      return;
+    }
+
+    this.setState({
+      skipPageReset: true,
+      isLoading: true
+    });
+
+    const promise = [];
+    const newData = [];
+    data.forEach((o, i) => {
+      if (indexes.includes(i)) {
+        const response = deleteSchedule(o._id);
+        promise.push(response);
+      } else {
+        newData.push(o);
+      }
+    });
+
+    /* const response = */ await Promise.all(promise);
+    this.setState({ data: newData });
+    this.setState({
+      skipPageReset: false,
+      isLoading: false
     });
   };
 
-  // Request to delete the rows
-  // const deleteData = rowIndexes => {
-  //   console.log("delete ", rowIndexes);
-
-  //   // var store state data
-  //   // promise all request delete object
-  //   // get object
-  //   // request delete objects
-  //   // set new datat to state
-  // };
-
   render() {
-    const { data, isCreatingData } = this.state;
+    const { data, skipPageReset, isCreatingData, isLoading } = this.state;
+
     return (
       <>
         <SubHeader>
           <SubHeader.Main>
             <SubHeader.Group>
               <SubHeader.Desc>{data.length} Total</SubHeader.Desc>
-              <SubHeader.Search />
+              {/* <SubHeader.Search /> */}
             </SubHeader.Group>
           </SubHeader.Main>
           <SubHeader.Toolbar>
@@ -181,14 +220,17 @@ export default class Question extends Component {
         <KTContent>
           <div className="kt-portlet kt-portlet--mobile">
             <div className="kt-portlet__body kt-portlet__body--fit">
-              <Table
-                data={data}
-                columns={this.columns}
-                showRowCreateData={isCreatingData}
-                createData={this.createData}
-                updateData={this.updateData}
-                onSelectedRows={this.handleSelectedRowIdsChange}
-              />
+              <BlockUi tag="div" blocking={isLoading}>
+                <Table
+                  ref={this.tableRef}
+                  data={data}
+                  columns={this.columns}
+                  skipPageReset={skipPageReset}
+                  showRowCreateData={isCreatingData}
+                  createData={this.createData}
+                  updateData={this.updateData}
+                />
+              </BlockUi>
             </div>
           </div>
         </KTContent>

@@ -2,8 +2,6 @@
 // Global Components And 3rd-party Plugin Customizations
 //
 
-
-
 // 3rd-party plugins customizations
 @import "integration/plugins/perfect-scrollbar";
 @import "integration/plugins/dropzone";
@@ -14,6 +12,7 @@
 @import "integration/plugins/tinymce";
 @import "integration/plugins/ckeditor";
 @import "integration/plugins/kanban";
+@import "integration/plugins/blockui";
 
 // Base components
 @import "components/base/container";

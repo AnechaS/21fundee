@@ -24,7 +24,7 @@ router.param('id', async (req, res, next, id) => {
     // object id is not exists
     throw new APIError({
       message: 'Object not found.',
-      status: httpStatus.NOT_FOUND,
+      status: httpStatus.NOT_FOUND
     });
   } catch (error) {
     return next(error);
@@ -72,6 +72,7 @@ router.get('/:id', authorize(), async (req, res, next) => {
       .populate('people')
       .populate('schedule')
       .populate('conversation')
+      .populate('question')
       .execPopulate();
     return res.json(quiz);
   } catch (error) {
