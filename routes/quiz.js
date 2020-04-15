@@ -40,6 +40,7 @@ router.param('id', async (req, res, next, id) => {
 router.get('/', authorize(), async (req, res, next) => {
   try {
     const quiz = await Quiz.find()
+      .limit(2000)
       .populate('people')
       .populate('schedule')
       .populate('conversation')

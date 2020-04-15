@@ -24,7 +24,7 @@ router.param('id', async (req, res, next, id) => {
     // object id is not exists
     throw new APIError({
       message: 'Object not found.',
-      status: httpStatus.NOT_FOUND,
+      status: httpStatus.NOT_FOUND
     });
   } catch (error) {
     return next(error);
@@ -33,7 +33,7 @@ router.param('id', async (req, res, next, id) => {
 
 router.get('/', authorize(), async (req, res, next) => {
   try {
-    const schedule = await Question.find();
+    const schedule = await Question.find().limit(2000);
     return res.json(schedule);
   } catch (error) {
     return next(error);
