@@ -8,9 +8,16 @@ import { rootReducer, rootSaga } from "./rootDuck";
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const sagaMiddleware = createSagaMiddleware();
+
+const middlewares = [sagaMiddleware];
+
+if (process.env.NODE_ENV === "development") {
+  middlewares.push(logger);
+}
+
 const store = createStore(
   rootReducer,
-  composeEnhancers(applyMiddleware(sagaMiddleware, logger))
+  composeEnhancers(applyMiddleware(...middlewares))
 );
 
 /**

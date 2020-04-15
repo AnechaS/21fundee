@@ -35,20 +35,20 @@ beforeEach(async () => {
     childBirthday: '2560',
     gender: 'male',
     botId,
-    blockId,
+    blockId
   });
 
   dbPeople = JSON.parse(JSON.stringify(savedPeople));
 
   const savedSchedule = await Schedule.create({
-    name: 'Day 1',
+    name: 'Day 1'
   });
 
   dbSchedule = JSON.parse(JSON.stringify(savedSchedule));
 
   const savedQuestion = await Question.create({
     name: 'a',
-    correctAnswers: [1],
+    correctAnswers: [1]
   });
 
   dbQuestion = JSON.parse(JSON.stringify(savedQuestion));
@@ -72,7 +72,7 @@ describe('POST /chatfuel/people', () => {
       childName: 'Bee',
       childBirthday: '2560',
       gender: 'male',
-      botId,
+      botId
     };
   });
 
@@ -101,7 +101,7 @@ describe('POST /chatfuel/people', () => {
       profilePicUrl: 'null',
       locale: undefined,
       source: null,
-      botId,
+      botId
     };
 
     const agent = await request(app)
@@ -128,7 +128,7 @@ describe('POST /chatfuel/people', () => {
       .set('x-real-ip', IP_CHATFUEL)
       .send({
         id: dbPeople._id,
-        ...payload,
+        ...payload
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -209,8 +209,8 @@ describe('POST /chatfuel/replies', () => {
       botId,
       blockId,
       conversation: {
-        text: 'Hi',
-      },
+        text: 'Hi'
+      }
     };
 
     payloadQuiz = {
@@ -222,13 +222,13 @@ describe('POST /chatfuel/replies', () => {
         text: 'a',
         reply: {
           type: 'button',
-          value: 'a',
-        },
+          title: 'a'
+        }
       },
       quiz: {
         question: dbQuestion._id,
-        answer: 1,
-      },
+        answer: 1
+      }
     };
   });
 
@@ -247,7 +247,7 @@ describe('POST /chatfuel/replies', () => {
     const getConversation = await Conversation.findOne(o);
     expect(JSON.parse(JSON.stringify(getConversation))).toMatchObject({
       ...o,
-      ...conversation,
+      ...conversation
     });
   });
 
@@ -266,7 +266,7 @@ describe('POST /chatfuel/replies', () => {
     const getConversation = await Conversation.findOne(o);
     expect(JSON.parse(JSON.stringify(getConversation))).toMatchObject({
       ...o,
-      ...conversation,
+      ...conversation
     });
 
     const getQuiz = await Quiz.findOne(o);
@@ -274,7 +274,7 @@ describe('POST /chatfuel/replies', () => {
       conversation: getConversation._id.toString(),
       ...o,
       ...quiz,
-      isCorrectAnswer: true,
+      isCorrectAnswer: true
     });
   });
 
@@ -295,7 +295,7 @@ describe('POST /chatfuel/replies', () => {
     const getConversation = await Conversation.findOne(o);
     expect(JSON.parse(JSON.stringify(getConversation))).toMatchObject({
       ...o,
-      ...conversation,
+      ...conversation
     });
 
     const getQuiz = await Quiz.findOne(o);
@@ -303,7 +303,7 @@ describe('POST /chatfuel/replies', () => {
       conversation: getConversation._id.toString(),
       ...o,
       ...quiz,
-      isCorrectAnswer: false,
+      isCorrectAnswer: false
     });
   });
 
@@ -328,7 +328,7 @@ describe('POST /chatfuel/replies', () => {
   test.each([
     ['String', 'asdfgh'],
     ['Number', 1],
-    ['Array', []],
+    ['Array', []]
   ])('should report error when conversation is %s', async (type, value) => {
     payload.conversation = value;
 

@@ -32,7 +32,7 @@ beforeEach(async () => {
   const dbUser = {
     email: 'jonsnow@gmail.com',
     password: passwordHashed,
-    username: 'Jon Snow',
+    username: 'Jon Snow'
   };
 
   const savedUser = await User.create(dbUser);
@@ -48,7 +48,7 @@ beforeEach(async () => {
       childName: 'Ant',
       childBirthday: '2560',
       gender: 'male',
-      botId,
+      botId
     },
     {
       firstName: 'Makus',
@@ -59,18 +59,18 @@ beforeEach(async () => {
       childName: 'Bee',
       childBirthday: '2560',
       gender: 'male',
-      botId,
-    },
+      botId
+    }
   ]);
   dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
 
   const savedSchedules = await Schedule.create([
     {
-      name: 'Day 1',
+      name: 'Day 1'
     },
     {
-      name: 'Day 2',
-    },
+      name: 'Day 2'
+    }
   ]);
   dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 
@@ -80,15 +80,15 @@ beforeEach(async () => {
       schedule: dbSchedules[0]._id,
       text: 'Hello',
       botId,
-      blockId: blockIds[0],
+      blockId: blockIds[0]
     },
     {
       people: dbPeoples[1]._id,
       schedule: dbSchedules[0]._id,
       text: 'Hello',
       botId,
-      blockId: blockIds[0],
-    },
+      blockId: blockIds[0]
+    }
   ]);
   dbConversations = JSON.parse(JSON.stringify(savedConversations));
 
@@ -97,7 +97,7 @@ beforeEach(async () => {
     schedule: dbSchedules[1]._id,
     text: 'abc',
     botId,
-    blockId: blockIds[1],
+    blockId: blockIds[1]
   };
 });
 
@@ -111,7 +111,7 @@ const format = object => {
   return {
     ...object,
     people: getPeople,
-    schedule: getschedule,
+    schedule: getschedule
   };
 };
 

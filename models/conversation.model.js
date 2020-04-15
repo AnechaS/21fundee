@@ -37,7 +37,7 @@ const ConversationSchema = new mongoose.Schema(
         type: String,
         enum: replyTypes
       },
-      value: {
+      title: {
         type: String,
         trim: true
       }
