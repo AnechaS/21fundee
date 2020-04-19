@@ -8,6 +8,7 @@ const questionRouters = require('./question');
 const conversationRouters = require('./conversation');
 const quizRouters = require('./quiz');
 const chatfuelRouters = require('./chatfuel');
+const dashboardRoutes = require('./dashboard');
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.use('/schedules', scheduleRouters);
 router.use('/questions', questionRouters);
 router.use('/conversations', conversationRouters);
 router.use('/quizzes', quizRouters);
+router.use('/dashboards', dashboardRoutes);
 router.use('/chatfuel', chatfuelRouters);
 
 module.exports = router;
