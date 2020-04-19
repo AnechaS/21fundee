@@ -40,7 +40,7 @@ router.param('id', async (req, res, next, id) => {
 router.get('/', authorize(), async (req, res, next) => {
   try {
     const conversation = await Conversation.find()
-      // .limit(2000)
+      .limit(2000)
       .populate('people')
       .populate('schedule');
     return res.json(conversation);
