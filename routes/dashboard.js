@@ -14,33 +14,38 @@ router.get('/', authorize(), async (req, res, next) => {
     //   .populate('people')
     //   .populate('schedule');
 
+    const people = {};
+
     // count people all
     const CountPeoples = await People.countDocuments().exec();
-    console.log('Count peoples: ', CountPeoples);
+    people.count = CountPeoples;
+    // console.log('Count peoples: ', CountPeoples);
 
     // count people exists dental id
     const CountPeoplesWithDetalId = await People.countDocuments({
       dentalId: { $exists: true, $regex: '^[0-9]{6}$' }
     }).exec();
-    console.log('Count peoples with detal id: ', CountPeoplesWithDetalId);
+    people.countWithDetalId = CountPeoplesWithDetalId;
+    // console.log('Count peoples with detal id: ', CountPeoplesWithDetalId);
 
     // count people general
     const CountPeoplesGeneral = Math.max(
       CountPeoples - CountPeoplesWithDetalId,
       0
     );
-    console.log('Count peoples general: ', CountPeoplesGeneral);
+    // console.log('Count peoples general: ', CountPeoplesGeneral);
 
     // Count new peoples
     const CountNewPeoples = await People.find({
       createdAt: moment().toDate()
     });
-    console.log('Count new peoples: ', CountNewPeoples);
+    // console.log('Count new peoples: ', CountNewPeoples);
+
     // new peoples list
     const newPeoples = await People.find({
       createdAt: { $gte: moment('2020-04-14').toDate() }
     }).limit(5);
-    console.log('New peoples: ', newPeoples);
+    // console.log('New peoples: ', newPeoples);
 
     // People create in deration
     const CountPeoplesCreatedInPeriod = await People.aggregate([
@@ -64,10 +69,11 @@ router.get('/', authorize(), async (req, res, next) => {
     ]);
 
     return res.json({
-      CountPeoples,
-      CountPeoplesWithDetalId,
-      CountPeoplesGeneral,
-      CountPeoplesCreatedInPeriod
+      people
+      // CountPeoples,
+      // CountPeoplesWithDetalId,
+      // CountPeoplesGeneral,
+      // CountPeoplesCreatedInPeriod
     });
   } catch (error) {
     return next(error);
