@@ -4,7 +4,6 @@ import Registration from "./Registration";
 import ForgotPassword from "./ForgotPassword";
 import Login from "./Login";
 import { toAbsoluteUrl } from "../../../_metronic";
-import Logo from "../../../_metronic/layout/brand/Logo";
 import "../../../_metronic/_assets/sass/pages/login/login-3.scss";
 
 export default function AuthPage() {
@@ -25,11 +24,11 @@ export default function AuthPage() {
               <div className="kt-login__container">
                 <div className="kt-login__logo">
                   <Link to="/">
-                    {/* <Logo color="black" size={28} /> */}
                     <img
                       className="kt-login__logo--media kt-media kt-media--circle"
                       src={toAbsoluteUrl("/media/logos/logo-1x.jpg")}
-                    ></img>
+                      alt=""
+                    />
                   </Link>
                 </div>
 

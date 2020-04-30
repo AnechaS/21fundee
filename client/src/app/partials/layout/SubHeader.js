@@ -1,4 +1,11 @@
-import React, { Component, useMemo, useCallback, useState } from "react";
+import React, {
+  Component,
+  useMemo,
+  useCallback,
+  useState,
+  forwardRef,
+  useImperativeHandle
+} from "react";
 import { connect } from "react-redux";
 import objectPath from "object-path";
 import moment from "moment";
@@ -9,6 +16,8 @@ import * as builder from "../../../_metronic/ducks/builder";
 import { ReactComponent as SearchIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Search.svg";
 import Daterangepicker from "./Daterangepicker";
 import KTUtil from "../../../_metronic/_assets/js/util";
+
+const $ = window.$;
 
 const Main = ({ children, subheaderMobileToggle }) => (
   <div className="kt-subheader__main">
@@ -140,7 +149,10 @@ Dropdown.Item = ({ children, onClick, disabled = false, ...rest }) => (
 
 Dropdown.Divider = () => <li className="kt-nav__separator"></li>;
 
-const Datepicker = ({ onChange }) => {
+/**
+ * Component Header Date rang picker
+ */
+const Datepicker = forwardRef(({ onChange }, ref) => {
   const startDate = useMemo(() => moment(), []);
   const endDate = useMemo(() => moment(), []);
 
@@ -184,15 +196,36 @@ const Datepicker = ({ onChange }) => {
         setRange(start.format("MMM D") + " - " + end.format("MMM D"));
       }
 
-      onChange({ start, end });
+      onChange({ start, end, label });
     },
     [onChange]
+  );
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        reset: () => {
+          const $el = $("#subheader-daterange");
+          $el
+            .data("daterangepicker")
+            .setStartDate(startDate.format("MM/DD/YYYY"));
+
+          $el.data("daterangepicker").setEndDate(endDate.format("MM/DD/YYYY"));
+
+          setTitle("Today:");
+          setRange(startDate.format("MMM D"));
+        }
+      };
+    },
+    [startDate, endDate]
   );
 
   return (
     <Daterangepicker options={options} cb={cb}>
       <button
         className="btn kt-subheader__btn-daterange"
+        id="subheader-daterange"
         title="Select dashboard daterange"
         data-toggle="kt-tooltip"
         data-placement="left"
@@ -204,7 +237,7 @@ const Datepicker = ({ onChange }) => {
       </button>
     </Daterangepicker>
   );
-};
+});
 
 class SubHeader extends Component {
   static Main = MainContainer;

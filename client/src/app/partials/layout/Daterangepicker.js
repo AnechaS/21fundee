@@ -1,21 +1,24 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 
 const $ = window.$;
 
-export default class Daterangepicker extends React.Component {
-  componentDidMount() {
-    const { options, cb } = this.props;
-    this.$el = $(this.el);
-    this.$el.daterangepicker(options, cb);
-  }
+export default function Daterangepicker({ children, options, cb }) {
+  const ref = useRef(null);
 
-  render() {
-    const { children } = this.props;
+  useEffect(() => {
+    const $el = $(ref.current);
+    $el.daterangepicker(options, cb);
 
-    return React.cloneElement(children, {
-      ref: el => {
-        this.el = el;
-      }
-    });
-  }
+    // console.log($el.daterangepicker);
+  }, [options, cb]);
+
+  return React.cloneElement(children, {
+    ref
+  });
 }
+
+Daterangepicker.propTypes = {
+  children: PropTypes.node.isRequired,
+  cb: PropTypes.func
+};

@@ -17,7 +17,7 @@ export default {
       {
         title: "Dashboard",
         root: true,
-        icon: "flaticon2-architecture-and-city",
+        icon: "flaticon2-graphic",
         page: "dashboard",
         translate: "MENU.DASHBOARD",
         bullet: "dot"

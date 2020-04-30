@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+
 const colorMedials = ["success", "danger", "warning", "info"];
 
 export default function NewPeoples({ data, progress }) {
@@ -14,13 +15,14 @@ export default function NewPeoples({ data, progress }) {
   return (
     <>
       <div className="kt-widget4">
-        {data.map(({ _id, firstName, lastName, province, district }) => {
-          const ranColorMedial = colorMedials[Math.floor(Math.random() * 3)];
-
+        {data.map(({ _id, firstName, lastName, province, district }, i) => {
           return (
             <div key={_id} className="kt-widget4__item">
               <div className="kt-widget4__pic kt-widget4__pic--pic">
-                <div className={`kt-media kt-media--${ranColorMedial}`}>
+                <div
+                  className={`kt-media kt-media--${colorMedials[i] ||
+                    "warning"}`}
+                >
                   <span>{firstName.substring(0, 2)}</span>
                 </div>
               </div>

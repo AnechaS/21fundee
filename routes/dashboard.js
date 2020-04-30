@@ -81,26 +81,48 @@ router.get('/', authorize(), async (req, res, next) => {
     const qAddressOfPeoples = People.address(comdQDate);
 
     // statistics created peoples in the period
-    const n = 4;
     let dGtlQDCPeoples;
     let dLteQDCPeoples;
-    if (dStart) {
+    if (dStart && !dEnd) {
       dGtlQDCPeoples = dStart.clone().toDate();
-      dLteQDCPeoples = dStart
-        .clone()
-        .add(n, period)
+      dLteQDCPeoples = moment()
         .endOf('date')
         .toDate();
-    } else if (dEnd) {
+
+      console.log(moment().toDate());
+    } else if (dEnd && !dStart) {
+      dGtlQDCPeoples = moment()
+        .startOf('day')
+        .toDate();
+      dLteQDCPeoples = dEnd.clone().toDate();
+    } else if (dStart && dEnd) {
       dGtlQDCPeoples = dStart
         .clone()
-        .subtract(n, period)
+        .startOf(period)
         .toDate();
-      dLteQDCPeoples = dStart.clone().toDate();
+
+      dLteQDCPeoples = dEnd.clone().toDate();
+    } else if (!Object.keys(comdQDate).length && period === 'day') {
+      dGtlQDCPeoples = moment()
+        .subtract(2, 'month')
+        .startOf('day')
+        .toDate();
+      dLteQDCPeoples = moment()
+        .endOf('date')
+        .toDate();
+    } else if (!Object.keys(comdQDate).length && period === 'month') {
+      dGtlQDCPeoples = moment()
+        .year('2019')
+        .month(7)
+        .startOf('day')
+        .toDate();
+      dLteQDCPeoples = moment()
+        .endOf('date')
+        .toDate();
     } else {
       dGtlQDCPeoples = moment()
-        .subtract(n, period)
-        .startOf('day')
+        .year('2018')
+        .startOf('year')
         .toDate();
       dLteQDCPeoples = moment()
         .endOf('date')

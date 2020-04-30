@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import { connect } from "react-redux";
 import {
   Portlet,
@@ -18,8 +18,9 @@ import clsx from "clsx";
 
 class Dashboard extends Component {
   state = {
-    period: "month",
+    period: "day",
     loading: true,
+    isChangeDate: false,
     widgets: [
       {
         value: 0
@@ -83,14 +84,19 @@ class Dashboard extends Component {
     ]
   };
 
+  datapickRef = createRef();
+
   componentDidMount() {
-    const { period } = this.state;
-    this.fetchData({ period });
+    /* const { period } = this.props; */
+    this.fetchData(/* { period } */);
   }
 
   fetchData = async params => {
     try {
-      this.setState({ loading: true });
+      const { loading } = this.state;
+      if (!loading) {
+        this.setState({ loading: true });
+      }
 
       const response = await getInfoDashboard(params);
 
@@ -102,6 +108,7 @@ class Dashboard extends Component {
   };
 
   handleChangeDate = ({ start, end }) => {
+    this.setState({ period: "day", isChangeDate: true });
     this.fetchData({
       dateStart: start.format("YYYY-MM-DD"),
       dateEnd: end.format("YYYY-MM-DD")
@@ -109,9 +116,11 @@ class Dashboard extends Component {
   };
 
   handleChangePeriod = value => {
-    const { period } = this.state;
-    if (period !== value) {
-      this.setState({ period: value });
+    const { period, isChangeDate } = this.state;
+    if (period !== value || isChangeDate) {
+      this.datapickRef.current.reset();
+
+      this.setState({ period: value, isChangeDate: false });
 
       this.fetchData({ period: value });
     }
@@ -154,7 +163,7 @@ class Dashboard extends Component {
               className={clsx({ active: period === "day" })}
               onClick={() => this.handleChangePeriod("day")}
             >
-              Today
+              Day
             </SubHeader.Button>
             <SubHeader.Button
               color="secondary"
@@ -170,7 +179,10 @@ class Dashboard extends Component {
             >
               Year
             </SubHeader.Button>
-            <SubHeader.Daterangepicker onChange={this.handleChangeDate} />
+            <SubHeader.Daterangepicker
+              ref={this.datapickRef}
+              onChange={this.handleChangeDate}
+            />
           </SubHeader.Toolbar>
         </SubHeader>
         <KTContent>
@@ -298,26 +310,28 @@ class Dashboard extends Component {
                         {
                           Header: "ร้อยละ",
                           accessor: "percentage",
-                          template: ({ percentage }) => {
+                          template: cell => {
                             return (
-                              <div className="row">
-                                <div className="col-sm-6">
-                                  <div
-                                    className="progress"
-                                    style={{ height: "15px" }}
-                                  >
+                              <span style={{ width: 150 }}>
+                                <div className="row">
+                                  <div className="col-sm-6">
                                     <div
-                                      className="progress-bar bg-info"
-                                      role="progressbar"
-                                      style={{ width: `${percentage}%` }}
-                                      aria-valuenow={percentage}
-                                      aria-valuemin="0"
-                                      aria-valuemax="100"
-                                    ></div>
+                                      className="progress"
+                                      style={{ height: "15px" }}
+                                    >
+                                      <div
+                                        className="progress-bar bg-info"
+                                        role="progressbar"
+                                        style={{ width: `${cell.value}%` }}
+                                        aria-valuenow={cell.value}
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                      ></div>
+                                    </div>
                                   </div>
+                                  <div className="col-sm-6">{cell.value}%</div>
                                 </div>
-                                <div className="col-sm-6">{percentage}%</div>
-                              </div>
+                              </span>
                             );
                           }
                         }
@@ -368,7 +382,22 @@ class Dashboard extends Component {
                           Header: "อำเภอ",
                           accessor: "district",
                           width: 150,
-                          sortable: true
+                          sortable: true,
+                          template: cell => {
+                            return (
+                              <>
+                                <div>
+                                  <div>{cell.value}</div>
+                                  <small
+                                    className="text-muted"
+                                    style={{ fontSize: "11px" }}
+                                  >
+                                    จ. {cell.row.original.province}
+                                  </small>
+                                </div>
+                              </>
+                            );
+                          }
                         },
                         {
                           Header: "ผู้ใข้ที่มี ID",
@@ -391,26 +420,28 @@ class Dashboard extends Component {
                         {
                           Header: "ร้อยละ",
                           accessor: "percentage",
-                          template: ({ percentage }, i) => {
+                          template: cell => {
                             return (
-                              <div className="row">
-                                <div className="col-sm-6">
-                                  <div
-                                    className="progress"
-                                    style={{ height: "15px" }}
-                                  >
+                              <span style={{ width: 150 }}>
+                                <div className="row">
+                                  <div className="col-sm-6">
                                     <div
-                                      className="progress-bar bg-info"
-                                      role="progressbar"
-                                      style={{ width: `${percentage}%` }}
-                                      aria-valuenow={percentage}
-                                      aria-valuemin="0"
-                                      aria-valuemax="100"
-                                    ></div>
+                                      className="progress"
+                                      style={{ height: "15px" }}
+                                    >
+                                      <div
+                                        className="progress-bar bg-info"
+                                        role="progressbar"
+                                        style={{ width: `${cell.value}%` }}
+                                        aria-valuenow={cell.value}
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                      ></div>
+                                    </div>
                                   </div>
+                                  <div className="col-sm-6">{cell.value}%</div>
                                 </div>
-                                <div className="col-sm-6">{percentage}%</div>
-                              </div>
+                              </span>
                             );
                           }
                         }
@@ -431,13 +462,13 @@ class Dashboard extends Component {
           <div className="row">
             <div className="col-xl-9">
               <Portlet fluidHeight={true}>
-                <PortletHeader title="ยอดความสำเร็จในการคุยกับบอท 21 วัน" />
+                <PortletHeader title="สถิติการคุยกับแชทบอท 21 วัน" />
 
                 <PortletBody>
                   <ConvScheduleComplete
                     max={widget8.max}
                     min={widget8.min}
-                    labels={widget8.labels}
+                    labels={widget8.labels.map((_, i) => `วันที่ ${i + 1}`)}
                     data={widget8.data}
                   />
                 </PortletBody>

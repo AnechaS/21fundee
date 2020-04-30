@@ -365,10 +365,16 @@ export default function Table({
                         className="kt-datatable__cell"
                         {...cell.getCellProps()}
                       >
-                        <span style={{ width: cell.column.width }}>
+                        <span
+                          style={{
+                            width: cell.column.width,
+                            display: "flex",
+                            alignItems: "center"
+                          }}
+                        >
                           {!cell.column.hasOwnProperty("template")
                             ? cell.render("Cell")
-                            : cell.column.template(cell.row.original, i)}
+                            : cell.column.template(cell, i)}
                         </span>
                       </td>
                     );

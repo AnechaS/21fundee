@@ -23,11 +23,11 @@ export default function PeoplesStatisticsChart({ labels, data }) {
 
   const dataChart = useMemo(
     () => ({
-      labels: labels,
+      labels,
       datasets: [
         {
           fill: true,
-          // borderWidth: 0,
+          borderWidth: 0,
           backgroundColor: Chart.helpers
             .color(brandColor)
             .alpha(0.6)
@@ -72,12 +72,15 @@ export default function PeoplesStatisticsChart({ labels, data }) {
         responsive: true,
         maintainAspectRatio: false,
         legend: false,
+        // animation: {
+        //   duration: 0
+        // },
         scales: {
           xAxes: [
             {
               categoryPercentage: 0.35,
               barPercentage: 0.7,
-              display: true,
+              display: false,
               scaleLabel: {
                 display: false,
                 labelString: "Date"
@@ -112,11 +115,13 @@ export default function PeoplesStatisticsChart({ labels, data }) {
                 zeroLineBorderDash: [3, 4]
               },
               ticks: {
-                display: false,
+                display: true,
                 beginAtZero: true,
                 fontColor: shape3Color,
                 fontSize: 12,
-                padding: 10
+                padding: 10,
+                suggestedMin: 0,
+                suggestedMax: 10
               }
             }
           ]
@@ -130,7 +135,7 @@ export default function PeoplesStatisticsChart({ labels, data }) {
         tooltips: {
           enabled: true,
           intersect: false,
-          mode: "nearest",
+          mode: "index",
           bodySpacing: 5,
           yPadding: 10,
           xPadding: 10,
@@ -165,7 +170,7 @@ export default function PeoplesStatisticsChart({ labels, data }) {
 
   return (
     <div className="kt-widget12">
-      <div className="kt-widget12__chart" style={{ height: "100%" }}>
+      <div className="kt-widget12__chart" style={{ height: "338px" }}>
         <canvas
           ref={ref}
           width={683}

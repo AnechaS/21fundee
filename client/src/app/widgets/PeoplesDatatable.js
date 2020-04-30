@@ -58,5 +58,5 @@ export default function PeoplesDatatable({ summarys, datatable }) {
 
 PeoplesDatatable.propTypes = {
   summarys: PropTypes.arrayOf(PropTypes.object).isRequired,
-  datatable: Table.propTypes
+  datatable: PropTypes.shape(Table.propTypes).isRequired
 };
