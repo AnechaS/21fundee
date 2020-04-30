@@ -5,9 +5,9 @@ import { connect } from "react-redux";
 import objectPath from "object-path";
 import KTToggle from "../../_assets/js/toggle";
 import * as builder from "../../ducks/builder";
+import Logo from "./Logo";
 import { ReactComponent as AngleDoubleLeftIcon } from "../assets/layout-svg-icons/Angle-double-left.svg";
 import { ReactComponent as AngleDoubleRightIcon } from "../assets/layout-svg-icons/Angle-double-right.svg";
-
 
 class Brand extends React.Component {
   ktToggleRef = React.createRef();
@@ -25,7 +25,8 @@ class Brand extends React.Component {
       >
         <div className="kt-aside__brand-logo">
           <Link to="">
-            <img alt="logo" src={this.props.headerLogo} />
+            {/* <img alt="logo" src={this.props.headerLogo} /> */}
+            <Logo />
           </Link>
         </div>
 

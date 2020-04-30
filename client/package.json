@@ -51,7 +51,6 @@
     "css-mediaquery": "^0.1.2",
     "date-fns": "^2.8.1",
     "dentist": "^1.0.3",
-    "dompurify": "^2.0.10",
     "downshift": "^3.4.2",
     "fg-loadcss": "^2.1.0",
     "formik": "^2.0.6",

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import _ from "lodash";
 import Table from "../partials/content/Table";
 
-export default function OrderStatisticsTable({ summarys, datatable }) {
+export default function PeoplesDatatable({ summarys, datatable }) {
   return (
     <div className="kt-widget34">
       {!_.isEmpty(summarys) && (
@@ -56,12 +56,7 @@ export default function OrderStatisticsTable({ summarys, datatable }) {
   );
 }
 
-OrderStatisticsTable.defaultProps = {
-  summarys: [],
-  datatable: {}
-};
-
-OrderStatisticsTable.propTypes = {
-  summarys: PropTypes.arrayOf(PropTypes.object),
-  datatable: PropTypes.object
+PeoplesDatatable.propTypes = {
+  summarys: PropTypes.arrayOf(PropTypes.object).isRequired,
+  datatable: Table.propTypes
 };

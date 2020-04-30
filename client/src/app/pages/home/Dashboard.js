@@ -9,16 +9,16 @@ import { metronic } from "../../../_metronic";
 import SubHeader from "../../partials/layout/SubHeader";
 import KTContent from "../../../_metronic/layout/KtContent";
 import QuickStatsChart from "../../widgets/QuickStatsChart";
-import OrderStatisticsChart from "../../widgets/OrderStatisticsChart-v2";
-import OrderStatisticsTable from "../../widgets/OrderStatisticsTable";
-import NewUsers from "../../widgets/NewUsers";
+import PeoplesStatisticsChart from "../../widgets/PeoplesStatisticsChart";
+import PeoplesDatatable from "../../widgets/PeoplesDatatable";
+import NewPeoples from "../../widgets/NewPeoples";
 import ConvScheduleComplete from "../../widgets/ConvScheduleComplete";
 import { getInfoDashboard } from "../../crud/dashboard.crud";
 import clsx from "clsx";
 
 class Dashboard extends Component {
   state = {
-    period: "day",
+    period: "month",
     loading: true,
     widgets: [
       {
@@ -84,7 +84,8 @@ class Dashboard extends Component {
   };
 
   componentDidMount() {
-    this.fetchData();
+    const { period } = this.state;
+    this.fetchData({ period });
   }
 
   fetchData = async params => {
@@ -116,8 +117,6 @@ class Dashboard extends Component {
     }
   };
 
-  widget6Props = () => {};
-
   _valSummary(o) {
     let text = "";
     if (Object.hasOwnProperty.call(o, "name") && o.name) {
@@ -132,7 +131,6 @@ class Dashboard extends Component {
   }
 
   render() {
-    const { brandColor, dangerColor, successColor, primaryColor } = this.props;
     const { widgets, period, loading } = this.state;
     const [
       widget1,
@@ -186,7 +184,6 @@ class Dashboard extends Component {
                         value={widget1.value}
                         title="ผู้ใช้งานทั้งหมด"
                         desc="Total Peoples"
-                        border={brandColor}
                       />
                     </PortletBody>
                   </Portlet>
@@ -197,7 +194,6 @@ class Dashboard extends Component {
                         value={widget2.value}
                         title="ผู้ใช้งานรายใหม่"
                         desc="New Peoples"
-                        border={dangerColor}
                       />
                     </PortletBody>
                   </Portlet>
@@ -211,7 +207,6 @@ class Dashboard extends Component {
                         title="ผู้ใช้งานที่มี ID"
                         desc="Peoples With ID"
                         percentage={widget3.percentage}
-                        border={successColor}
                       />
                     </PortletBody>
                   </Portlet>
@@ -223,7 +218,6 @@ class Dashboard extends Component {
                         title="ผู้ใช้งานทั่วไป"
                         desc="General Peoples"
                         percentage={widget4.percentage}
-                        border={primaryColor}
                       />
                     </PortletBody>
                   </Portlet>
@@ -236,7 +230,7 @@ class Dashboard extends Component {
                 <PortletHeader title="สถิติผู้ใช้งาน" />
 
                 <PortletBody>
-                  <OrderStatisticsChart
+                  <PeoplesStatisticsChart
                     labels={widget5.labels}
                     data={widget5.data}
                   />
@@ -251,7 +245,7 @@ class Dashboard extends Component {
                 <PortletHeader title="จังหวัด" />
 
                 <PortletBody fit={true}>
-                  <OrderStatisticsTable
+                  <PeoplesDatatable
                     summarys={[
                       {
                         desc: "จำนวน",
@@ -344,7 +338,7 @@ class Dashboard extends Component {
                 <PortletHeader title="อำเภอ" />
 
                 <PortletBody fit={true}>
-                  <OrderStatisticsTable
+                  <PeoplesDatatable
                     summarys={[
                       {
                         desc: "จำนวน",
@@ -454,7 +448,7 @@ class Dashboard extends Component {
                 <PortletHeader title="ผู้ใช้งานใหม่" />
 
                 <PortletBody>
-                  <NewUsers data={widget9.data} progress={loading} />
+                  <NewPeoples data={widget9.data} progress={loading} />
                 </PortletBody>
               </Portlet>
             </div>

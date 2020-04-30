@@ -47,8 +47,7 @@ class UserProfile extends React.Component {
 
             {showBadge && (
               <span className="kt-badge kt-badge--username kt-badge--unified-success kt-badge--lg kt-badge--rounded kt-badge--bold">
-                {/* TODO: Should get from currentUser */}
-                John Doe
+                {user.name.substring(0, 1)}
               </span>
             )}
           </div>
@@ -64,10 +63,10 @@ class UserProfile extends React.Component {
             <div className="kt-user-card__avatar">
               <img alt="Pic" className="kt-hidden" src={user.pic} />
               <span className="kt-badge kt-badge--lg kt-badge--rounded kt-badge--bold kt-font-success">
-                S
+                {user.name.substring(0, 1)}
               </span>
             </div>
-            <div className="kt-user-card__name">{user.fullname}</div>
+            <div className="kt-user-card__name">{user.name}</div>
             <div className="kt-user-card__badge">
               <span className="btn btn-success btn-sm btn-bold btn-font-md">
                 23 messages

@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 const colorMedials = ["success", "danger", "warning", "info"];
 
-export default function NewUsers({ data, progress }) {
+export default function NewPeoples({ data, progress }) {
   if (!data.length && !progress) {
     return (
       <div className="kt-widget4 kt-widget4--no-data">
@@ -41,12 +41,12 @@ export default function NewUsers({ data, progress }) {
   );
 }
 
-NewUsers.defaultProps = {
+NewPeoples.defaultProps = {
   data: [],
   progress: false
 };
 
-NewUsers.propTypes = {
+NewPeoples.propTypes = {
   data: PropTypes.arrayOf(PropTypes.object),
   progress: PropTypes.bool
 };

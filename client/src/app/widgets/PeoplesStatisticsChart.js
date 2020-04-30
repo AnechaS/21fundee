@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { Chart } from "chart.js";
+import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { metronic } from "../../_metronic";
 
-export default function OrderStatisticsChart({ labels = [], data = [] }) {
+export default function PeoplesStatisticsChart({ labels, data }) {
   const ref = useRef();
   const { brandColor, shape2Color, shape3Color } = useSelector(state => ({
     brandColor: metronic.builder.selectors.getConfig(
@@ -175,3 +176,8 @@ export default function OrderStatisticsChart({ labels = [], data = [] }) {
     </div>
   );
 }
+
+PeoplesStatisticsChart.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.number).isRequired,
+  labels: PropTypes.arrayOf(PropTypes.string).isRequired
+};

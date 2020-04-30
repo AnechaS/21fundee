@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { Chart } from "chart.js";
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
+import sum from "lodash/sum";
 import { metronic } from "../../_metronic";
 
-export default function ConvScheduleComplete({ max, min, labels, data }) {
+export default function ConvScheduleComplete({ labels, data }) {
   const ref = useRef();
   const { brandColor, successColor, shape2Color, shape3Color } = useSelector(
     state => ({
@@ -155,6 +157,25 @@ export default function ConvScheduleComplete({ max, min, labels, data }) {
     };
   }, [dataChart, brandColor, shape2Color, shape3Color]);
 
+  const avgPrecentComplate = useMemo(() => {
+    if (!data.length) {
+      return 0;
+    }
+
+    const avg = Number((sum(data) / data.length).toFixed(2));
+    return avg;
+  }, [data]);
+
+  const avgPrecentNotComplate = useMemo(() => {
+    if (!data.length) {
+      return 0;
+    }
+
+    const values = data.map(val => 100 - val);
+    const avg = Number((sum(values) / values.length).toFixed(2));
+    return avg;
+  }, [data]);
+
   return (
     <div className="kt-widget12">
       <div className="kt-widget12__content kt-portlet__space-x kt-portlet__space-y">
@@ -163,13 +184,13 @@ export default function ConvScheduleComplete({ max, min, labels, data }) {
             <span className="kt-widget12__desc">
               อัตตราที่ผู้ใช้งานคุยกับแชทบอทจนครบ 21 วัน
             </span>
-            <span className="kt-widget12__value">{max}%</span>
+            <span className="kt-widget12__value">{avgPrecentComplate}%</span>
           </div>
           <div className="kt-widget12__info">
             <span className="kt-widget12__desc">
               อัตตราที่ผู้ใช้งานคุยกับแชทบอทไม่ครบ 21 วัน
             </span>
-            <span className="kt-widget12__value">{min}%</span>
+            <span className="kt-widget12__value">{avgPrecentNotComplate}%</span>
           </div>
         </div>
       </div>
@@ -184,3 +205,8 @@ export default function ConvScheduleComplete({ max, min, labels, data }) {
     </div>
   );
 }
+
+ConvScheduleComplete.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.number).isRequired,
+  labels: PropTypes.arrayOf(PropTypes.string).isRequired
+};
