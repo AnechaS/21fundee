@@ -6,7 +6,7 @@ import { ReactComponent as UpdateIcon } from "../../../_metronic/layout/assets/l
 import { ReactComponent as FilterIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Filter.svg";
 import { ReactComponent as WriteIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Write.svg";
 import KTContent from "../../../_metronic/layout/KtContent";
-import Table from "../../components/Table";
+import Table from "../../partials/content/TableEdit";
 import {
   getConversation,
   createConversation,

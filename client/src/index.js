@@ -9,16 +9,9 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import { /* mockAxios,  */ setupAxios } from "./_metronic";
 import store, { persistor } from "./app/store/store";
+import "./globals";
+import "./index.scss";
 import App from "./App";
-import "bootstrap";
-import "bootstrap-select/dist/js/bootstrap-select.js";
-import "./index.scss"; // Standard version
-// import "./sass/style.react.rtl.css"; // RTL version
-import "socicon/css/socicon.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import "./_metronic/_assets/plugins/line-awesome/css/line-awesome.css";
-import "./_metronic/_assets/plugins/flaticon/flaticon.css";
-import "./_metronic/_assets/plugins/flaticon2/flaticon.css";
 
 /**
  * Base URL of the website.

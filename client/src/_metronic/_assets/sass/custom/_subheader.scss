@@ -1,0 +1,10 @@
+// Custom Subheader
+.kt-subheader {
+  .btn:disabled,
+  .btn.disabled,
+  .kt-nav__link:disabled,
+  .kt-nav__link.disabled {
+    cursor: not-allowed !important;
+    opacity: 0.65;
+  }
+}

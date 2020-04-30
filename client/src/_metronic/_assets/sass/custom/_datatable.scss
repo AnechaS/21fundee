@@ -1,30 +1,7 @@
-//
-// Custom Example 1 Style
-// Here you can put your custom sass code, use global SASS mixings and variables to override the theme or add new styles according to your requirements.
-// Most of the changes can be achieved via global or layout level sass variable changes.
-//
+@import "../config";
 
-.my-custom-style {
-  padding: 1rem 0.5rem;
-  color: kt-brand-color();
+// Custom Data table
 
-  .my-custom-element {
-    margin-left: 1rem;
-  }
-}
-
-// Subheader
-.kt-subheader {
-  .btn:disabled,
-  .btn.disabled,
-  .kt-nav__link:disabled,
-  .kt-nav__link.disabled {
-    cursor: not-allowed !important;
-    opacity: 0.65;
-  }
-}
-
-// Data table
 .kt-datatable {
   $base-bg: #fff;
   $body_cell_font_color: kt-base-color(label, 3);
@@ -170,16 +147,6 @@
           background-color: $base_bg;
         }
       }
-    }
-  }
-}
-
-@include kt-tablet-and-mobile {
-  .my-custom-style {
-    padding: 0.5rem 0.25rem;
-
-    .my-custom-element {
-      margin-left: 0.5rem;
     }
   }
 }
