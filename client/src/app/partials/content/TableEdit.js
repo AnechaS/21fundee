@@ -15,7 +15,6 @@ import {
 import { isEqual } from "lodash";
 import clsx from "clsx";
 import pagination from "../../utils/pagination";
-import "../../../_metronic/_assets/sass/custom/_datatable.scss";
 
 /**
  * Data to json stringify scpace ", "
@@ -231,7 +230,7 @@ const Table = forwardRef(
     return (
       <div className="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
         <div
-          className="kt-datatable__table"
+          className="kt-datatable__table kt-datatable__table--edit"
           {...getTableProps()}
           style={{
             display: "inline-block",

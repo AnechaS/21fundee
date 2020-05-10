@@ -312,26 +312,24 @@ class Dashboard extends Component {
                           accessor: "percentage",
                           template: cell => {
                             return (
-                              <span style={{ width: 150 }}>
-                                <div className="row">
-                                  <div className="col-sm-6">
+                              <div className="row" style={{ width: "100%" }}>
+                                <div className="col-sm-6">
+                                  <div
+                                    className="progress"
+                                    style={{ height: "15px" }}
+                                  >
                                     <div
-                                      className="progress"
-                                      style={{ height: "15px" }}
-                                    >
-                                      <div
-                                        className="progress-bar bg-info"
-                                        role="progressbar"
-                                        style={{ width: `${cell.value}%` }}
-                                        aria-valuenow={cell.value}
-                                        aria-valuemin="0"
-                                        aria-valuemax="100"
-                                      ></div>
-                                    </div>
+                                      className="progress-bar bg-info"
+                                      role="progressbar"
+                                      style={{ width: `${cell.value}%` }}
+                                      aria-valuenow={cell.value}
+                                      aria-valuemin="0"
+                                      aria-valuemax="100"
+                                    ></div>
                                   </div>
-                                  <div className="col-sm-6">{cell.value}%</div>
                                 </div>
-                              </span>
+                                <div className="col-sm-6">{cell.value}%</div>
+                              </div>
                             );
                           }
                         }
@@ -340,6 +338,9 @@ class Dashboard extends Component {
                         items: {
                           info: true
                         }
+                      },
+                      layout: {
+                        scroll: true,
                       },
                       loading
                     }}
@@ -450,6 +451,9 @@ class Dashboard extends Component {
                         items: {
                           info: true
                         }
+                      },
+                      layout: {
+                        scroll: true
                       },
                       loading
                     }}
