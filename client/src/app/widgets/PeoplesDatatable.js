@@ -44,11 +44,7 @@ export default function PeoplesDatatable({ summarys, datatable }) {
         <Table
           {...{
             ...datatable,
-            layout: {
-              ...datatable.layout,
-              scroll: true,
-              height: 260
-            }
+            minHeight: 260
           }}
         />
       </div>

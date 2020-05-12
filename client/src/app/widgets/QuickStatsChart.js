@@ -10,15 +10,17 @@ export default function QuickStatsChart({
     <div className="kt-widget35">
       <div className="kt-widget35__content">
         <span className="kt-widget35__title">{title}</span>
-        <span className="kt-widget35__number">{value}</span>
-        {Boolean(percentage) && (
-          <span className="kt-widget35__percentage">
-            ร้อยละ{" "}
-            <span style={{ fontWeight: 500, fontSize: "1.3rem" }}>
-              {percentage}
+        <span className="kt-widget35__number">
+          {value}{" "}
+          {Boolean(percentage) && (
+            <span className="kt-widget35__percentage">
+              ร้อยละ{" "}
+              <span style={{ fontWeight: 500, fontSize: "1.3rem" }}>
+                {percentage}
+              </span>
             </span>
-          </span>
-        )}
+          )}
+        </span>
         <span className="kt-widget35__desc">{desc}</span>
       </div>
     </div>

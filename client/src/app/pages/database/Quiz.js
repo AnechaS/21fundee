@@ -82,13 +82,19 @@ export default class Quiz extends Component {
 
   tableRef = createRef();
 
+  _isMounted = false;
+
   componentDidMount() {
+    this._isMounted = true;
+
     this.fetchData();
 
     document.addEventListener("keydown", this.handleKeyDown, false);
   }
 
   componentWillUnmount() {
+    this._isMounted = false;
+
     document.removeEventListener("keydown", this.handleKeyDown, false);
   }
 
@@ -109,10 +115,14 @@ export default class Quiz extends Component {
       this.setState({ isLoading: true });
       const response = await getQuiz();
 
-      this.setState({ data: response.data, isLoading: false });
+      if (this._isMounted) {
+        this.setState({ data: response.data, isLoading: false });
+      }
     } catch (error) {
       // TODO handle error
-      this.setState({ isLoading: false });
+      if (this._isMounted) {
+        this.setState({ isLoading: false });
+      }
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useRef, useEffect } from "react";
+import React, { useMemo, useCallback } from "react";
 import {
   useTable,
   useSortBy,
@@ -7,8 +7,6 @@ import {
 } from "react-table";
 import PropTypes from "prop-types";
 import clsx from "clsx";
-import _result from "lodash/result";
-import PerfectScrollbar from "perfect-scrollbar";
 import pagination from "../../utils/pagination";
 
 export const PaginTable = ({
@@ -18,25 +16,32 @@ export const PaginTable = ({
   gotoPage,
   nextPage,
   previousPage,
-  state: { pageIndex, pageSize },
+  pageIndex,
+  pageSize,
   setPageSize,
-  pageSizeSelect,
-  info,
-  rowsCount
+  rowsCount,
+  showTotal,
+  showSizePerPage,
+  perPageList,
+  pageTotalRenderer
 }) => {
-  const renderInfo = useCallback(() => {
-    if (!info.display) {
+  // total render
+  const renderTotal = useCallback(() => {
+    if (!showTotal) {
       return null;
     }
 
+    // number start row of pagin
     const start = rowsCount === 0 ? 0 : Math.max(pageSize * pageIndex + 1, 1);
+    // number end row of pagin
     const end =
       pageIndex + 1 === pageCount || rowsCount === 0
         ? rowsCount
         : pageSize * (pageIndex + 1);
 
-    if (info.callback) {
-      return info.callback(start, end, rowsCount);
+    // custom render total
+    if (pageTotalRenderer) {
+      return pageTotalRenderer(start, end, rowsCount);
     }
 
     return (
@@ -44,7 +49,7 @@ export const PaginTable = ({
         {`Showing  ${start} - ${end} of ${rowsCount}`}
       </span>
     );
-  }, [info, pageSize, pageIndex, pageCount, rowsCount]);
+  }, [showTotal, pageSize, pageIndex, pageCount, rowsCount, pageTotalRenderer]);
 
   return (
     <div className="kt-datatable__pager kt-datatable--paging-loaded">
@@ -126,23 +131,27 @@ export const PaginTable = ({
           </li>
         </>
       </ul>
-      <div className="kt-datatable__pager-info">
-        <select
-          className="selectpicker kt-datatable__pager-size"
-          data-width="60px"
-          value={pageSize}
-          onChange={e => {
-            setPageSize(Number(e.target.value));
-          }}
-        >
-          {pageSizeSelect.map(v => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
-        {info && renderInfo()}
-      </div>
+      {showTotal && (
+        <div className="kt-datatable__pager-info">
+          {showSizePerPage && (
+            <select
+              className="selectpicker kt-datatable__pager-size"
+              data-width="60px"
+              value={pageSize}
+              onChange={e => {
+                setPageSize(Number(e.target.value));
+              }}
+            >
+              {perPageList.map(v => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          )}
+          {showTotal && renderTotal()}
+        </div>
+      )}
     </div>
   );
 };
@@ -150,162 +159,107 @@ export const PaginTable = ({
 PaginTable.defaultProps = {
   canPreviousPage: false,
   canNextPage: true,
-  pageSizeSelect: [10, 20, 30, 50, 100],
-  info: {
-    display: true
-  },
-  rowsCount: 0
+  pageCount: 0,
+  rowsCount: 0,
+  showTotal: true,
+  showSizePerPage: true,
+  perPageList: [10, 20, 30, 50, 100]
 };
 
 PaginTable.propTypes = {
   canPreviousPage: PropTypes.bool,
   canNextPage: PropTypes.bool,
-  pageCount: PropTypes.number.isRequired,
   gotoPage: PropTypes.func.isRequired,
   nextPage: PropTypes.func.isRequired,
   previousPage: PropTypes.func.isRequired,
   setPageSize: PropTypes.func.isRequired,
-  state: PropTypes.shape({
-    pageIndex: PropTypes.number,
-    pageSize: PropTypes.number
-  }).isRequired,
-  pageSizeSelect: PropTypes.arrayOf(PropTypes.number),
-  info: PropTypes.shape({
-    display: PropTypes.bool,
-    callback: PropTypes.func
-  }),
-  rowsCount: PropTypes.number
+  pageCount: PropTypes.number,
+  pageIndex: PropTypes.number,
+  pageSize: PropTypes.number,
+  rowsCount: PropTypes.number,
+  showTotal: PropTypes.bool,
+  showSizePerPage: PropTypes.bool,
+  pageTotalRenderer: PropTypes.func,
+  perPageList: PropTypes.arrayOf(PropTypes.number)
 };
 
 export default function Table({
   columns,
   data,
   sortable,
-  layout,
   pagination,
-  toolbar,
-  translate,
+  height,
+  maxHeight,
   loading
 }) {
-  const theadRef = useRef(false);
-  const tbodyRef = useRef(false);
+  const initialState = useMemo(() => {
+    const object = {};
 
-  const options = useMemo(() => {
-    const o = {
-      data: data.source || [],
-      columns,
-      initialState: {}
-    };
-
-    if (pagination) {
-      o.initialState.pageIndex = data.pageIndex || 0;
-      o.initialState.pageSize = data.pageSize || 10;
+    if (typeof pagination.pageSize !== "undefined") {
+      object.pageSize = pagination.pageSize;
     }
 
-    return o;
-  }, [data, columns, pagination]);
+    if (typeof pagination.pageIndex !== "undefined") {
+      object.pageSize = pagination.pageIndex;
+    }
+
+    return object;
+  }, [pagination]);
 
   const instance = useTable(
     {
-      ...options
+      data: data,
+      columns,
+      initialState
     },
     useSortBy,
     usePagination
   );
 
+  // props table
   const tableProps = useCallback(
-    (props, { column }) => {
-      const newProps = Object.assign({}, props);
-
-      newProps.style = {
+    (props /* , { column } */) => {
+      // styles table
+      props.style = {
         display: "block"
       };
-
-      if (layout.height) {
-        newProps.style = {
-          ...newProps.style,
-          maxHeight: `${layout.height}px`
+      // max height table
+      if (maxHeight) {
+        props.style = {
+          ...props.style,
+          maxHeight:
+            typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight
+        };
+      }
+      // height table
+      if (height) {
+        props.style = {
+          ...props.style,
+          height: typeof height === "number" ? `${height}px` : height
         };
       }
 
-      return newProps;
+      return props;
     },
-    [layout]
+    [maxHeight, height]
   );
 
+  // props header table
   const headerProps = useCallback(
     (props, { column }) => {
-      let newProps = { ...props };
-
+      // if prop sortable equal true
       if (sortable) {
-        newProps = { ...props, ...column.getSortByToggleProps() };
+        props = { ...props, ...column.getSortByToggleProps() };
       }
 
-      return newProps;
+      return props;
     },
     [sortable]
   );
 
-  const bodyProps = useCallback(
-    (props, { column }) => {
-      const newProps = Object.assign({}, props);
-
-      if (layout.height && layout.scroll) {
-        const theadHeight = theadRef.current.offsetHeight;
-
-        let bodyHeight = layout.height;
-        if (theadHeight > 0) {
-          bodyHeight -= theadHeight;
-        }
-
-        // TODO find height footer
-        // const tfootHeight
-        // if (tfootHeight > 0) {
-        //   bodyHeight -= tfootHeight;
-        // }
-
-        // scrollbar offset
-        bodyHeight -= 2;
-
-        newProps.style = {
-          maxHeight: Math.floor(parseFloat(bodyHeight))
-        };
-      }
-
-      return newProps;
-    },
-    [layout]
-  );
-
-  useEffect(() => {
-    let ps;
-    if (layout.height && layout.scroll) {
-      ps = new PerfectScrollbar(tbodyRef.current, {
-        wheelSpeed: 0.5,
-        swipeEasing: true,
-        // wheelPropagation: false,
-        minScrollbarLength: 40,
-        maxScrollbarLength: 300
-        // suppressScrollX: true
-      });
-    }
-
-    return () => {
-      ps.destroy();
-    };
-  }, [layout]);
-
-  const infoCallback = useMemo(() => {
-    let func;
-    const o = _result(translate, "toolbar.pagination.items");
-    if (o && Object.hasOwnProperty.call(o, "info")) {
-      func = o.info;
-    }
-
-    return func;
-  }, [translate]);
-
-  const rows = pagination ? instance.page : instance.rows;
+  // rows datatable
+  const rows =
+    typeof pagination !== "undefined" ? instance.page : instance.rows;
 
   return (
     <div
@@ -314,10 +268,10 @@ export default function Table({
       )}
     >
       <table
-        className="kt-datatable__table"
+        className="kt-datatable__table kt-datatable__table--scroll-x"
         {...instance.getTableProps(tableProps)}
       >
-        <thead className="kt-datatable__head" ref={theadRef}>
+        <thead className="kt-datatable__head">
           <tr className="kt-datatable__row">
             {instance.headers.map(column => {
               return (
@@ -328,10 +282,7 @@ export default function Table({
                     ),
                     "kt-datatable__cell--sorted": column.isSorted
                   })}
-                  {...column.getHeaderProps(
-                    // sortable ? column.getSortByToggleProps() : undefined
-                    headerProps
-                  )}
+                  {...column.getHeaderProps(headerProps)}
                 >
                   <span style={{ width: column.width }}>
                     {column.render("Header")}
@@ -349,12 +300,10 @@ export default function Table({
             })}
           </tr>
         </thead>
-        <tbody
-          className="kt-datatable__body"
-          {...instance.getTableBodyProps(bodyProps)}
-          ref={tbodyRef}
-        >
-          {Boolean(data.source.length) &&
+
+        <tbody className="kt-datatable__body" {...instance.getTableBodyProps()}>
+          {/* data not empty */}
+          {Boolean(data.length) &&
             rows.map((row, i) => {
               instance.prepareRow(row);
               return (
@@ -383,7 +332,8 @@ export default function Table({
               );
             })}
 
-          {Boolean(!data.source.length && !loading) && (
+          {/* data empty */}
+          {Boolean(!loading && !data.length) && (
             <tr
               style={{
                 display: "flex",
@@ -399,7 +349,7 @@ export default function Table({
         </tbody>
       </table>
 
-      {pagination && (
+      {Boolean(!loading && pagination) && (
         <PaginTable
           canPreviousPage={instance.canPreviousPage}
           canNextPage={instance.canNextPage}
@@ -408,15 +358,12 @@ export default function Table({
           nextPage={instance.nextPage}
           previousPage={instance.previousPage}
           setPageSize={instance.setPageSize}
-          state={{
-            pageIndex: instance.state.pageIndex,
-            pageSize: instance.state.pageSize
-          }}
+          pageIndex={instance.state.pageIndex}
+          pageSize={instance.state.pageSize}
           rowsCount={instance.rows.length}
-          info={{
-            display: _result(toolbar, "items.info", true),
-            callback: infoCallback
-          }}
+          showTotal={pagination.showTotal}
+          showSizePerPage={pagination.showSizePerPage}
+          pageTotalRenderer={pagination.pageTotalRenderer}
         />
       )}
     </div>
@@ -425,44 +372,29 @@ export default function Table({
 
 Table.defaultProps = {
   columns: [],
-  data: {
-    source: []
+  data: [],
+  initialState: {},
+  pagination: {
+    display: false
   },
-  layout: {},
   sortable: false,
-  toolbar: {},
-  translate: {},
   loading: false
 };
 
 Table.propTypes = {
   column: PropTypes.array,
-  data: PropTypes.shape({
-    source: PropTypes.array,
+  data: PropTypes.arrayOf(PropTypes.object),
+  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  minHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  pagination: PropTypes.shape({
+    pageIndex: PropTypes.number,
     pageSize: PropTypes.number,
-    pageIndex: PropTypes.number
-  }),
-  layout: PropTypes.shape({
-    scroll: PropTypes.bool,
-    height: PropTypes.number,
-    footer: PropTypes.bool
+    showTotal: PropTypes.bool,
+    pageTotalRenderer: PropTypes.func,
+    sizePerPage: PropTypes.number,
+    showSizePerPage: PropTypes.bool,
+    sizePerPageList: PropTypes.arrayOf(PropTypes.number)
   }),
   sortable: PropTypes.bool,
-  toolbar: PropTypes.shape({
-    layout: PropTypes.shape({}),
-    items: PropTypes.shape({
-      pagination: PropTypes.shape({}),
-      info: PropTypes.bool
-    })
-  }),
-  translate: PropTypes.shape({
-    toolbar: PropTypes.shape({
-      pagination: PropTypes.shape({
-        items: PropTypes.shape({
-          info: PropTypes.func
-        })
-      })
-    })
-  }),
   loading: PropTypes.bool
 };
