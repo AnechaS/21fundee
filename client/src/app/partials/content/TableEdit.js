@@ -230,7 +230,7 @@ const Table = forwardRef(
     return (
       <div className="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
         <div
-          className="kt-datatable__table kt-datatable__table--edit"
+          className="kt-datatable__table kt-datatable__table--scroll-x kt-datatable__table--edit"
           {...getTableProps()}
           style={{
             display: "inline-block",
