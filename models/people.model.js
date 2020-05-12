@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-const moment = require('moment');
 
 const PeopleSchema = new mongoose.Schema(
   {
@@ -21,7 +20,7 @@ const PeopleSchema = new mongoose.Schema(
       type: String,
       trim: true
     },
-    profilePicUrl: {
+    pic: {
       type: String,
       trim: true
     },

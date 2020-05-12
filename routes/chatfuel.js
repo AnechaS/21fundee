@@ -4,7 +4,6 @@ const httpStatus = require('http-status');
 const APIError = require('../utils/APIError');
 const removeReqBodyWithNull = require('../middlewares/removeReqBodyWithNull');
 const validator = require('../middlewares/validator');
-const ipChatfuel = require('../middlewares/ipChatfuel');
 
 const People = require('../models/people.model');
 const Conversation = require('../models/conversation.model');
@@ -24,18 +23,17 @@ const router = express.Router();
  */
 router.post(
   '/people',
-  ipChatfuel,
   removeReqBodyWithNull,
   validator([
     body('id', 'Is required').exists(),
-    body('botId', 'Is required').exists(),
+    body('botId', 'Is required').exists()
   ]),
   async (req, res, next) => {
     try {
       const { id, ...o } = req.body;
       const people = await People.findByIdAndUpdate(id, o, {
         upsert: true,
-        new: true,
+        new: true
         // overwrite: true
       });
 
@@ -56,7 +54,6 @@ router.post(
  */
 router.post(
   '/replies',
-  ipChatfuel,
   removeReqBodyWithNull,
   validator([
     body('people')
@@ -101,7 +98,7 @@ router.post(
       .notEmpty({ min: 1 })
       .bail()
       .isMongoId()
-      .withMessage('Invalid value'),
+      .withMessage('Invalid value')
   ]),
   async (req, res, next) => {
     try {
@@ -109,7 +106,7 @@ router.post(
 
       const savedConversation = await Conversation.create({
         ...o,
-        ...conversation,
+        ...conversation
       });
 
       // check body has quiz
@@ -124,9 +121,9 @@ router.post(
               {
                 field: 'quiz.question',
                 location: 'body',
-                conversation: 'Invalid value',
-              },
-            ],
+                conversation: 'Invalid value'
+              }
+            ]
           });
         }
 
@@ -135,7 +132,7 @@ router.post(
           conversation: savedConversation._id,
           question: question._id,
           answer: quiz.answer,
-          isCorrectAnswer: question.correctAnswers.includes(quiz.answer),
+          isCorrectAnswer: question.correctAnswers.includes(quiz.answer)
         });
       }
 

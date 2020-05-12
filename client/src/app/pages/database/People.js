@@ -37,8 +37,8 @@ export default class People extends Component {
       type: "String"
     },
     {
-      Header: "profilePicUrl",
-      accessor: "profilePicUrl",
+      Header: "pic",
+      accessor: "pic",
       type: "String"
     },
     {

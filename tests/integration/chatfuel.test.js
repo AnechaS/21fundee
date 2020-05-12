@@ -34,8 +34,7 @@ beforeEach(async () => {
     childName: 'Ant',
     childBirthday: '2560',
     gender: 'male',
-    botId,
-    blockId
+    botId
   });
 
   dbPeople = JSON.parse(JSON.stringify(savedPeople));
@@ -68,10 +67,10 @@ describe('POST /chatfuel/people', () => {
       lastName: 'Yui',
       province: 'สงขลา',
       district: 'เทพา',
-      dentalId: 'x',
       childName: 'Bee',
       childBirthday: '2560',
       gender: 'male',
+      pic: 'https://platform-lookaside.fbsbx.com/...',
       botId
     };
   });
@@ -98,9 +97,7 @@ describe('POST /chatfuel/people', () => {
       lastName: 'null',
       province: 'สงขลา',
       gender: 'null',
-      profilePicUrl: 'null',
-      locale: undefined,
-      source: null,
+      pic: 'null',
       botId
     };
 
