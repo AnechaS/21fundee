@@ -3,7 +3,7 @@ module.exports = {
     {
       name: '21FunDee',
       script: 'node ./bin/server',
-      watch: false,
+      watch: true,
       ignore_watch: ['node_modules', './client'],
       max_memory_restart: '500M',
       env: {
