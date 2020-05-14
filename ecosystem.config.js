@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: '21FunDee',
-      script: 'node ./bin/api',
+      script: 'node ./bin/server',
       watch: false,
       ignore_watch: ['node_modules', './client'],
       max_memory_restart: '500M',

@@ -4,7 +4,7 @@ import Schedule from "./Schedule";
 import Question from "./Question";
 import People from "./People";
 import Quiz from "./Quiz";
-import Conversation from "./Conversation";
+import Reply from "./Reply";
 
 export default function DatabasePage() {
   return (
@@ -13,7 +13,7 @@ export default function DatabasePage() {
       <Route path="/database/question" component={Question} />
       <Route path="/database/people" component={People} />
       <Route path="/database/quiz" component={Quiz} />
-      <Route path="/database/conversation" component={Conversation} />
+      <Route path="/database/reply" component={Reply} />
     </Switch>
   );
 }

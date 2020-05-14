@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 const People = require('./people.model');
 
-const replyTypes = ['button', 'freeform'];
-
-const ConversationSchema = new mongoose.Schema(
+const ReplySchema = new mongoose.Schema(
   {
     people: {
       type: String,
@@ -17,31 +15,23 @@ const ConversationSchema = new mongoose.Schema(
     },
     botId: {
       type: String,
-      trim: true,
-      required: true
+      trim: true
     },
     blockId: {
       type: String,
-      trim: true,
-      required: true
+      trim: true
     },
     text: {
       type: String,
       trim: true
     },
-    image: {
+    source: {
       type: String,
       trim: true
     },
-    reply: {
-      type: {
-        type: String,
-        enum: replyTypes
-      },
-      title: {
-        type: String,
-        trim: true
-      }
+    type: {
+      type: String,
+      enum: ['button', 'textInput', 'file', 'freeform']
     }
   },
   {
@@ -49,7 +39,7 @@ const ConversationSchema = new mongoose.Schema(
   }
 );
 
-ConversationSchema.statics = {
+ReplySchema.statics = {
   // TODO optomize speed query
   async schedulePercentOfPeoples(query = {}, peoplesCount = 0) {
     let newQuery = query;
@@ -112,4 +102,4 @@ ConversationSchema.statics = {
   }
 };
 
-module.exports = mongoose.model('Conversation', ConversationSchema);
+module.exports = mongoose.model('Reply', ReplySchema);

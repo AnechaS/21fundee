@@ -1,12 +1,12 @@
 const { Seeder } = require('mongoose-data-seed');
 const faker = require('faker');
-const Conversation = require('../models/conversation.model');
+const Reply = require('../models/reply.model');
 const People = require('../models/people.model');
 const Schedule = require('../models/schedule.model');
 
-class ConversationSeeder extends Seeder {
+class ReplySeeder extends Seeder {
   async shouldRun() {
-    const count = await Conversation.countDocuments().exec();
+    const count = await Reply.countDocuments().exec();
     return count === 0;
   }
 
@@ -31,8 +31,8 @@ class ConversationSeeder extends Seeder {
 
       return obj;
     });
-    return Conversation.create(data);
+    return Reply.create(data);
   }
 }
 
-module.exports = ConversationSeeder;
+module.exports = ReplySeeder;

@@ -9,6 +9,7 @@ switch (env) {
     parsed = {
       mongoURI: 'mongodb://localhost:27001/jest',
       port: 5561,
+      apiPublicKey: 'abcd'
     };
     break;
   }
@@ -29,3 +30,4 @@ switch (env) {
 exports.env = env;
 exports.port = parsed.port || 3000;
 exports.mongoURI = parsed.mongoURI;
+exports.apiPublicKey = parsed.apiPublicKey;

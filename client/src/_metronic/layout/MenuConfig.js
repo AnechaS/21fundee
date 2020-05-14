@@ -35,9 +35,9 @@ export default {
         icon: "flaticon2-cube",
         submenu: [
           {
-            title: "Conversation",
+            title: "Reply",
             root: true,
-            page: "database/conversation"
+            page: "database/reply"
           },
           {
             title: "People",

@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const APIError = require('../utils/APIError');
 const authorize = require('../middlewares/auth');
 
-const Conversation = require('../models/conversation.model');
+const Reply = require('../models/reply.model');
 
 const router = express.Router();
 
@@ -14,9 +14,9 @@ const router = express.Router();
 router.param('id', async (req, res, next, id) => {
   try {
     if (mongoose.Types.ObjectId.isValid(id)) {
-      const conversation = await Conversation.findById(id);
-      if (conversation) {
-        req.conversation = conversation;
+      const reply = await Reply.findById(id);
+      if (reply) {
+        req.reply = reply;
         return next();
       }
     }
@@ -32,34 +32,34 @@ router.param('id', async (req, res, next, id) => {
 });
 
 /**
- * @api {get} /conversations List Conversations
+ * @api {get} /replys List Replys
  * @apiDescription Get a list of quiz
- * @apiName ListConversations
- * @apiGroup Conversation
+ * @apiName ListReplys
+ * @apiGroup Reply
  */
 router.get('/', authorize(), async (req, res, next) => {
   try {
-    const conversation = await Conversation.find()
+    const reply = await Reply.find()
       .limit(2000)
       .populate('people')
       .populate('schedule');
-    return res.json(conversation);
+    return res.json(reply);
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {post} /conversations Create Conversation
- * @apiDescription Create a new convaersaiton
- * @apiName CreateConversation
- * @apiGroup Conversation
+ * @api {post} /replys Create Reply
+ * @apiDescription Create a new reply
+ * @apiName CreateReply
+ * @apiGroup Reply
  */
 router.post('/', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
-    const conversation = await Conversation.create(object);
-    return res.status(httpStatus.CREATED).json(conversation);
+    const reply = await Reply.create(object);
+    return res.status(httpStatus.CREATED).json(reply);
   } catch (error) {
     return next(error);
   }
@@ -67,43 +67,43 @@ router.post('/', authorize(), async (req, res, next) => {
 
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
-    const conversation = await req.conversation
+    const reply = await req.reply
       .populate('people')
       .populate('schedule')
       .execPopulate();
-    return res.json(conversation);
+    return res.json(reply);
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {put} /conversations/:id Update Conversation
- * @apiDescription Update some fields of a conversation document
- * @apiName UpdateConversation
- * @apiGroup Conversation
+ * @api {put} /replys/:id Update Reply
+ * @apiDescription Update some fields of a reply document
+ * @apiName UpdateReply
+ * @apiGroup Reply
  */
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
-    const conversation = Object.assign(req.conversation, object);
-    const savedConversation = await conversation.save();
-    return res.json(savedConversation);
+    const reply = Object.assign(req.reply, object);
+    const savedReply = await reply.save();
+    return res.json(savedReply);
   } catch (error) {
     return next(error);
   }
 });
 
 /**
- * @api {delete} /conversations/:id Delete a schedule
+ * @api {delete} /replys/:id Delete a schedule
  * @apiDescription Delete a schedule
- * @apiName DeleteConversation
- * @apiGroup Conversation
+ * @apiName DeleteReply
+ * @apiGroup Reply
  */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {
-    const conversation = req.conversation;
-    await conversation.remove();
+    const reply = req.reply;
+    await reply.remove();
     return res.status(httpStatus.NO_CONTENT).end();
   } catch (error) {
     return next(error);

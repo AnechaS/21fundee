@@ -9,21 +9,21 @@ const User = require('../../models/user.model');
 const SessionToken = require('../../models/sessionToken.model');
 const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
-const Conversation = require('../../models/conversation.model');
+const Reply = require('../../models/reply.model');
 
 mongoose.Promise = global.Promise;
 
 let sessionToken;
 let dbPeoples = [];
 let dbSchedules = [];
-let dbConversations = [];
+let dbReplys = [];
 
 const botId = 'asdfqwer';
 
 beforeEach(async () => {
   await User.deleteMany({});
   await SessionToken.deleteMany({});
-  await Conversation.deleteMany({});
+  await Reply.deleteMany({});
   await Schedule.deleteMany({});
   await People.deleteMany({});
 
@@ -36,33 +36,38 @@ beforeEach(async () => {
   });
   sessionToken = SessionToken.generate(savedUser).token;
 
-  const mockDataPeoples = Array.from({ length: 10 }, () => ({
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    gender: faker.random.arrayElement(['male', 'female']),
-    profilePicUrl: faker.image.image(),
-    province: 'สงขลา',
-    district: faker.random.arrayElement([
-      'เทพา',
-      'เมือง',
-      'หาดใหญ่',
-      'จะนะ',
-      'สะเดา',
-      'อำเภออื่นๆ'
-    ]),
-    dentalId: faker.random.arrayElement([
-      'x',
-      faker.helpers.replaceSymbolWithNumber('######')
-    ]),
-    childName: faker.name.firstName(),
-    childBirthday: faker.random.arrayElement([
-      'ก่อน 2560',
-      '2560',
-      '2561',
-      '2562'
-    ]),
-    botId: 'asdfqwer'
-  }));
+  const mockDataPeoples = Array.from({ length: 10 }, (v, k) => {
+    const object = {
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      gender: faker.random.arrayElement(['male', 'female']),
+      profilePicUrl: faker.image.image(),
+      province: 'สงขลา',
+      district: faker.random.arrayElement([
+        'เทพา',
+        'เมือง',
+        'หาดใหญ่',
+        'จะนะ',
+        'สะเดา',
+        'อำเภออื่นๆ'
+      ]),
+      dentalId: 'x',
+      childName: faker.name.firstName(),
+      childBirthday: faker.random.arrayElement([
+        'ก่อน 2560',
+        '2560',
+        '2561',
+        '2562'
+      ]),
+      botId: 'asdfqwer'
+    };
+
+    if (k <= 6) {
+      object.dentalId = faker.helpers.replaceSymbolWithNumber('######');
+    }
+
+    return object;
+  });
 
   const savedPeoples = await People.insertMany(mockDataPeoples);
   dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
@@ -73,7 +78,7 @@ beforeEach(async () => {
   const savedSchedules = await Schedule.create(mockDataSchedules);
   dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 
-  const mockDataConversation = dbPeoples.reduce((result, value, key) => {
+  const mockDataReply = dbPeoples.reduce((result, value, key) => {
     dbSchedules.forEach((o, k) => {
       if (key <= 6 || (key > 6 && k < 10) || (key > 8 && k < 18)) {
         const obj = {
@@ -85,10 +90,7 @@ beforeEach(async () => {
         };
 
         if (faker.random.boolean()) {
-          obj.reply = {
-            type: faker.random.arrayElement(['button', 'freeform']),
-            value: faker.random.arrayElement([1, 2, 3, 4, 5])
-          };
+          obj.type = faker.random.arrayElement(['button', 'freeform']);
         }
 
         result.push(obj);
@@ -98,10 +100,8 @@ beforeEach(async () => {
     return result;
   }, []);
 
-  const savedConversations = await Conversation.insertMany(
-    mockDataConversation
-  );
-  dbConversations = JSON.parse(JSON.stringify(savedConversations));
+  const savedReplys = await Reply.insertMany(mockDataReply);
+  dbReplys = JSON.parse(JSON.stringify(savedReplys));
 });
 
 afterAll(async () => {
@@ -117,50 +117,61 @@ describe('GET /dashboards', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    expect(agent.body).toHaveProperty('numberPeoples', dbPeoples.length);
+    const [
+      widget1,
+      widget2,
+      widget3,
+      widget4,
+      widget5,
+      widget6,
+      widget7
+    ] = agent.body.widgets;
 
-    const countWithDentakId = dbPeoples.filter(
-      ({ dentalId }) => dentalId && dentalId.length === 6
-    ).length;
-    expect(agent.body).toHaveProperty(
-      'numberPeoplesWithDentalId',
-      countWithDentakId
-    );
-    expect(agent.body).toHaveProperty(
-      'numberPeoplesGeneral',
-      dbPeoples.length - countWithDentakId
-    );
-
-    const sortDBPeoples = dbPeoples.sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
-      return dateB - dateA;
+    expect(widget1).toEqual({ value: 10 });
+    expect(widget2).toEqual({ value: 10 });
+    expect(widget3).toEqual({
+      value: 7,
+      percentage: 70
     });
-    expect(agent.body).toHaveProperty('peoples', sortDBPeoples.slice(0, 5));
+    expect(widget4).toEqual({
+      value: 3,
+      percentage: 30
+    });
 
-    expect(agent.body).toHaveProperty('numberNewCreatedPeoples');
-    expect(agent.body).toHaveProperty('dailyNumberCreatedPeoples');
-    expect(agent.body).toHaveProperty('address');
-    expect(agent.body).toHaveProperty('dailyRateConversation');
+    expect(widget6).toEqual({
+      total: 1,
+      maxPeoples: { name: 'สงขลา', value: 10 },
+      maxPeoplesWithDId: { name: 'สงขลา', value: 7 },
+      maxPeoplesGeneral: { name: 'สงขลา', value: 3 },
+      data: [
+        {
+          province: 'สงขลา',
+          peoplesCount: 10,
+          peoplesWithDIdCount: 7,
+          peoplesGeneralCount: 3,
+          percentage: 100
+        }
+      ]
+    });
   });
 
-  test('should get data when conversation daily duplicate people id', async () => {
-    const schedule = dbSchedules.find(o => o.name === 'Day 1');
-    const conversation = dbConversations.find(o => o.schedule === schedule._id);
-    delete conversation._id;
-    await Conversation.create(conversation);
+  // test('should get data when reply daily duplicate people id', async () => {
+  //   const schedule = dbSchedules.find(o => o.name === 'Day 1');
+  //   const reply = dbReplys.find(o => o.schedule === schedule._id);
+  //   delete reply._id;
+  //   await Reply.create(reply);
 
-    const agent = await request(app)
-      .get('/dashboards')
-      .set('Accept', 'application/json')
-      .set('Authorization', sessionToken)
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.OK);
+  //   const agent = await request(app)
+  //     .get('/dashboards')
+  //     .set('Accept', 'application/json')
+  //     .set('Authorization', sessionToken)
+  //     .expect('Content-Type', /json/)
+  //     .expect(httpStatus.OK);
 
-    const objectTest = agent.body.dailyRateConversation.find(
-      o => o._id === conversation.schedule
-    );
+  //   const objectTest = agent.body.dailyRateReply.find(
+  //     o => o._id === reply.schedule
+  //   );
 
-    expect(objectTest.percentage).toBe(100);
-  });
+  //   expect(objectTest.percentage).toBe(100);
+  // });
 });

@@ -5,7 +5,7 @@ const User = require('./seeders/user.seeder');
 const Question = require('./seeders/question.seeder');
 const Schedule = require('./seeders/schedule.seeder');
 const People = require('./seeders/people.seeder');
-const Conversation = require('./seeders/conversation.seed');
+const Reply = require('./seeders/reply.seed');
 const Quiz = require('./seeders/quiz.seeder');
 
 /**
@@ -18,7 +18,7 @@ exports.seedersList = {
   Question,
   Schedule,
   People,
-  Conversation,
+  Reply,
   Quiz
 };
 

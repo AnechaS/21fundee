@@ -5,7 +5,7 @@ const authorize = require('../middlewares/auth');
 const dateArray = require('../utils/dateArray');
 
 const People = require('../models/people.model');
-const Conversation = require('../models/conversation.model');
+const Reply = require('../models/reply.model');
 
 const router = express.Router();
 
@@ -140,8 +140,8 @@ router.get('/', authorize(), async (req, res, next) => {
       period
     );
 
-    // query daily conversation complate of peoples
-    const qSchedulePercentOfPeoplesInConver = Conversation.schedulePercentOfPeoples(
+    // query daily reply complate of peoples
+    const qSchedulePercentOfPeoplesInConver = Reply.schedulePercentOfPeoples(
       comdQDate,
       countPeoples
     );
@@ -360,24 +360,24 @@ router.get('/', authorize(), async (req, res, next) => {
       };
     }
 
-    // data widget chart conversation schedule complate percent
+    // data widget chart reply schedule complate percent
     const widget8 = {
-      // name: 'conversation percentage complete daily',
+      // name: 'reply percentage complete daily',
       max: 0,
       min: 0,
       labels: schedulePercentOfPeoples.map(o => o.name),
       data: []
     };
-    const convSchedPercent = (widget8.data = schedulePercentOfPeoples.map(o =>
+    const replySchedPercent = (widget8.data = schedulePercentOfPeoples.map(o =>
       Number(o.percentage.toFixed(2))
     ));
 
-    const maxConvSchedPercentage = _.max(convSchedPercent);
+    const maxConvSchedPercentage = _.max(replySchedPercent);
     if (typeof maxConvSchedPercentage !== 'undefined') {
       widget8.max = maxConvSchedPercentage;
     }
 
-    const mixConvSchedPercentage = _.min(convSchedPercent);
+    const mixConvSchedPercentage = _.min(replySchedPercent);
     if (typeof mixConvSchedPercentage !== 'undefined') {
       widget8.min = mixConvSchedPercentage;
     }

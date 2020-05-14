@@ -42,11 +42,6 @@ export default class Quiz extends Component {
       type: "String"
     },
     {
-      Header: "conversation",
-      accessor: "conversation._id",
-      type: "Populate"
-    },
-    {
       Header: "question",
       accessor: "question._id",
       type: "Populate"

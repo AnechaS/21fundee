@@ -5,42 +5,36 @@ const QuizSchema = new mongoose.Schema(
     people: {
       type: String,
       ref: 'People',
-      required: true,
+      required: true
     },
     schedule: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Schedule',
-      required: true,
+      required: true
     },
     botId: {
       type: String,
-      trim: true,
-      required: true,
+      trim: true
     },
     blockId: {
       type: String,
-      trim: true,
-      required: true,
-    },
-    conversation: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Conversation',
-      required: true,
+      trim: true
     },
     question: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Question',
-      required: true,
+      required: true
     },
     answer: {
-      type: Number,
+      type: Number
     },
     isCorrectAnswer: {
-      type: Boolean,
-    },
+      type: Boolean
+    }
+    // TODO score
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 

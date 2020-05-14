@@ -43,7 +43,6 @@ router.get('/', authorize(), async (req, res, next) => {
       .limit(2000)
       .populate('people')
       .populate('schedule')
-      .populate('conversation')
       .populate('question');
     return res.json(quiz);
   } catch (error) {
@@ -72,7 +71,6 @@ router.get('/:id', authorize(), async (req, res, next) => {
     const quiz = await req.quiz
       .populate('people')
       .populate('schedule')
-      .populate('conversation')
       .populate('question')
       .execPopulate();
     return res.json(quiz);

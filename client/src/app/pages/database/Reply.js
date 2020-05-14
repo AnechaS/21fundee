@@ -8,13 +8,13 @@ import { ReactComponent as WriteIcon } from "../../../_metronic/layout/assets/la
 import KTContent from "../../../_metronic/layout/KtContent";
 import Table from "../../partials/content/TableEdit";
 import {
-  getConversation,
-  createConversation,
-  updateConversation,
-  deleteConversation
-} from "../../crud/conversation.crud";
+  getReply,
+  createReply,
+  updateReply,
+  deleteReply
+} from "../../crud/reply.crud";
 
-export default class Conversation extends Component {
+export default class Reply extends Component {
   columns = [
     {
       Header: "id",
@@ -47,14 +47,14 @@ export default class Conversation extends Component {
       type: "String"
     },
     {
-      Header: "image",
-      accessor: "image",
+      Header: "type",
+      accessor: "type",
       type: "String"
     },
     {
-      Header: "reply",
-      accessor: "reply",
-      type: "Object"
+      Header: "image",
+      accessor: "image",
+      type: "String"
     },
     {
       Header: "createdAt",
@@ -96,7 +96,7 @@ export default class Conversation extends Component {
   // TODO handle error
   createData = async body => {
     this.setState({ isLoading: true });
-    const response = await createConversation(body);
+    const response = await createReply(body);
     this.setState(prevState => ({
       isCreatingData: false,
       isLoading: false,
@@ -108,7 +108,7 @@ export default class Conversation extends Component {
   fetchData = async () => {
     try {
       this.setState({ isLoading: true });
-      const response = await getConversation();
+      const response = await getReply();
 
       if (this._isMounted) {
         this.setState({ data: response.data, isLoading: false });
@@ -154,7 +154,7 @@ export default class Conversation extends Component {
       newData[rowIndex] = { ...data[rowIndex], [column]: value };
       this.setState({ data: newData });
 
-      /* const response =  */ await updateConversation(data[rowIndex]._id, {
+      /* const response =  */ await updateReply(data[rowIndex]._id, {
         [column]: value
       });
     } catch (error) {
@@ -181,7 +181,7 @@ export default class Conversation extends Component {
     const newData = [];
     data.forEach((o, i) => {
       if (indexes.includes(i)) {
-        const response = deleteConversation(o._id);
+        const response = deleteReply(o._id);
         promise.push(response);
       } else {
         newData.push(o);

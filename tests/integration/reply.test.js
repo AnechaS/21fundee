@@ -8,15 +8,15 @@ const User = require('../../models/user.model');
 const SessionToken = require('../../models/sessionToken.model');
 const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
-const Conversation = require('../../models/conversation.model');
+const Reply = require('../../models/reply.model');
 
 mongoose.Promise = global.Promise;
 
 let sessionToken;
 let dbPeoples;
 let dbSchedules;
-let dbConversations;
-let conversation;
+let dbReplys;
+let reply;
 
 const botId = 'asdfqwer';
 const blockIds = ['zxcvbnm', 'qwertyu'];
@@ -26,7 +26,7 @@ beforeEach(async () => {
   await SessionToken.deleteMany({});
   await People.deleteMany({});
   await Schedule.deleteMany({});
-  await Conversation.deleteMany({});
+  await Reply.deleteMany({});
 
   const passwordHashed = await bcrypt.hash('1234', 1);
   const dbUser = {
@@ -74,7 +74,7 @@ beforeEach(async () => {
   ]);
   dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 
-  const savedConversations = await Conversation.insertMany([
+  const savedReplys = await Reply.insertMany([
     {
       people: dbPeoples[0]._id,
       schedule: dbSchedules[0]._id,
@@ -90,9 +90,9 @@ beforeEach(async () => {
       blockId: blockIds[0]
     }
   ]);
-  dbConversations = JSON.parse(JSON.stringify(savedConversations));
+  dbReplys = JSON.parse(JSON.stringify(savedReplys));
 
-  conversation = {
+  reply = {
     people: dbPeoples[0]._id,
     schedule: dbSchedules[1]._id,
     text: 'abc',
@@ -115,52 +115,52 @@ const format = object => {
   };
 };
 
-describe('GET /conversations', () => {
-  test('should get all conversation', async () => {
+describe('GET /replies', () => {
+  test('should get all reply', async () => {
     const agent = await request(app)
-      .get('/conversations')
+      .get('/replies')
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(200);
-    const conversationTransformed = dbConversations.map(o => format(o));
-    expect(agent.body).toEqual(conversationTransformed);
+    const replyTransformed = dbReplys.map(o => format(o));
+    expect(agent.body).toEqual(replyTransformed);
   });
 });
 
-describe('POST /conversations', () => {
-  test('should reate a new conversation', async () => {
+describe('POST /replies', () => {
+  test('should reate a new reply', async () => {
     const agent = await request(app)
-      .post('/conversations')
+      .post('/replies')
       .set('Authorization', sessionToken)
-      .send(conversation)
+      .send(reply)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body).toMatchObject(conversation);
+    expect(agent.body).toMatchObject(reply);
   });
 });
 
-describe('GET /conversations/:id', () => {
-  test('should get the conversation', async () => {
-    const id = dbConversations[0]._id;
+describe('GET /replies/:id', () => {
+  test('should get the reply', async () => {
+    const id = dbReplys[0]._id;
 
     const agent = await request(app)
-      .get(`/conversations/${id}`)
+      .get(`/replies/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    const conversationTransformed = format(dbConversations[0]);
-    expect(agent.body).toEqual(conversationTransformed);
+    const replyTransformed = format(dbReplys[0]);
+    expect(agent.body).toEqual(replyTransformed);
   });
 
-  test('should report error when conversations does not exists', async () => {
+  test('should report error when replys does not exists', async () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .get(`/conversations/${id}`)
+      .get(`/replies/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -170,26 +170,26 @@ describe('GET /conversations/:id', () => {
   });
 });
 
-describe('PUT /conversations', () => {
-  test('should update the conversation', async () => {
-    const id = dbConversations[0]._id;
+describe('PUT /replies', () => {
+  test('should update the reply', async () => {
+    const id = dbReplys[0]._id;
 
     const agent = await request(app)
-      .put(`/conversations/${id}`)
-      .send(conversation)
+      .put(`/replies/${id}`)
+      .send(reply)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
     expect(agent.body._id).toBe(id);
-    expect(agent.body).toMatchObject(conversation);
+    expect(agent.body).toMatchObject(reply);
   });
 
-  test('should report error when conversations does not exists', async () => {
+  test('should report error when replys does not exists', async () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .put(`/conversations/${id}`)
+      .put(`/replies/${id}`)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.NOT_FOUND);
@@ -198,23 +198,23 @@ describe('PUT /conversations', () => {
   });
 });
 
-describe('DELETE /conversaitons', () => {
-  test('should delete the conversaion', async () => {
-    const id = dbConversations[0]._id;
+describe('DELETE /replies', () => {
+  test('should delete the reply', async () => {
+    const id = dbReplys[0]._id;
 
     const agent = await request(app)
-      .delete(`/conversations/${id}`)
+      .delete(`/replies/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(Conversation.findById(id)).resolves.toBeNull();
+    await expect(Reply.findById(id)).resolves.toBeNull();
   });
 
-  test('should report error when conversations does not exists', async () => {
+  test('should report error when replys does not exists', async () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .delete(`/conversations/${id}`)
+      .delete(`/replies/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NOT_FOUND);
     expect(agent.body.code).toBe(404);

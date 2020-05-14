@@ -1,8 +1,9 @@
 const { Seeder } = require('mongoose-data-seed');
+const faker = require('faker');
 const Quiz = require('../models/quiz.model');
+const People = require('../models/people.model');
 const Schedule = require('../models/schedule.model');
 const Question = require('../models/question.model');
-const Conversation = require('../models/conversation.model');
 
 class QuizSeeder extends Seeder {
   async shouldRun() {
@@ -12,22 +13,22 @@ class QuizSeeder extends Seeder {
 
   async run() {
     const schedule = await Schedule.findOne({});
-    const conversations = await Conversation.find({
-      reply: { $exists: true }
-    }).limit();
-    const question = await Question.findOne();
-    const data = conversations.map(o => {
+    const people = await People.findOne({});
+    const question = await Question.find();
+
+    const data = question.map(o => {
+      const answer = faker.random.arrayElement([1, 2, 3, 4, 5]);
       return {
-        people: o.people,
-        conversation: o,
+        people: people._id,
         schedule,
         question,
-        answer: o.reply.value,
-        isCorrectAnswer: question.correctAnswers.includes(o.reply.value),
+        answer: answer,
+        isCorrectAnswer: o.correctAnswers.includes(answer),
         botId: 'asdfqwer',
         blockId: 'zxcvbnm'
       };
     });
+
     return Quiz.create(data);
   }
 }

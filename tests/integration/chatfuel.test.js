@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 const request = require('supertest');
 const httpStatus = require('http-status');
 const app = require('../../app');
+const appConfig = require('../../config');
 
 const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
 const Question = require('../../models/question.model');
-const Conversation = require('../../models/conversation.model');
+const Reply = require('../../models/reply.model');
 const Quiz = require('../../models/quiz.model');
-
-const { IP_CHATFUEL } = require('../../utils/constants');
+const Progress = require('../../models/progress.model');
 
 mongoose.Promise = global.Promise;
 
@@ -23,6 +23,9 @@ beforeEach(async () => {
   await People.deleteMany({});
   await Schedule.deleteMany({});
   await Question.deleteMany({});
+  await Quiz.deleteMany({});
+  await Reply.deleteMany({});
+  await Progress.deleteMany({});
 
   const savedPeople = await People.create({
     _id: 'zxcvb',
@@ -78,16 +81,22 @@ describe('POST /chatfuel/people', () => {
   test('should create a new people', async () => {
     const agent = await request(app)
       .post('/chatfuel/people')
-      .set('x-real-ip', IP_CHATFUEL)
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
+    expect(agent.body.created).toBe(true);
+
     payload._id = payload.id;
     delete payload.id;
 
-    expect(agent.body).toMatchObject(payload);
+    const getPeople = await People.findById(payload._id).select(
+      '-createdAt -updatedAt -__v'
+    );
+    const result = JSON.parse(JSON.stringify(getPeople));
+    expect(result).toEqual(payload);
   });
 
   test('should create a new people with value null', async () => {
@@ -103,18 +112,17 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
-      .set('x-real-ip', IP_CHATFUEL)
+      .query({ key: appConfig.apiPublicKey })
       .send(payloadX)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body._id).toBe(payloadX.id);
-    expect(agent.body.province).toBe(payloadX.province);
-    expect(agent.body.firstName).toBeUndefined();
-    expect(agent.body.lastName).toBeUndefined();
-    expect(agent.body.gender).toBeUndefined();
-    expect(agent.body.locale).toBeUndefined();
-    expect(agent.body.source).toBeUndefined();
+    expect(agent.body.created).toBe(true);
+
+    const getPeople = await People.findById(payloadX.id);
+    const result = JSON.parse(JSON.stringify(getPeople));
+    expect(result._id).toBe(payloadX.id);
+    expect(result.province).toBe(payloadX.province);
   });
 
   test('should update the people if id is exists', async () => {
@@ -122,7 +130,7 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
-      .set('x-real-ip', IP_CHATFUEL)
+      .query({ key: appConfig.apiPublicKey })
       .send({
         id: dbPeople._id,
         ...payload
@@ -130,8 +138,14 @@ describe('POST /chatfuel/people', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body._id).toBe(dbPeople._id);
-    expect(agent.body).toMatchObject(payload);
+
+    expect(agent.body.created).toBe(true);
+
+    const getPeople = await People.findById(dbPeople._id).select(
+      '-createdAt -updatedAt -__v'
+    );
+    const result = JSON.parse(JSON.stringify(getPeople));
+    expect(result).toMatchObject(payload);
   });
 
   test('should report error when id is not provided', async () => {
@@ -139,16 +153,16 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
-
     expect(agent.body.code).toBe(400);
     expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
     expect(field).toBe('id');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
@@ -159,16 +173,16 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
-
     expect(agent.body.code).toBe(400);
     expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
     expect(field).toBe('botId');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
@@ -179,49 +193,56 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
-
     expect(agent.body.code).toBe(400);
     expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+
     expect(field).toBe('botId');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
   });
+
+  test('should report error when without api key', async () => {
+    payload.botId = '';
+
+    const agent = await request(app)
+      .post('/chatfuel/people')
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.FORBIDDEN);
+
+    expect(agent.body.code).toBe(httpStatus.FORBIDDEN);
+    expect(agent.body.message).toBe('Forbidden');
+  });
 });
 
-describe('POST /chatfuel/replies', () => {
+describe('POST /chatfuel/reply', () => {
   let payload;
   let payloadQuiz;
 
   beforeEach(() => {
     payload = {
-      people: dbPeople._id.toString(),
-      schedule: dbSchedule._id.toString(),
-      botId,
-      blockId,
-      conversation: {
-        text: 'Hi'
-      }
+      people: dbPeople._id,
+      schedule: dbSchedule._id,
+      text: 'Hi',
+      type: 'button',
+      ref: `v2=${botId}/${blockId}/p5ykklgfgfr`
     };
 
     payloadQuiz = {
       people: dbPeople._id,
       schedule: dbSchedule._id,
-      botId,
-      blockId,
-      conversation: {
-        text: 'a',
-        reply: {
-          type: 'button',
-          title: 'a'
-        }
-      },
+      ref: `v2=${botId}/${blockId}/p5ykklgfgfr`,
+      text: 'a',
+      type: 'button',
       quiz: {
         question: dbQuestion._id,
         answer: 1
@@ -229,340 +250,282 @@ describe('POST /chatfuel/replies', () => {
     };
   });
 
-  test('should create a new conversation', async () => {
+  test('should create a new reply', async () => {
     const agent = await request(app)
-      .post('/chatfuel/replies')
-      .set('x-real-ip', IP_CHATFUEL)
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body.result).toBe(true);
+    expect(agent.body.created).toBe(true);
 
-    const { conversation, ...o } = payload;
+    delete payload.ref;
 
-    const getConversation = await Conversation.findOne(o);
-    expect(JSON.parse(JSON.stringify(getConversation))).toMatchObject({
-      ...o,
-      ...conversation
+    const getReply = await Reply.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const result = JSON.parse(JSON.stringify(getReply));
+    expect(result).toMatchObject({
+      ...payload,
+      botId: botId,
+      blockId: blockId
     });
   });
 
-  test('should create a new conversation and quiz when answer correct', async () => {
+  test('should create a new reply and quiz when answer correct', async () => {
     const agent = await request(app)
-      .post('/chatfuel/replies')
-      .set('x-real-ip', IP_CHATFUEL)
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payloadQuiz)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body.result).toBe(true);
+    expect(agent.body.created).toBe(true);
 
-    const { conversation, quiz, ...o } = payloadQuiz;
+    delete payloadQuiz.ref;
+    const { quiz, ...o } = payloadQuiz;
 
-    const getConversation = await Conversation.findOne(o);
-    expect(JSON.parse(JSON.stringify(getConversation))).toMatchObject({
+    const getReply = await Reply.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const resultReply = JSON.parse(JSON.stringify(getReply));
+    expect(resultReply).toMatchObject({
       ...o,
-      ...conversation
+      botId: botId,
+      blockId: blockId
     });
 
-    const getQuiz = await Quiz.findOne(o);
-    expect(JSON.parse(JSON.stringify(getQuiz))).toMatchObject({
-      conversation: getConversation._id.toString(),
-      ...o,
+    const getQuiz = await Quiz.findOne({ people: payload.people }).select(
+      '-createdAt -updatedAt -__v'
+    );
+    const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
+
+    expect(resultQuiz).toMatchObject({
       ...quiz,
-      isCorrectAnswer: true
+      isCorrectAnswer: true,
+      botId: botId,
+      blockId: blockId
     });
   });
 
-  test('should create a new conversation and quiz when answer wrong', async () => {
+  test('should create a new reply and quiz when answer wrong', async () => {
     payloadQuiz.quiz.answer = 2;
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
-      .set('x-real-ip', IP_CHATFUEL)
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payloadQuiz)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body.result).toBe(true);
+    expect(agent.body.created).toBe(true);
 
-    const { conversation, quiz, ...o } = payloadQuiz;
+    delete payloadQuiz.ref;
+    const { quiz, ...o } = payloadQuiz;
 
-    const getConversation = await Conversation.findOne(o);
-    expect(JSON.parse(JSON.stringify(getConversation))).toMatchObject({
+    const getReply = await Reply.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const resultReply = JSON.parse(JSON.stringify(getReply));
+    expect(resultReply).toMatchObject({
       ...o,
-      ...conversation
+      botId: botId,
+      blockId: blockId
     });
 
-    const getQuiz = await Quiz.findOne(o);
-    expect(JSON.parse(JSON.stringify(getQuiz))).toMatchObject({
-      conversation: getConversation._id.toString(),
-      ...o,
+    const getQuiz = await Quiz.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
+    expect(resultQuiz).toMatchObject({
       ...quiz,
-      isCorrectAnswer: false
+      isCorrectAnswer: false,
+      botId: botId,
+      blockId: blockId
     });
   });
 
-  test('should report error when conversation is not provided', async () => {
-    delete payload.conversation;
+  test('should create a new progress', async () => {
+    delete payload.text;
+    delete payload.type;
+
+    payload.status = 'started';
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
+      .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
+      .expect(httpStatus.CREATED);
 
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('conversation');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
+    expect(agent.body.created).toBe(true);
+
+    const getProgress = await Progress.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const result = JSON.parse(JSON.stringify(getProgress));
+
+    expect(result.people).toBe(payload.people);
+    expect(result.schedule).toBe(payload.schedule);
+    expect(result.status).toBe(payload.status);
   });
 
-  test.each([
-    ['String', 'asdfgh'],
-    ['Number', 1],
-    ['Array', []]
-  ])('should report error when conversation is %s', async (type, value) => {
-    payload.conversation = value;
+  test('should create a new reply and update progress', async () => {
+    payload.status = 'complete';
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
+      .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
+      .expect(httpStatus.CREATED);
 
-    const { field, location, message } = agent.body.errors[0];
+    expect(agent.body.created).toBe(true);
 
-    expect(field).toBe('conversation');
-    expect(location).toBe('body');
-    expect(message).toBe('Invalid value');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
+    const getProgress = await Progress.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const resultProgress = JSON.parse(JSON.stringify(getProgress));
+
+    expect(resultProgress.people).toBe(payload.people);
+    expect(resultProgress.schedule).toBe(payload.schedule);
+    expect(resultProgress.status).toBe(payload.status);
+
+    delete payload.ref;
+    delete payload.status;
+
+    const getReply = await Reply.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const resultReply = JSON.parse(JSON.stringify(getReply));
+    expect(resultReply).toMatchObject({
+      ...payload,
+      botId: botId,
+      blockId: blockId
+    });
   });
 
   test('should report error when people is not provided', async () => {
     delete payload.people;
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
 
+    const { field, location, message } = agent.body.errors[0];
     expect(field).toBe('people');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-  });
-
-  test('should report error when people is empty', async () => {
-    payload.people = '';
-
-    const agent = await request(app)
-      .post('/chatfuel/replies')
-      .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    const { field, location, message } = agent.body.errors[0];
-
-    expect(field).toBe('people');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
   });
 
   test('should report error when people is not exists', async () => {
     payload.people = 'asdfgh';
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
 
+    const { field, location, message } = agent.body.errors[0];
     expect(field).toBe('people');
     expect(location).toBe('body');
     expect(message).toBe('Invalid value');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
   });
 
   test('should report error when schedule is not provided', async () => {
     delete payload.schedule;
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
 
+    const { field, location, message } = agent.body.errors[0];
     expect(field).toBe('schedule');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-  });
-
-  test('should report error when schedule is empty', async () => {
-    payload.schedule = '';
-
-    const agent = await request(app)
-      .post('/chatfuel/replies')
-      .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    const { field, location, message } = agent.body.errors[0];
-
-    expect(field).toBe('schedule');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-  });
-
-  test('should report error when schedule is not mongo id', async () => {
-    payload.schedule = 'asdfg';
-
-    const agent = await request(app)
-      .post('/chatfuel/replies')
-      .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    const { field, location, message } = agent.body.errors[0];
-
-    expect(field).toBe('schedule');
-    expect(location).toBe('body');
-    expect(message).toBe('Invalid value');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
   });
 
   test('should report error when schedule is not exists', async () => {
     payload.schedule = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
 
+    const { field, location, message } = agent.body.errors[0];
     expect(field).toBe('schedule');
     expect(location).toBe('body');
     expect(message).toBe('Invalid value');
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
   });
 
-  test('should report error when botId is not provided', async () => {
-    delete payload.botId;
+  test('should report error when ref is not provided', async () => {
+    delete payload.ref;
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
-
     expect(agent.body.code).toBe(400);
     expect(agent.body.message).toBe('Validation Error');
-    expect(field).toBe('botId');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('ref');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
   });
 
-  test('should report error when botId is empty', async () => {
-    payload.botId = '';
+  test('should report error when status value not match', async () => {
+    payload.status = 'avasdf';
 
     const agent = await request(app)
-      .post('/chatfuel/replies')
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
       .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
 
-    const { field, location, message } = agent.body.errors[0];
-
     expect(agent.body.code).toBe(400);
     expect(agent.body.message).toBe('Validation Error');
-    expect(field).toBe('botId');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-  });
-
-  test('should report error when blockId is not provided', async () => {
-    delete payload.blockId;
-
-    const agent = await request(app)
-      .post('/chatfuel/replies')
-      .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
 
     const { field, location, message } = agent.body.errors[0];
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-    expect(field).toBe('blockId');
+    expect(field).toBe('status');
     expect(location).toBe('body');
-    expect(message).toBe('Is required');
-  });
-
-  test('should report error when blockId is empty', async () => {
-    payload.blockId = '';
-
-    const agent = await request(app)
-      .post('/chatfuel/replies')
-      .send(payload)
-      .set('x-real-ip', IP_CHATFUEL)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    const { field, location, message } = agent.body.errors[0];
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-    expect(field).toBe('blockId');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
+    expect(message).toBe('Invalid value');
   });
 
   //   test('should create a new quiz of the message when correct answer', async () => {
@@ -580,7 +543,6 @@ describe('POST /chatfuel/replies', () => {
   //     const agent = await request(app)
   //       .post('/chatfuel/message')
   //       .send(payload)
-  //       .set('x-real-ip', IP_CHATFUEL)
   //       .set('Accept', 'application/json')
   //       .expect('Content-Type', /json/)
   //       .expect(httpStatus.CREATED);
@@ -609,7 +571,6 @@ describe('POST /chatfuel/replies', () => {
   //         blockId: 'aa',
   //         quiz: {}
   //       })
-  //       .set('x-real-ip', IP_CHATFUEL)
   //       .set('Accept', 'application/json')
   //       .expect('Content-Type', /json/)
   //       .expect(httpStatus.BAD_REQUEST);
@@ -641,7 +602,6 @@ describe('POST /chatfuel/replies', () => {
   //           answer: 1
   //         }
   //       })
-  //       .set('x-real-ip', IP_CHATFUEL)
   //       .set('Accept', 'application/json')
   //       .expect('Content-Type', /json/)
   //       .expect(httpStatus.BAD_REQUEST);
@@ -668,7 +628,6 @@ describe('POST /chatfuel/replies', () => {
   //           answer: 0
   //         }
   //       })
-  //       .set('x-real-ip', IP_CHATFUEL)
   //       .set('Accept', 'application/json')
   //       .expect('Content-Type', /json/)
   //       .expect(httpStatus.BAD_REQUEST);
@@ -695,7 +654,6 @@ describe('POST /chatfuel/replies', () => {
   //           answer: 0
   //         }
   //       })
-  //       .set('x-real-ip', IP_CHATFUEL)
   //       .set('Accept', 'application/json')
   //       .expect('Content-Type', /json/)
   //       .expect(httpStatus.BAD_REQUEST);
@@ -721,7 +679,6 @@ describe('POST /chatfuel/replies', () => {
   //           question: 'a'
   //         }
   //       })
-  //       .set('x-real-ip', IP_CHATFUEL)
   //       .set('Accept', 'application/json')
   //       .expect('Content-Type', /json/)
   //       .expect(httpStatus.BAD_REQUEST);

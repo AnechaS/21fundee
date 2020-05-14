@@ -8,7 +8,7 @@ const User = require('../../models/user.model');
 const SessionToken = require('../../models/sessionToken.model');
 const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
-const Conversation = require('../../models/conversation.model');
+const Reply = require('../../models/reply.model');
 const Question = require('../../models/question.model');
 const Quiz = require('../../models/quiz.model');
 
@@ -17,7 +17,7 @@ mongoose.Promise = global.Promise;
 let sessionToken;
 let dbPeoples;
 let dbSchedules;
-let dbConversations;
+let dbReplys;
 let dbQuestions;
 let dbQuizs;
 let quiz;
@@ -30,7 +30,7 @@ beforeEach(async () => {
   await SessionToken.deleteMany({});
   await People.deleteMany({});
   await Schedule.deleteMany({});
-  await Conversation.deleteMany({});
+  await Reply.deleteMany({});
   await Question.deleteMany({});
   await Quiz.deleteMany({});
 
@@ -80,7 +80,7 @@ beforeEach(async () => {
   ]);
   dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 
-  const savedConversations = await Conversation.insertMany([
+  const savedReplys = await Reply.insertMany([
     {
       people: dbPeoples[0]._id,
       schedule: dbSchedules[0]._id,
@@ -115,7 +115,7 @@ beforeEach(async () => {
       blockId: blockIds[1]
     }
   ]);
-  dbConversations = JSON.parse(JSON.stringify(savedConversations));
+  dbReplys = JSON.parse(JSON.stringify(savedReplys));
 
   const savedQuestions = await Question.create([
     {
@@ -133,7 +133,6 @@ beforeEach(async () => {
     {
       people: dbPeoples[0]._id,
       schedule: dbSchedules[0]._id,
-      conversation: dbConversations[0]._id,
       botId,
       blockId: blockIds[0],
       question: dbQuestions[0]._id,
@@ -143,7 +142,6 @@ beforeEach(async () => {
     {
       people: dbPeoples[1]._id,
       schedule: dbSchedules[0]._id,
-      conversation: dbConversations[1]._id,
       botId,
       blockId: blockIds[0],
       question: dbQuestions[0]._id,
@@ -156,7 +154,6 @@ beforeEach(async () => {
   quiz = {
     people: dbPeoples[0]._id,
     schedule: dbSchedules[1]._id,
-    conversation: dbConversations[2]._id,
     botId,
     blockId: blockIds[1],
     question: dbQuestions[1]._id,
@@ -172,15 +169,13 @@ afterAll(async () => {
 const format = object => {
   const getPeople = dbPeoples.find(o => o._id === object.people);
   const getSchedule = dbSchedules.find(o => o._id === object.schedule);
-  const getConversation = dbConversations.find(
-    o => o._id === object.conversation
-  );
+  const getReply = dbReplys.find(o => o._id === object.reply);
   const getQuestion = dbQuestions.find(o => o._id === object.question);
   return {
     ...object,
     people: getPeople,
     schedule: getSchedule,
-    conversation: getConversation,
+    reply: getReply,
     question: getQuestion
   };
 };
