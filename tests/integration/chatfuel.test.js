@@ -237,7 +237,7 @@ describe('POST /chatfuel/reply', () => {
       people: dbPeople._id,
       schedule: dbSchedule._id,
       text: 'Hi',
-      type: 'button',
+      type: 1,
       ref: `v2=${botId}/${blockId}/p5ykklgfgfr`
     };
 
@@ -246,7 +246,7 @@ describe('POST /chatfuel/reply', () => {
       schedule: dbSchedule._id,
       ref: `v2=${botId}/${blockId}/p5ykklgfgfr`,
       text: 'a',
-      type: 'button',
+      type: 1,
       quiz: {
         question: dbQuestion._id,
         answer: 1
@@ -389,7 +389,7 @@ describe('POST /chatfuel/reply', () => {
     delete payload.text;
     delete payload.type;
 
-    payload.status = 'started';
+    payload.progress = { status: 1 };
 
     const agent = await request(app)
       .post('/chatfuel/reply')
@@ -408,11 +408,11 @@ describe('POST /chatfuel/reply', () => {
 
     expect(result.people).toBe(payload.people);
     expect(result.schedule).toBe(payload.schedule);
-    expect(result.status).toBe(payload.status);
+    expect(result.status).toBe(payload.progress.status);
   });
 
   test('should create a new reply and update the progress when status equal complete', async () => {
-    payload.status = 'complete';
+    payload.progress = { status: 2 };
 
     const agent = await request(app)
       .post('/chatfuel/reply')
@@ -431,10 +431,10 @@ describe('POST /chatfuel/reply', () => {
     expect(getProgresses).toHaveLength(1);
     expect(resultProgress.people.toString()).toBe(payload.people);
     expect(resultProgress.schedule.toString()).toBe(payload.schedule);
-    expect(resultProgress.status).toBe(payload.status);
+    expect(resultProgress.status).toBe(payload.progress.status);
 
     delete payload.ref;
-    delete payload.status;
+    delete payload.progress;
 
     const getReply = await Reply.findOne({
       people: payload.people
@@ -547,7 +547,7 @@ describe('POST /chatfuel/reply', () => {
     expect(message).toBe('Is required');
   });
 
-  test('should report error when ref is not math', async () => {
+  test('should report error when ref is not macth', async () => {
     payload.ref = 'asdfg/asdf/asdf';
 
     const agent = await request(app)
@@ -567,8 +567,12 @@ describe('POST /chatfuel/reply', () => {
     expect(message).toBe('Invalid value');
   });
 
-  test('should report error when status value not match', async () => {
-    payload.status = 'avasdf';
+  test.each([
+    ['less then 1', '0'],
+    ['more then 4', '5'],
+    ['is equal to text', 'avasdf']
+  ])('should report error when type %s', async (s, v) => {
+    payload.type = v;
 
     const agent = await request(app)
       .post('/chatfuel/reply')
@@ -582,172 +586,80 @@ describe('POST /chatfuel/reply', () => {
     expect(agent.body.message).toBe('Validation Error');
 
     const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('status');
+    expect(field).toBe('type');
     expect(location).toBe('body');
     expect(message).toBe('Invalid value');
   });
 
-  //   test('should create a new quiz of the message when correct answer', async () => {
-  //     const payload = {
-  //       people: people._id,
-  //       schedule: schedule._id,
-  //       text: 'answer the quiz',
-  //       botId: 'a',
-  //       blockId: 'aa',
-  //       quiz: {
-  //         question: question._id,
-  //         answer: question.corrects[0]
-  //       }
-  //     };
-  //     const agent = await request(app)
-  //       .post('/chatfuel/message')
-  //       .send(payload)
-  //       .set('Accept', 'application/json')
-  //       .expect('Content-Type', /json/)
-  //       .expect(httpStatus.CREATED);
-  //     expect(agent.body).toMatchObject({
-  //       _id: expect.anything(),
-  //       quiz: {
-  //         question: payload.quiz.question,
-  //         answer: payload.quiz.answer,
-  //         isCorrect: true
-  //       },
-  //       people: people._id,
-  //       schedule: schedule._id,
-  //       text: payload.text,
-  //       botId: payload.botId,
-  //       blockId: payload.blockId,
-  //     });
-  //   });
-  //   test('should report error when quiz empty', async () => {
-  //     const agent = await request(app)
-  //       .post('/chatfuel/message')
-  //       .send({
-  //         people: people._id,
-  //         schedule: schedule._id,
-  //         text: 'Hello World',
-  //         botId: 'a',
-  //         blockId: 'aa',
-  //         quiz: {}
-  //       })
-  //       .set('Accept', 'application/json')
-  //       .expect('Content-Type', /json/)
-  //       .expect(httpStatus.BAD_REQUEST);
-  //     expect(agent.body.code).toBe(400);
-  //     expect(agent.body.message).toBe('Validation Error');
-  //     expect(agent.body.errors).toEqual([
-  //       {
-  //         field: 'quiz.answer',
-  //         location: 'body',
-  //         message: 'Invalid value'
-  //       },
-  //       {
-  //         field: 'quiz.question',
-  //         location: 'body',
-  //         message: 'Invalid value'
-  //       }
-  //     ]);
-  //   });
-  //   test('should report error when quiz.question is not provided', async () => {
-  //     const agent = await request(app)
-  //       .post('/chatfuel/message')
-  //       .send({
-  //         people: people._id,
-  //         schedule: schedule._id,
-  //         text: 'Hello World',
-  //         botId: 'a',
-  //         blockId: 'aa',
-  //         quiz: {
-  //           answer: 1
-  //         }
-  //       })
-  //       .set('Accept', 'application/json')
-  //       .expect('Content-Type', /json/)
-  //       .expect(httpStatus.BAD_REQUEST);
-  //     expect(agent.body.code).toBe(400);
-  //     expect(agent.body.message).toBe('Validation Error');
-  //     const { field } = agent.body.errors[0];
-  //     const { location } = agent.body.errors[0];
-  //     const { message } = agent.body.errors[0];
-  //     expect(field).toBe('quiz.question');
-  //     expect(location).toBe('body');
-  //     expect(message).toBe('Invalid value');
-  //   });
-  //   test('should report error when quiz.question is mongo id', async () => {
-  //     const agent = await request(app)
-  //       .post('/chatfuel/message')
-  //       .send({
-  //         people: people._id,
-  //         schedule: schedule._id,
-  //         text: 'Hello World',
-  //         botId: 'a',
-  //         blockId: 'aa',
-  //         quiz: {
-  //           question: 'asdf',
-  //           answer: 0
-  //         }
-  //       })
-  //       .set('Accept', 'application/json')
-  //       .expect('Content-Type', /json/)
-  //       .expect(httpStatus.BAD_REQUEST);
-  //     expect(agent.body.code).toBe(400);
-  //     expect(agent.body.message).toBe('Validation Error');
-  //     const { field } = agent.body.errors[0];
-  //     const { location } = agent.body.errors[0];
-  //     const { message } = agent.body.errors[0];
-  //     expect(field).toBe('quiz.question');
-  //     expect(location).toBe('body');
-  //     expect(message).toBe('Invalid value');
-  //   });
-  //   test('should report error when quiz.question is not exists', async () => {
-  //     const agent = await request(app)
-  //       .post('/chatfuel/message')
-  //       .send({
-  //         people: people._id,
-  //         schedule: schedule._id,
-  //         text: 'Hello World',
-  //         botId: 'a',
-  //         blockId: 'aa',
-  //         quiz: {
-  //           question: '5e734c65563c75372cb96547',
-  //           answer: 0
-  //         }
-  //       })
-  //       .set('Accept', 'application/json')
-  //       .expect('Content-Type', /json/)
-  //       .expect(httpStatus.BAD_REQUEST);
-  //     expect(agent.body.code).toBe(400);
-  //     expect(agent.body.message).toBe('Validation Error');
-  //     const { field } = agent.body.errors[0];
-  //     const { location } = agent.body.errors[0];
-  //     const { message } = agent.body.errors[0];
-  //     expect(field).toBe('quiz.question');
-  //     expect(location).toBe('body');
-  //     expect(message).toBe('Invalid value');
-  //   });
-  //   test('should report error when quiz.answer is not provided', async () => {
-  //     const agent = await request(app)
-  //       .post('/chatfuel/message')
-  //       .send({
-  //         people: people._id,
-  //         schedule: schedule._id,
-  //         text: 'Hello World',
-  //         botId: 'a',
-  //         blockId: 'aa',
-  //         quiz: {
-  //           question: 'a'
-  //         }
-  //       })
-  //       .set('Accept', 'application/json')
-  //       .expect('Content-Type', /json/)
-  //       .expect(httpStatus.BAD_REQUEST);
-  //     expect(agent.body.code).toBe(400);
-  //     expect(agent.body.message).toBe('Validation Error');
-  //     const { field } = agent.body.errors[0];
-  //     const { location } = agent.body.errors[0];
-  //     const { message } = agent.body.errors[0];
-  //     expect(field).toBe('quiz.answer');
-  //     expect(location).toBe('body');
-  //     expect(message).toBe('Invalid value');
-  //   });
+  test.each([
+    ['is equal to empty', ''],
+    ['is equal to text', 'avasdf'],
+    ['less then 1', '0'],
+    ['more then 2', '3']
+  ])('should report error when progress status %s', async (s, v) => {
+    payload.progress = { status: v };
+
+    const agent = await request(app)
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('progress.status');
+    expect(location).toBe('body');
+    expect(message).toBe(v ? 'Invalid value' : 'Is required');
+  });
+
+  test.each([
+    ['is equal to empty', ''],
+    ['not match mongo id', 'asdf'],
+    ['is not exists', mongoose.Types.ObjectId().toS]
+  ])('should report error when quiz question %s', async (s, v) => {
+    payload.quiz = { question: v, answer: 1 };
+
+    const agent = await request(app)
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('quiz.question');
+    expect(location).toBe('body');
+    expect(message).toBe(v ? 'Invalid value' : 'Is required');
+  });
+
+  test.each([
+    ['is equal to empty', ''],
+    ['is equal to text', 'asdf']
+  ])('should report error when quiz answer %s', async (s, v) => {
+    payload.quiz = { question: dbQuestion._id, answer: v };
+
+    const agent = await request(app)
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('quiz.answer');
+    expect(location).toBe('body');
+    expect(message).toBe(v ? 'Invalid value' : 'Is required');
+  });
 });

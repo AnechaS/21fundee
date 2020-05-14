@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-const replyTypes = ['started', 'complete'];
-
 const ProgressSchema = new mongoose.Schema(
   {
     people: {
@@ -17,8 +15,8 @@ const ProgressSchema = new mongoose.Schema(
       required: true
     },
     status: {
-      type: String,
-      enum: replyTypes
+      type: Number,
+      enum: [1, 2]
     }
   },
   {

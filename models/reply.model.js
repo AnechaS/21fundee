@@ -32,8 +32,8 @@ const ReplySchema = new mongoose.Schema(
       trim: true
     },
     type: {
-      type: String,
-      enum: ['button', 'textInput', 'file', 'freeform']
+      type: Number,
+      enum: [1, 2, 3, 4]
     }
   },
   {

@@ -116,19 +116,32 @@ router.post(
       .bail()
       .matches(/(\w{1,})?=\w{1,}\/\w{1,}\/\w{1,}$/)
       .withMessage('Invalid value'),
+    body('type')
+      .if(value => value)
+      .bail()
+      .isInt({ min: 1, max: 4 })
+      .toInt(),
     body('quiz.answer')
       .if(body('quiz').exists())
+      .notEmpty()
+      .withMessage('Is required')
+      .bail()
       .isInt()
       .toInt(),
     body('quiz.question')
       .if(body('quiz').exists())
       .notEmpty()
+      .withMessage('Is required')
       .bail()
       .isMongoId()
       .withMessage('Invalid value'),
-    body('status')
-      .if(value => value)
-      .isIn(['started', 'complete'])
+    body('progress.status')
+      .if(body('progress').exists())
+      .notEmpty()
+      .withMessage('Is required')
+      .bail()
+      .isInt({ min: 1, max: 2 })
+      .toInt()
   ]),
   async (req, res) => {
     try {
@@ -140,7 +153,7 @@ router.post(
         type,
         ref,
         quiz,
-        status
+        progress
       } = req.body;
 
       const { botId, blockId } = tranformRefParam(ref);
@@ -177,7 +190,7 @@ router.post(
       }
 
       // check body request for save to model quiz
-      if (typeof quiz !== 'undefined') {
+      if (typeof quiz === 'object' && quiz.question && quiz.answer) {
         const saveQuiz = Question.findById(quiz.question).then(result => {
           // check question is exists
           if (!result) {
@@ -210,7 +223,7 @@ router.post(
               botId,
               blockId,
               ...omitWithNull({
-                answerText: text
+                answerText: quiz.answerText || text
               })
             },
             {
@@ -224,14 +237,14 @@ router.post(
       }
 
       // check body request for save to model progress
-      if (typeof status !== 'undefined') {
+      if (typeof progress === 'object' && progress.status) {
         // save people progress
         const saveProgress = Progress.findOneAndUpdate(
           { people, schedule },
           {
             people,
             schedule,
-            status
+            ...progress
           },
           {
             upsert: true,
