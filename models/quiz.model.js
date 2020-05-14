@@ -5,11 +5,13 @@ const QuizSchema = new mongoose.Schema(
     people: {
       type: String,
       ref: 'People',
+      index: true,
       required: true
     },
     schedule: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Schedule',
+      index: true,
       required: true
     },
     botId: {
@@ -23,13 +25,22 @@ const QuizSchema = new mongoose.Schema(
     question: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Question',
+      index: true,
       required: true
     },
     answer: {
-      type: Number
+      type: Number,
+      required: true
     },
     isCorrectAnswer: {
-      type: Boolean
+      type: Boolean,
+      required: true
+    },
+    answerText: {
+      type: String
+    },
+    desc: {
+      type: String
     }
     // TODO score
   },

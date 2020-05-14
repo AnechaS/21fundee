@@ -2,15 +2,23 @@ const _ = require('lodash');
 
 /**
  * validate rule
- * @param {any} 
+ * @param {any}
+ * @return {Boolean}
  */
 function rule(value) {
-  return _.isUndefined(value) || _.isNaN(value) || _.isNull(value) || value === '' || value === 'null';
+  return (
+    _.isUndefined(value) ||
+    _.isNaN(value) ||
+    _.isNull(value) ||
+    value === '' ||
+    value === 'null'
+  );
 }
 
 /**
  * Remove prop object with null
  * @param {Object}
+ * @return {Object}
  */
 function omitWithNull(object) {
   const result = Object.keys(object).reduce((result, value) => {

@@ -5,6 +5,7 @@ const APIError = require('../utils/APIError');
 const removeReqBodyWithNull = require('../middlewares/removeReqBodyWithNull');
 const checkApiPublicKey = require('../middlewares/checkApiPublicKey');
 const validator = require('../middlewares/validator');
+const omitWithNull = require('../utils/omitWithNull');
 
 const People = require('../models/people.model');
 const Reply = require('../models/reply.model');
@@ -14,6 +15,22 @@ const Quiz = require('../models/quiz.model');
 const Progress = require('../models/progress.model');
 
 const router = express.Router();
+
+// tranform ref data for get id bot and block
+const tranformRefParam = string => {
+  const arr = string
+    .split('=')
+    .pop()
+    .split('/');
+
+  const result = {
+    botId: arr[0],
+    blockId: arr[1],
+    element: arr[2]
+  };
+
+  return result;
+};
 
 /**
  * Create a new people
@@ -25,16 +42,29 @@ router.post(
   checkApiPublicKey,
   validator([
     body('id', 'Is required').exists(),
-    body('botId', 'Is required').exists()
+    body('ref', 'Is required')
+      .exists()
+      .bail()
+      .notEmpty()
+      .bail()
+      .matches(/(\w{1,})?=\w{1,}\/\w{1,}\/\w{1,}$/)
+      .withMessage('Invalid value')
   ]),
   async (req, res) => {
     try {
-      const { id, ...o } = req.body;
-      /* const people =  */ await People.findByIdAndUpdate(id, o, {
-        upsert: true,
-        new: true
-        // overwrite: true
-      });
+      const { id, ref, ...o } = req.body;
+
+      const { botId } = tranformRefParam(ref);
+
+      /* const people =  */ await People.findByIdAndUpdate(
+        id,
+        { ...o, botId },
+        {
+          upsert: true,
+          new: true
+          // overwrite: true
+        }
+      );
 
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {
@@ -82,10 +112,13 @@ router.post(
     body('ref', 'Is required')
       .exists()
       .bail()
-      .notEmpty(),
+      .notEmpty()
+      .bail()
+      .matches(/(\w{1,})?=\w{1,}\/\w{1,}\/\w{1,}$/)
+      .withMessage('Invalid value'),
     body('quiz.answer')
       .if(body('quiz').exists())
-      .isInt({ max: 10 })
+      .isInt()
       .toInt(),
     body('quiz.question')
       .if(body('quiz').exists())
@@ -110,71 +143,103 @@ router.post(
         status
       } = req.body;
 
+      const { botId, blockId } = tranformRefParam(ref);
+
       const promise = [];
 
-      // tranform ref data for get id bot and block
-      const arrRef = ref
-        .split('=')
-        .pop()
-        .split('/');
-      const botId = arrRef[0];
-      const blockId = arrRef[1];
+      // check body request for save to model reply
+      if (typeof text !== 'undefined' || typeof source !== 'undefined') {
+        // save reply
+        const saveReply = Reply.findOneAndUpdate(
+          {
+            people,
+            schedule,
+            blockId
+          },
+          {
+            people,
+            schedule,
+            type,
+            botId,
+            blockId,
+            ...omitWithNull({
+              text,
+              source
+            })
+          },
+          {
+            upsert: true,
+            new: true
+          }
+        );
 
+        promise.push(saveReply);
+      }
+
+      // check body request for save to model quiz
       if (typeof quiz !== 'undefined') {
-        const question = await Question.findById(quiz.question);
-        // check question is exists
-        if (!question) {
-          throw new APIError({
-            message: 'Validation Error',
-            status: httpStatus.BAD_REQUEST,
-            errors: [
-              {
-                field: 'quiz.question',
-                location: 'body',
-                message: 'Invalid value'
-              }
-            ]
-          });
-        }
+        const saveQuiz = Question.findById(quiz.question).then(result => {
+          // check question is exists
+          if (!result) {
+            throw new APIError({
+              message: 'Validation Error',
+              status: httpStatus.BAD_REQUEST,
+              errors: [
+                {
+                  field: 'quiz.question',
+                  location: 'body',
+                  message: 'Invalid value'
+                }
+              ]
+            });
+          }
 
-        // save quiz
-        const saveQuiz = Quiz.create({
-          people,
-          schedule,
-          question: question._id,
-          answer: quiz.answer,
-          isCorrectAnswer: question.correctAnswers.includes(quiz.answer),
-          botId,
-          blockId
+          return Quiz.findOneAndUpdate(
+            {
+              people,
+              schedule,
+              blockId,
+              question: result._id
+            },
+            {
+              people,
+              schedule,
+              question: result._id.toString(),
+              answer: quiz.answer,
+              isCorrectAnswer: result.correctAnswers.includes(quiz.answer),
+              botId,
+              blockId,
+              ...omitWithNull({
+                answerText: text
+              })
+            },
+            {
+              upsert: true,
+              new: true
+            }
+          );
         });
 
         promise.push(saveQuiz);
       }
 
-      if (typeof text !== 'undefined' || typeof source !== 'undefined') {
-        // save reply
-        const saveReply = Reply.create({
-          people,
-          schedule,
-          text,
-          source,
-          type,
-          botId,
-          blockId
-        });
-
-        promise.push(saveReply);
-      }
-
+      // check body request for save to model progress
       if (typeof status !== 'undefined') {
         // save people progress
-        const progress = Progress.create({
-          people,
-          schedule,
-          status
-        });
+        const saveProgress = Progress.findOneAndUpdate(
+          { people, schedule },
+          {
+            people,
+            schedule,
+            status
+          },
+          {
+            upsert: true,
+            new: true
+          }
+        );
 
-        promise.push(progress);
+        promise.push(saveProgress);
       }
 
       await Promise.all(promise);

@@ -85,10 +85,7 @@ beforeEach(async () => {
       people: dbPeoples[0]._id,
       schedule: dbSchedules[0]._id,
       text: 'a',
-      reply: {
-        type: 'button',
-        value: 'a'
-      },
+      type: 'button',
       botId,
       blockId: blockIds[0]
     },
@@ -96,10 +93,7 @@ beforeEach(async () => {
       people: dbPeoples[1]._id,
       schedule: dbSchedules[0]._id,
       text: 'b',
-      reply: {
-        type: 'button',
-        value: 'b'
-      },
+      type: 'button',
       botId,
       blockId: blockIds[0]
     },
@@ -107,10 +101,7 @@ beforeEach(async () => {
       people: dbPeoples[0]._id,
       schedule: dbSchedules[1]._id,
       text: 'a',
-      reply: {
-        type: 'button',
-        value: 'a'
-      },
+      type: 'button',
       botId,
       blockId: blockIds[1]
     }
@@ -169,13 +160,11 @@ afterAll(async () => {
 const format = object => {
   const getPeople = dbPeoples.find(o => o._id === object.people);
   const getSchedule = dbSchedules.find(o => o._id === object.schedule);
-  const getReply = dbReplys.find(o => o._id === object.reply);
   const getQuestion = dbQuestions.find(o => o._id === object.question);
   return {
     ...object,
     people: getPeople,
     schedule: getSchedule,
-    reply: getReply,
     question: getQuestion
   };
 };

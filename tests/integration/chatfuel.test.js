@@ -74,7 +74,7 @@ describe('POST /chatfuel/people', () => {
       childBirthday: '2560',
       gender: 'male',
       pic: 'https://platform-lookaside.fbsbx.com/...',
-      botId
+      ref: `v2=${botId}/${blockId}/p5ykklgfgfr`
     };
   });
 
@@ -91,12 +91,14 @@ describe('POST /chatfuel/people', () => {
 
     payload._id = payload.id;
     delete payload.id;
+    delete payload.ref;
 
     const getPeople = await People.findById(payload._id).select(
       '-createdAt -updatedAt -__v'
     );
     const result = JSON.parse(JSON.stringify(getPeople));
-    expect(result).toEqual(payload);
+    expect(result).toMatchObject(payload);
+    expect(result.botId).toBe(botId);
   });
 
   test('should create a new people with value null', async () => {
@@ -107,7 +109,7 @@ describe('POST /chatfuel/people', () => {
       province: 'สงขลา',
       gender: 'null',
       pic: 'null',
-      botId
+      ref: `v2=${botId}/${blockId}/p5ykklgfgfr`
     };
 
     const agent = await request(app)
@@ -117,6 +119,7 @@ describe('POST /chatfuel/people', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
+
     expect(agent.body.created).toBe(true);
 
     const getPeople = await People.findById(payloadX.id);
@@ -140,6 +143,8 @@ describe('POST /chatfuel/people', () => {
       .expect(httpStatus.CREATED);
 
     expect(agent.body.created).toBe(true);
+
+    delete payload.ref;
 
     const getPeople = await People.findById(dbPeople._id).select(
       '-createdAt -updatedAt -__v'
@@ -168,8 +173,8 @@ describe('POST /chatfuel/people', () => {
     expect(message).toBe('Is required');
   });
 
-  test('should report error when botId is not provided', async () => {
-    delete payload.botId;
+  test('should report error when ref is not provided', async () => {
+    delete payload.ref;
 
     const agent = await request(app)
       .post('/chatfuel/people')
@@ -183,13 +188,13 @@ describe('POST /chatfuel/people', () => {
     expect(agent.body.message).toBe('Validation Error');
 
     const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('botId');
+    expect(field).toBe('ref');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
   });
 
-  test('should report error when botId is empty', async () => {
-    payload.botId = '';
+  test('should report error when ref not match', async () => {
+    payload.ref = 'asdf';
 
     const agent = await request(app)
       .post('/chatfuel/people')
@@ -203,10 +208,9 @@ describe('POST /chatfuel/people', () => {
     expect(agent.body.message).toBe('Validation Error');
 
     const { field, location, message } = agent.body.errors[0];
-
-    expect(field).toBe('botId');
+    expect(field).toBe('ref');
     expect(location).toBe('body');
-    expect(message).toBe('Is required');
+    expect(message).toBe('Invalid value');
   });
 
   test('should report error when without api key', async () => {
@@ -266,6 +270,41 @@ describe('POST /chatfuel/reply', () => {
       people: payload.people
     }).select('-createdAt -updatedAt -__v');
     const result = JSON.parse(JSON.stringify(getReply));
+    expect(result).toMatchObject({
+      ...payload,
+      botId: botId,
+      blockId: blockId
+    });
+  });
+
+  test('should update reply when blockid and people exists', async () => {
+    const prevResult = await Reply.create({
+      people: payload.people,
+      schedule: payload.schedule,
+      text: 'x',
+      blockId,
+      botId
+    });
+
+    const agent = await request(app)
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.CREATED);
+    expect(agent.body.created).toBe(true);
+
+    delete payload.ref;
+
+    const results = await Reply.find({
+      people: payload.people,
+      schedule: payload.schedule
+    }).select('-createdAt -updatedAt -__v');
+    const [result] = JSON.parse(JSON.stringify(results));
+
+    expect(results).toHaveLength(1);
+    expect(prevResult._id.toString()).toBe(result._id);
     expect(result).toMatchObject({
       ...payload,
       botId: botId,
@@ -372,7 +411,7 @@ describe('POST /chatfuel/reply', () => {
     expect(result.status).toBe(payload.status);
   });
 
-  test('should create a new reply and update progress', async () => {
+  test('should create a new reply and update the progress when status equal complete', async () => {
     payload.status = 'complete';
 
     const agent = await request(app)
@@ -385,13 +424,13 @@ describe('POST /chatfuel/reply', () => {
 
     expect(agent.body.created).toBe(true);
 
-    const getProgress = await Progress.findOne({
+    const getProgresses = await Progress.find({
       people: payload.people
     }).select('-createdAt -updatedAt -__v');
-    const resultProgress = JSON.parse(JSON.stringify(getProgress));
-
-    expect(resultProgress.people).toBe(payload.people);
-    expect(resultProgress.schedule).toBe(payload.schedule);
+    const [resultProgress] = getProgresses;
+    expect(getProgresses).toHaveLength(1);
+    expect(resultProgress.people.toString()).toBe(payload.people);
+    expect(resultProgress.schedule.toString()).toBe(payload.schedule);
     expect(resultProgress.status).toBe(payload.status);
 
     delete payload.ref;
@@ -506,6 +545,26 @@ describe('POST /chatfuel/reply', () => {
     expect(field).toBe('ref');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
+  });
+
+  test('should report error when ref is not math', async () => {
+    payload.ref = 'asdfg/asdf/asdf';
+
+    const agent = await request(app)
+      .post('/chatfuel/reply')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('ref');
+    expect(location).toBe('body');
+    expect(message).toBe('Invalid value');
   });
 
   test('should report error when status value not match', async () => {
