@@ -43,15 +43,15 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
     let tranfromValue = "";
     if (typeof initialValue !== "undefined") {
       switch (type) {
-        case "Array":
+        case "array":
           tranfromValue = Stringify_WithSpaces(initialValue);
           break;
 
-        case "Object":
+        case "object":
           tranfromValue = Stringify_WithSpaces(initialValue);
           break;
 
-        case "Boolean":
+        case "boolean":
           tranfromValue = initialValue.toString();
           break;
 
@@ -119,9 +119,11 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
 const EditableCell = ({
   value: initialValue,
   row: { index },
-  column: { id, type, edit },
+  column: { id, type = "", edit },
   updateData
 }) => {
+  const t = type.toLocaleLowerCase();
+
   const onBlur = value => {
     if (!isEqual(value, initialValue)) {
       updateData(index, id, value);
@@ -133,7 +135,7 @@ const EditableCell = ({
       initialValue={initialValue}
       onBlur={onBlur}
       edit={Boolean(edit)}
-      type={type}
+      type={t}
     />
   );
 };

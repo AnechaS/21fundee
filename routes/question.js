@@ -14,9 +14,9 @@ const router = express.Router();
 router.param('id', async (req, res, next, id) => {
   try {
     if (mongoose.Types.ObjectId.isValid(id)) {
-      const schedule = await Question.findById(id);
-      if (schedule) {
-        req.schedule = schedule;
+      const question = await Question.findById(id);
+      if (question) {
+        req.question = question;
         return next();
       }
     }
@@ -33,10 +33,8 @@ router.param('id', async (req, res, next, id) => {
 
 router.get('/', authorize(), async (req, res, next) => {
   try {
-    const schedule = await Question.find()
-      .limit(2000)
-      .populate('schedule');
-    return res.json(schedule);
+    const question = await Question.find().limit(2000);
+    return res.json(question);
   } catch (error) {
     return next(error);
   }
@@ -45,8 +43,8 @@ router.get('/', authorize(), async (req, res, next) => {
 router.post('/', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
-    const schedule = await Question.create(object);
-    return res.status(httpStatus.CREATED).json(schedule);
+    const question = await Question.create(object);
+    return res.status(httpStatus.CREATED).json(question);
   } catch (error) {
     return next(error);
   }
@@ -54,8 +52,8 @@ router.post('/', authorize(), async (req, res, next) => {
 
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
-    const schedule = await req.schedule.populate('schedule').execPopulate();
-    return res.json(schedule);
+    const question = await req.question;
+    return res.json(question);
   } catch (error) {
     return next(error);
   }
@@ -64,9 +62,9 @@ router.get('/:id', authorize(), async (req, res, next) => {
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
-    const schedule = Object.assign(req.schedule, object);
-    const savedSchedule = await schedule.save();
-    return res.json(savedSchedule);
+    const question = Object.assign(req.question, object);
+    const savedQuestion = await question.save();
+    return res.json(savedQuestion);
   } catch (error) {
     return next(error);
   }
@@ -74,8 +72,8 @@ router.put('/:id', authorize(), async (req, res, next) => {
 
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {
-    const schedule = req.schedule;
-    await schedule.remove();
+    const question = req.question;
+    await question.remove();
     return res.status(httpStatus.NO_CONTENT).end();
   } catch (error) {
     return next(error);

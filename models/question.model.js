@@ -5,13 +5,11 @@ const QuestionSchema = new mongoose.Schema(
     schedule: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Schedule',
-      index: true,
-      required: true
+      index: true
     },
     name: {
       type: String,
-      trim: true,
-      required: true
+      trim: true
     },
     // TODO add field list answer
     // answers: Array,

@@ -106,6 +106,9 @@ describe('POST /questions', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
+
+    console.log(agent.body);
+
     expect(agent.body).toMatchObject(question);
   });
 });

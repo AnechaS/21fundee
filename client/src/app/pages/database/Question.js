@@ -35,8 +35,9 @@ export default class Question extends Component {
     },
     {
       Header: "schedule",
-      accessor: "schedule._id",
-      type: "Populate"
+      accessor: "schedule",
+      type: "Populate",
+      edit: true
     },
     {
       Header: "createdAt",
