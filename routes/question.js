@@ -33,7 +33,9 @@ router.param('id', async (req, res, next, id) => {
 
 router.get('/', authorize(), async (req, res, next) => {
   try {
-    const schedule = await Question.find().limit(2000);
+    const schedule = await Question.find()
+      .limit(2000)
+      .populate('schedule');
     return res.json(schedule);
   } catch (error) {
     return next(error);
@@ -52,7 +54,7 @@ router.post('/', authorize(), async (req, res, next) => {
 
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
-    const schedule = req.schedule;
+    const schedule = await req.schedule.populate('schedule').execPopulate();
     return res.json(schedule);
   } catch (error) {
     return next(error);

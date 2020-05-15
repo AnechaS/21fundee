@@ -8,7 +8,6 @@ const User = require('../../models/user.model');
 const SessionToken = require('../../models/sessionToken.model');
 const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
-const Reply = require('../../models/reply.model');
 const Question = require('../../models/question.model');
 const Quiz = require('../../models/quiz.model');
 
@@ -17,7 +16,6 @@ mongoose.Promise = global.Promise;
 let sessionToken;
 let dbPeoples;
 let dbSchedules;
-let dbReplys;
 let dbQuestions;
 let dbQuizs;
 let quiz;
@@ -30,7 +28,6 @@ beforeEach(async () => {
   await SessionToken.deleteMany({});
   await People.deleteMany({});
   await Schedule.deleteMany({});
-  await Reply.deleteMany({});
   await Question.deleteMany({});
   await Quiz.deleteMany({});
 
@@ -80,42 +77,16 @@ beforeEach(async () => {
   ]);
   dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 
-  const savedReplys = await Reply.insertMany([
-    {
-      people: dbPeoples[0]._id,
-      schedule: dbSchedules[0]._id,
-      text: 'a',
-      type: 'button',
-      botId,
-      blockId: blockIds[0]
-    },
-    {
-      people: dbPeoples[1]._id,
-      schedule: dbSchedules[0]._id,
-      text: 'b',
-      type: 'button',
-      botId,
-      blockId: blockIds[0]
-    },
-    {
-      people: dbPeoples[0]._id,
-      schedule: dbSchedules[1]._id,
-      text: 'a',
-      type: 'button',
-      botId,
-      blockId: blockIds[1]
-    }
-  ]);
-  dbReplys = JSON.parse(JSON.stringify(savedReplys));
-
   const savedQuestions = await Question.create([
     {
       name: 'a',
-      correctAnswers: [1]
+      correctAnswers: [1],
+      schedule: dbSchedules[0]._id
     },
     {
       name: 'b',
-      correctAnswers: [1]
+      correctAnswers: [1],
+      schedule: dbSchedules[1]._id
     }
   ]);
   dbQuestions = JSON.parse(JSON.stringify(savedQuestions));

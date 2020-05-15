@@ -90,7 +90,7 @@ beforeEach(async () => {
         };
 
         if (faker.random.boolean()) {
-          obj.type = faker.random.arrayElement(['button', 'freeform']);
+          obj.type = faker.random.arrayElement([1, 2]);
         }
 
         result.push(obj);

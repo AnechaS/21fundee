@@ -7,41 +7,57 @@ const app = require('../../app');
 const User = require('../../models/user.model');
 const SessionToken = require('../../models/sessionToken.model');
 const Question = require('../../models/question.model');
+const Schedule = require('../../models/schedule.model');
 
 mongoose.Promise = global.Promise;
 
 let sessionToken;
 let dbQuestions;
+let dbSchedules;
 let question;
 
 beforeEach(async () => {
   await User.deleteMany({});
   await SessionToken.deleteMany({});
   await Question.deleteMany({});
+  await Schedule.deleteMany({});
 
   const passwordHashed = await bcrypt.hash('1234', 1);
   const savedUser = await User.create({
     email: 'jonsnow@gmail.com',
     password: passwordHashed,
     username: 'Jon Snow',
-    role: 'admin',
+    role: 'admin'
   });
   sessionToken = SessionToken.generate(savedUser).token;
+
+  const savedSchedules = await Schedule.create([
+    {
+      name: 'Day 1'
+    },
+    {
+      name: 'Day 2'
+    }
+  ]);
+  dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 
   question = {
     name: 'c',
     correctAnswers: [2],
+    schedule: dbSchedules[0]._id
   };
 
   const savedQuestion = await Question.insertMany([
     {
       name: 'a',
       correctAnswers: [1],
+      schedule: dbSchedules[0]._id
     },
     {
       name: 'b',
       correctAnswers: [1],
-    },
+      schedule: dbSchedules[1]._id
+    }
   ]);
   dbQuestions = JSON.parse(JSON.stringify(savedQuestion));
 });
@@ -49,6 +65,14 @@ beforeEach(async () => {
 afterAll(async () => {
   await mongoose.disconnect();
 });
+
+const format = object => {
+  const getSchedule = dbSchedules.find(o => o._id === object.schedule);
+  return {
+    ...object,
+    schedule: getSchedule
+  };
+};
 
 describe('GET /questions', () => {
   test('should get all questions', async () => {
@@ -58,7 +82,9 @@ describe('GET /questions', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(dbQuestions);
+
+    const questionTransformed = dbQuestions.map(o => format(o));
+    expect(agent.body).toEqual(questionTransformed);
   });
 
   test.todo('add should get all questions with pagination');
@@ -94,7 +120,9 @@ describe('GET /questions/:id', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(dbQuestions[0]);
+
+    const questionTransformed = format(dbQuestions[0]);
+    expect(agent.body).toEqual(questionTransformed);
   });
 
   test('should report error when question does not exists', async () => {

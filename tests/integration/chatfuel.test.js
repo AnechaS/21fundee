@@ -50,7 +50,8 @@ beforeEach(async () => {
 
   const savedQuestion = await Question.create({
     name: 'a',
-    correctAnswers: [1]
+    correctAnswers: [1],
+    schedule: dbSchedule._id
   });
 
   dbQuestion = JSON.parse(JSON.stringify(savedQuestion));

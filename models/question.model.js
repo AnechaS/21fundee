@@ -2,21 +2,27 @@ const mongoose = require('mongoose');
 
 const QuestionSchema = new mongoose.Schema(
   {
+    schedule: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Schedule',
+      index: true,
+      required: true
+    },
     name: {
       type: String,
       trim: true,
-      required: true,
+      required: true
     },
     // TODO add field list answer
     // answers: Array,
 
     correctAnswers: {
       type: [Number],
-      required: true,
-    },
+      required: true
+    }
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 
