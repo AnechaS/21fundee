@@ -24,6 +24,4 @@ const ProgressSchema = new mongoose.Schema(
   }
 );
 
-ProgressSchema.index({ people: -1, schedule: -1 });
-
 module.exports = mongoose.model('Progress', ProgressSchema);

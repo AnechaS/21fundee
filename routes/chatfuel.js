@@ -6,12 +6,12 @@ const removeReqBodyWithNull = require('../middlewares/removeReqBodyWithNull');
 const checkApiPublicKey = require('../middlewares/checkApiPublicKey');
 const validator = require('../middlewares/validator');
 const omitWithNull = require('../utils/omitWithNull');
+const { REPLY_SUBMITTED_TYPES } = require('../utils/constants');
 
 const People = require('../models/people.model');
 const Reply = require('../models/reply.model');
 const Schedule = require('../models/schedule.model');
 const Question = require('../models/question.model');
-const Quiz = require('../models/quiz.model');
 const Progress = require('../models/progress.model');
 
 const router = express.Router();
@@ -116,18 +116,10 @@ router.post(
       .bail()
       .matches(/(\w{1,})?=\w{1,}\/\w{1,}\/\w{1,}$/)
       .withMessage('Invalid value'),
-    body('type')
+    body('submittedType')
       .if(value => value)
       .bail()
-      .isInt({ min: 1, max: 4 })
-      .toInt(),
-    body('quiz.answer')
-      .if(body('quiz').exists())
-      .notEmpty()
-      .withMessage('Is required')
-      .bail()
-      .isInt()
-      .toInt(),
+      .isIn(REPLY_SUBMITTED_TYPES),
     body('quiz.question')
       .if(body('quiz').exists())
       .notEmpty()
@@ -135,6 +127,13 @@ router.post(
       .bail()
       .isMongoId()
       .withMessage('Invalid value'),
+    body('quiz.answer')
+      .if(body('quiz').exists())
+      .notEmpty()
+      .withMessage('Is required')
+      .bail()
+      .isInt()
+      .toInt(),
     body('progress.status')
       .if(body('progress').exists())
       .notEmpty()
@@ -149,8 +148,8 @@ router.post(
         people,
         schedule,
         text,
-        source,
-        type,
+        image,
+        submittedType,
         ref,
         quiz,
         progress
@@ -160,40 +159,21 @@ router.post(
 
       const promise = [];
 
+      const objectReply = omitWithNull({
+        text,
+        image,
+        quiz
+      });
+
       // check body request for save to model reply
-      if (typeof text !== 'undefined' || typeof source !== 'undefined') {
-        // save reply
-        const saveReply = Reply.findOneAndUpdate(
-          {
-            people,
-            schedule,
-            blockId
-          },
-          {
-            people,
-            schedule,
-            type,
-            botId,
-            blockId,
-            ...omitWithNull({
-              text,
-              source
-            })
-          },
-          {
-            upsert: true,
-            new: true
-          }
-        );
+      if (Object.keys(objectReply).length) {
+        objectReply.submittedType = submittedType;
 
-        promise.push(saveReply);
-      }
-
-      // check body request for save to model quiz
-      if (typeof quiz === 'object' && quiz.question && quiz.answer) {
-        const saveQuiz = Question.findById(quiz.question).then(result => {
+        // check body request has quiz
+        if (typeof quiz !== 'undefined') {
+          const question = await Question.findById(quiz.question);
           // check question is exists
-          if (!result) {
+          if (!question) {
             throw new APIError({
               message: 'Validation Error',
               status: httpStatus.BAD_REQUEST,
@@ -207,33 +187,32 @@ router.post(
             });
           }
 
-          return Quiz.findOneAndUpdate(
-            {
-              people,
-              schedule,
-              blockId,
-              question: result._id
-            },
-            {
-              people,
-              schedule,
-              question: result._id.toString(),
-              answer: quiz.answer,
-              isCorrectAnswer: result.correctAnswers.includes(quiz.answer),
-              botId,
-              blockId,
-              ...omitWithNull({
-                answerText: quiz.answerText || text
-              })
-            },
-            {
-              upsert: true,
-              new: true
-            }
+          objectReply.quiz.isCorrect = question.correctAnswers.includes(
+            quiz.answer
           );
-        });
+        }
 
-        promise.push(saveQuiz);
+        // save reply
+        const saveReply = Reply.findOneAndUpdate(
+          {
+            people,
+            schedule,
+            blockId
+          },
+          {
+            people,
+            schedule,
+            botId,
+            blockId,
+            ...objectReply
+          },
+          {
+            upsert: true,
+            new: true
+          }
+        );
+
+        promise.push(saveReply);
       }
 
       // check body request for save to model progress
@@ -259,6 +238,8 @@ router.post(
 
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {
+      console.log('xxxx', error);
+
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         created: false,
         message: error.message

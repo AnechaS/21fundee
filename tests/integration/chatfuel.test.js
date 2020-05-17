@@ -3,6 +3,7 @@ const request = require('supertest');
 const httpStatus = require('http-status');
 const app = require('../../app');
 const appConfig = require('../../config');
+const { REPLY_SUBMITTED_TYPES } = require('../../utils/constants');
 
 const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
@@ -238,7 +239,7 @@ describe('POST /chatfuel/reply', () => {
       people: dbPeople._id,
       schedule: dbSchedule._id,
       text: 'Hi',
-      type: 1,
+      submittedType: REPLY_SUBMITTED_TYPES[0],
       ref: `v2=${botId}/${blockId}/p5ykklgfgfr`
     };
 
@@ -247,7 +248,7 @@ describe('POST /chatfuel/reply', () => {
       schedule: dbSchedule._id,
       ref: `v2=${botId}/${blockId}/p5ykklgfgfr`,
       text: 'a',
-      type: 1,
+      submittedType: REPLY_SUBMITTED_TYPES[0],
       quiz: {
         question: dbQuestion._id,
         answer: 1
@@ -267,10 +268,10 @@ describe('POST /chatfuel/reply', () => {
 
     delete payload.ref;
 
-    const getReply = await Reply.findOne({
+    const object = await Reply.findOne({
       people: payload.people
     }).select('-createdAt -updatedAt -__v');
-    const result = JSON.parse(JSON.stringify(getReply));
+    const result = JSON.parse(JSON.stringify(object));
     expect(result).toMatchObject({
       ...payload,
       botId: botId,
@@ -298,13 +299,13 @@ describe('POST /chatfuel/reply', () => {
 
     delete payload.ref;
 
-    const results = await Reply.find({
+    const object = await Reply.find({
       people: payload.people,
       schedule: payload.schedule
     }).select('-createdAt -updatedAt -__v');
-    const [result] = JSON.parse(JSON.stringify(results));
+    const [result] = JSON.parse(JSON.stringify(object));
 
-    expect(results).toHaveLength(1);
+    expect(object).toHaveLength(1);
     expect(prevResult._id.toString()).toBe(result._id);
     expect(result).toMatchObject({
       ...payload,
@@ -326,26 +327,18 @@ describe('POST /chatfuel/reply', () => {
     delete payloadQuiz.ref;
     const { quiz, ...o } = payloadQuiz;
 
-    const getReply = await Reply.findOne({
+    const object = await Reply.findOne({
       people: payload.people
     }).select('-createdAt -updatedAt -__v');
-    const resultReply = JSON.parse(JSON.stringify(getReply));
-    expect(resultReply).toMatchObject({
+    const result = JSON.parse(JSON.stringify(object));
+    expect(result).toMatchObject({
       ...o,
       botId: botId,
-      blockId: blockId
-    });
-
-    const getQuiz = await Quiz.findOne({ people: payload.people }).select(
-      '-createdAt -updatedAt -__v'
-    );
-    const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
-
-    expect(resultQuiz).toMatchObject({
-      ...quiz,
-      isCorrectAnswer: true,
-      botId: botId,
-      blockId: blockId
+      blockId: blockId,
+      quiz: {
+        ...quiz,
+        isCorrect: true
+      }
     });
   });
 
@@ -364,25 +357,18 @@ describe('POST /chatfuel/reply', () => {
     delete payloadQuiz.ref;
     const { quiz, ...o } = payloadQuiz;
 
-    const getReply = await Reply.findOne({
+    const object = await Reply.findOne({
       people: payload.people
     }).select('-createdAt -updatedAt -__v');
-    const resultReply = JSON.parse(JSON.stringify(getReply));
-    expect(resultReply).toMatchObject({
+    const result = JSON.parse(JSON.stringify(object));
+    expect(result).toMatchObject({
       ...o,
       botId: botId,
-      blockId: blockId
-    });
-
-    const getQuiz = await Quiz.findOne({
-      people: payload.people
-    }).select('-createdAt -updatedAt -__v');
-    const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
-    expect(resultQuiz).toMatchObject({
-      ...quiz,
-      isCorrectAnswer: false,
-      botId: botId,
-      blockId: blockId
+      blockId: blockId,
+      quiz: {
+        ...quiz,
+        isCorrect: false
+      }
     });
   });
 
@@ -568,29 +554,28 @@ describe('POST /chatfuel/reply', () => {
     expect(message).toBe('Invalid value');
   });
 
-  test.each([
-    ['less then 1', '0'],
-    ['more then 4', '5'],
-    ['is equal to text', 'avasdf']
-  ])('should report error when type %s', async (s, v) => {
-    payload.type = v;
+  test.each([['not match', 'avasdf']])(
+    'should report error when submittedType %s',
+    async (s, v) => {
+      payload.submittedType = v;
 
-    const agent = await request(app)
-      .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
+      const agent = await request(app)
+        .post('/chatfuel/reply')
+        .query({ key: appConfig.apiPublicKey })
+        .send(payload)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(httpStatus.BAD_REQUEST);
 
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
+      expect(agent.body.code).toBe(400);
+      expect(agent.body.message).toBe('Validation Error');
 
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('type');
-    expect(location).toBe('body');
-    expect(message).toBe('Invalid value');
-  });
+      const { field, location, message } = agent.body.errors[0];
+      expect(field).toBe('submittedType');
+      expect(location).toBe('body');
+      expect(message).toBe('Invalid value');
+    }
+  );
 
   test.each([
     ['is equal to empty', ''],

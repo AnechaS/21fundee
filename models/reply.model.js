@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const People = require('./people.model');
+const { REPLY_SUBMITTED_TYPES } = require('../utils/constants');
 
 const ReplySchema = new mongoose.Schema(
   {
@@ -27,13 +28,26 @@ const ReplySchema = new mongoose.Schema(
       type: String,
       trim: true
     },
-    source: {
+    image: {
       type: String,
       trim: true
     },
-    type: {
-      type: Number,
-      enum: [1, 2, 3, 4]
+    submittedType: {
+      type: String,
+      enum: REPLY_SUBMITTED_TYPES
+    },
+    quiz: {
+      question: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Question',
+        index: true
+      },
+      answer: {
+        type: Number
+      },
+      isCorrect: {
+        type: Boolean
+      }
     }
   },
   {

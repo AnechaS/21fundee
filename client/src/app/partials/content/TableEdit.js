@@ -81,7 +81,7 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
     setEditing(false);
 
     let val = value;
-    if (type === "Array" || type === "Object") {
+    if (type === "array" || type === "object") {
       // Validate value is json
       try {
         val = JSON.parse(val);

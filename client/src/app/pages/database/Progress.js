@@ -8,11 +8,11 @@ import { ReactComponent as WriteIcon } from "../../../_metronic/layout/assets/la
 import KTContent from "../../../_metronic/layout/KtContent";
 import Table from "../../partials/content/TableEdit";
 import {
-  getQuiz,
-  createQuiz,
-  updateQuiz,
-  deleteQuiz
-} from "../../crud/quiz.crud";
+  getProgress,
+  createProgress,
+  updateProgress,
+  deleteProgress
+} from "../../crud/progress.crud";
 
 export default class Quiz extends Component {
   columns = [
@@ -23,38 +23,18 @@ export default class Quiz extends Component {
     },
     {
       Header: "people",
-      accessor: "people._id",
+      accessor: "people",
       type: "Populate"
     },
     {
       Header: "schedule",
-      accessor: "schedule._id",
+      accessor: "schedule",
       type: "Populate"
     },
     {
-      Header: "botId",
-      accessor: "botId",
-      type: "String"
-    },
-    {
-      Header: "blockId",
-      accessor: "blockId",
-      type: "String"
-    },
-    {
-      Header: "question",
-      accessor: "question._id",
-      type: "Populate"
-    },
-    {
-      Header: "answer",
-      accessor: "answer",
+      Header: "status",
+      accessor: "status",
       type: "Number"
-    },
-    {
-      Header: "isCorrectAnswer",
-      accessor: "isCorrectAnswer",
-      type: "Boolean"
     },
     {
       Header: "createdAt",
@@ -96,7 +76,7 @@ export default class Quiz extends Component {
   // TODO handle error
   createData = async body => {
     this.setState({ isLoading: true });
-    const response = await createQuiz(body);
+    const response = await createProgress(body);
     this.setState(prevState => ({
       isCreatingData: false,
       isLoading: false,
@@ -108,7 +88,7 @@ export default class Quiz extends Component {
   fetchData = async () => {
     try {
       this.setState({ isLoading: true });
-      const response = await getQuiz();
+      const response = await getProgress();
 
       if (this._isMounted) {
         this.setState({ data: response.data, isLoading: false });
@@ -154,7 +134,7 @@ export default class Quiz extends Component {
       newData[rowIndex] = { ...data[rowIndex], [column]: value };
       this.setState({ data: newData });
 
-      /* const response =  */ await updateQuiz(data[rowIndex]._id, {
+      /* const response =  */ await updateProgress(data[rowIndex]._id, {
         [column]: value
       });
     } catch (error) {
@@ -181,7 +161,7 @@ export default class Quiz extends Component {
     const newData = [];
     data.forEach((o, i) => {
       if (indexes.includes(i)) {
-        const response = deleteQuiz(o._id);
+        const response = deleteProgress(o._id);
         promise.push(response);
       } else {
         newData.push(o);

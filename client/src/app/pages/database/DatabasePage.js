@@ -3,7 +3,7 @@ import { Route, Switch } from "react-router-dom";
 import Schedule from "./Schedule";
 import Question from "./Question";
 import People from "./People";
-import Quiz from "./Quiz";
+import Progress from "./Progress";
 import Reply from "./Reply";
 
 export default function DatabasePage() {
@@ -12,7 +12,7 @@ export default function DatabasePage() {
       <Route path="/database/schedule" component={Schedule} />
       <Route path="/database/question" component={Question} />
       <Route path="/database/people" component={People} />
-      <Route path="/database/quiz" component={Quiz} />
+      <Route path="/database/progress" component={Progress} />
       <Route path="/database/reply" component={Reply} />
     </Switch>
   );

@@ -34,7 +34,8 @@ const PeopleSchema = new mongoose.Schema(
     },
     dentalId: {
       type: String,
-      trim: true
+      trim: true,
+      index: true
     },
     childName: {
       type: String,
@@ -54,8 +55,6 @@ const PeopleSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
-PeopleSchema.index({ dentalId: 1 });
 
 PeopleSchema.statics = {
   address(query = {}) {

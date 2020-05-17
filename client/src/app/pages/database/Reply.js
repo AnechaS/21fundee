@@ -47,14 +47,19 @@ export default class Reply extends Component {
       type: "String"
     },
     {
-      Header: "type",
-      accessor: "type",
-      type: "String"
-    },
-    {
       Header: "image",
       accessor: "image",
       type: "String"
+    },
+    {
+      Header: "submittedType",
+      accessor: "submittedType",
+      type: "String"
+    },
+    {
+      Header: "quiz",
+      accessor: "quiz",
+      type: "Object"
     },
     {
       Header: "createdAt",

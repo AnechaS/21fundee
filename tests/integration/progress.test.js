@@ -8,28 +8,24 @@ const User = require('../../models/user.model');
 const SessionToken = require('../../models/sessionToken.model');
 const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
-const Question = require('../../models/question.model');
-const Quiz = require('../../models/quiz.model');
+const Progress = require('../../models/progress.model');
 
 mongoose.Promise = global.Promise;
 
 let sessionToken;
 let dbPeoples;
 let dbSchedules;
-let dbQuestions;
-let dbQuizs;
-let quiz;
+let dbProgresses;
+let progress;
 
 const botId = 'asdfqwer';
-const blockIds = ['zxcvbnm', 'qwertyu'];
 
 beforeEach(async () => {
   await User.deleteMany({});
   await SessionToken.deleteMany({});
   await People.deleteMany({});
   await Schedule.deleteMany({});
-  await Question.deleteMany({});
-  await Quiz.deleteMany({});
+  await Progress.deleteMany({});
 
   const passwordHashed = await bcrypt.hash('1234', 1);
   const dbUser = {
@@ -77,50 +73,24 @@ beforeEach(async () => {
   ]);
   dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 
-  const savedQuestions = await Question.create([
-    {
-      name: 'a',
-      correctAnswers: [1],
-      schedule: dbSchedules[0]._id
-    },
-    {
-      name: 'b',
-      correctAnswers: [1],
-      schedule: dbSchedules[1]._id
-    }
-  ]);
-  dbQuestions = JSON.parse(JSON.stringify(savedQuestions));
-
-  const savedQuizs = await Quiz.insertMany([
+  const savedProgress = await Progress.insertMany([
     {
       people: dbPeoples[0]._id,
       schedule: dbSchedules[0]._id,
-      botId,
-      blockId: blockIds[0],
-      question: dbQuestions[0]._id,
-      answer: 1,
-      isCorrectAnswer: true
+      status: 2
     },
     {
       people: dbPeoples[1]._id,
       schedule: dbSchedules[0]._id,
-      botId,
-      blockId: blockIds[0],
-      question: dbQuestions[0]._id,
-      answer: 2,
-      isCorrectAnswer: false
+      status: 1
     }
   ]);
-  dbQuizs = JSON.parse(JSON.stringify(savedQuizs));
+  dbProgresses = JSON.parse(JSON.stringify(savedProgress));
 
-  quiz = {
+  progress = {
     people: dbPeoples[0]._id,
     schedule: dbSchedules[1]._id,
-    botId,
-    blockId: blockIds[1],
-    question: dbQuestions[1]._id,
-    answer: 1,
-    isCorrectAnswer: true
+    status: 1
   };
 });
 
@@ -128,66 +98,64 @@ afterAll(async () => {
   await mongoose.disconnect();
 });
 
-const format = object => {
+/* const format = object => {
   const getPeople = dbPeoples.find(o => o._id === object.people);
   const getSchedule = dbSchedules.find(o => o._id === object.schedule);
-  const getQuestion = dbQuestions.find(o => o._id === object.question);
   return {
     ...object,
     people: getPeople,
-    schedule: getSchedule,
-    question: getQuestion
+    schedule: getSchedule
   };
-};
+}; */
 
-describe('GET /quizzes', () => {
-  test('should get all quiz', async () => {
+describe('GET /progresses', () => {
+  test('should get all progress', async () => {
     const agent = await request(app)
-      .get('/quizzes')
+      .get('/progresses')
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(200);
 
-    const quizTransformed = dbQuizs.map(o => format(o));
-    expect(agent.body).toEqual(quizTransformed);
+    // const progressTransformed = dbProgresses.map(o => format(o));
+    expect(agent.body).toEqual(dbProgresses);
   });
 });
 
-describe('POST /quizzes', () => {
-  test('should reate a new quiz', async () => {
+describe('POST /progresses', () => {
+  test('should reate a new progress', async () => {
     const agent = await request(app)
-      .post('/quizzes')
+      .post('/progresses')
       .set('Authorization', sessionToken)
-      .send(quiz)
+      .send(progress)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body).toMatchObject(quiz);
+    expect(agent.body).toMatchObject(progress);
   });
 });
 
-describe('GET /quiz/:id', () => {
-  test('should get the quiz', async () => {
-    const id = dbQuizs[0]._id;
+describe('GET /progresses/:id', () => {
+  test('should get the progress', async () => {
+    const id = dbProgresses[0]._id;
 
     const agent = await request(app)
-      .get(`/quizzes/${id}`)
+      .get(`/progresses/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    const quizTransformed = format(dbQuizs[0]);
+    // const progressTransformed = format(dbProgresses[0]);
     expect(agent.body._id).toBe(id);
-    expect(agent.body).toEqual(quizTransformed);
+    expect(agent.body).toEqual(dbProgresses[0]);
   });
 
-  test('should report error when quiz does not exists', async () => {
+  test('should report error when progress does not exists', async () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .get(`/quizzes/${id}`)
+      .get(`/progresses/${id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -197,26 +165,26 @@ describe('GET /quiz/:id', () => {
   });
 });
 
-describe('PUT /quizzes', () => {
-  test('should update the quiz', async () => {
-    const id = dbQuizs[0]._id;
+describe('PUT /progresses', () => {
+  test('should update the progress', async () => {
+    const id = dbProgresses[0]._id;
 
     const agent = await request(app)
-      .put(`/quizzes/${id}`)
-      .send(quiz)
+      .put(`/progresses/${id}`)
+      .send(progress)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
     expect(agent.body._id).toBe(id);
-    expect(agent.body).toMatchObject(quiz);
+    expect(agent.body).toMatchObject(progress);
   });
 
-  test('should report error when quizzes does not exists', async () => {
+  test('should report error when progresses does not exists', async () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .put(`/quizzes/${id}`)
+      .put(`/progresses/${id}`)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.NOT_FOUND);
@@ -225,23 +193,23 @@ describe('PUT /quizzes', () => {
   });
 });
 
-describe('DELETE /quizzes', () => {
-  test('should delete the quiz', async () => {
-    const id = dbQuizs[0]._id;
+describe('DELETE /progresses', () => {
+  test('should delete the progress', async () => {
+    const id = dbProgresses[0]._id;
 
     const agent = await request(app)
-      .delete(`/quizzes/${id}`)
+      .delete(`/progresses/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(Quiz.findById(id)).resolves.toBeNull();
+    await expect(Progress.findById(id)).resolves.toBeNull();
   });
 
-  test('should report error when quizzes does not exists', async () => {
+  test('should report error when progresses does not exists', async () => {
     const id = mongoose.Types.ObjectId();
 
     const agent = await request(app)
-      .delete(`/quizzes/${id}`)
+      .delete(`/progresses/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NOT_FOUND);
     expect(agent.body.code).toBe(404);

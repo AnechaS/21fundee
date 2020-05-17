@@ -50,9 +50,9 @@ export default {
             page: "database/question"
           },
           {
-            title: "Quiz",
+            title: "Progress",
             root: true,
-            page: "database/quiz"
+            page: "database/progress"
           },
           {
             title: "Schedule",
