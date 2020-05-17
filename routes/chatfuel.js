@@ -16,22 +16,6 @@ const Progress = require('../models/progress.model');
 
 const router = express.Router();
 
-// tranform ref data for get id bot and block
-const tranformRefParam = string => {
-  const arr = string
-    .split('=')
-    .pop()
-    .split('/');
-
-  const result = {
-    botId: arr[0],
-    blockId: arr[1],
-    element: arr[2]
-  };
-
-  return result;
-};
-
 /**
  * Create a new people
  * @api {POST} /chatfuel/people
@@ -42,29 +26,21 @@ router.post(
   checkApiPublicKey,
   validator([
     body('id', 'Is required').exists(),
-    body('ref', 'Is required')
+    body('botId')
       .exists()
+      .withMessage('Is required')
       .bail()
-      .notEmpty()
-      .bail()
-      .matches(/(\w{1,})?=\w{1,}\/\w{1,}\/\w{1,}$/)
-      .withMessage('Invalid value')
+      .isLength({ max: 24, min: 24 })
   ]),
   async (req, res) => {
     try {
-      const { id, ref, ...o } = req.body;
+      const { id, ...o } = req.body;
 
-      const { botId } = tranformRefParam(ref);
-
-      /* const people =  */ await People.findByIdAndUpdate(
-        id,
-        { ...o, botId },
-        {
-          upsert: true,
-          new: true
-          // overwrite: true
-        }
-      );
+      /* const people =  */ await People.findByIdAndUpdate(id, o, {
+        upsert: true,
+        new: true
+        // overwrite: true
+      });
 
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {
@@ -109,13 +85,16 @@ router.post(
           }
         })
       ),
-    body('ref', 'Is required')
+    body('botId')
       .exists()
+      .withMessage('Is required')
       .bail()
-      .notEmpty()
+      .isLength({ max: 24, min: 24 }),
+    body('blockId')
+      .exists()
+      .withMessage('Is required')
       .bail()
-      .matches(/(\w{1,})?=\w{1,}\/\w{1,}\/\w{1,}$/)
-      .withMessage('Invalid value'),
+      .isLength({ max: 24, min: 24 }),
     body('submittedType')
       .if(value => value)
       .bail()
@@ -150,12 +129,11 @@ router.post(
         text,
         image,
         submittedType,
-        ref,
         quiz,
-        progress
+        progress,
+        botId,
+        blockId
       } = req.body;
-
-      const { botId, blockId } = tranformRefParam(ref);
 
       const promise = [];
 
@@ -240,8 +218,6 @@ router.post(
 
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {
-      console.log('xxxx', error);
-
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         created: false,
         message: error.message
