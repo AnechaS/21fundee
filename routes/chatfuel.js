@@ -167,7 +167,9 @@ router.post(
 
       // check body request for save to model reply
       if (Object.keys(objectReply).length) {
-        objectReply.submittedType = submittedType;
+        if (submittedType) {
+          objectReply.submittedType = submittedType;
+        }
 
         // check body request has quiz
         if (typeof quiz !== 'undefined') {
