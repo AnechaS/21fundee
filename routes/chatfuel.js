@@ -12,6 +12,7 @@ const People = require('../models/people.model');
 const Reply = require('../models/reply.model');
 const Schedule = require('../models/schedule.model');
 const Question = require('../models/question.model');
+const Quiz = require('../models/quiz.model');
 const Progress = require('../models/progress.model');
 const Comment = require('../models/comment.model');
 
@@ -122,7 +123,7 @@ router.post(
       .isInt({ min: 1, max: 2 })
       .toInt()
   ]),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const {
         people,
@@ -136,45 +137,19 @@ router.post(
         blockId
       } = req.body;
 
-      const promise = [];
+      let saveReply;
+      // let saveQuiz;
+      // let saveProgress;
 
       const objectReply = omitWithNull({
         text,
         image,
-        quiz
+        submittedType
       });
 
       // check body request for save to model reply
       if (Object.keys(objectReply).length) {
-        if (submittedType) {
-          objectReply.submittedType = submittedType;
-        }
-
-        // check body request has quiz
-        if (typeof quiz !== 'undefined') {
-          const question = await Question.findById(quiz.question);
-          // check question is exists
-          if (!question) {
-            throw new APIError({
-              message: 'Validation Error',
-              status: httpStatus.BAD_REQUEST,
-              errors: [
-                {
-                  field: 'quiz.question',
-                  location: 'body',
-                  message: 'Invalid value'
-                }
-              ]
-            });
-          }
-
-          objectReply.quiz.isCorrect = question.correctAnswers.includes(
-            quiz.answer
-          );
-        }
-
-        // save reply
-        const saveReply = Reply.findOneAndUpdate(
+        saveReply = await Reply.findOneAndUpdate(
           {
             people,
             schedule,
@@ -193,14 +168,55 @@ router.post(
             new: true
           }
         );
+      }
 
-        promise.push(saveReply);
+      // check body request has quiz
+      if (typeof quiz === 'object' && quiz.question && quiz.answer) {
+        const question = await Question.findById(quiz.question);
+        // check question is exists
+        if (!question) {
+          return next(
+            new APIError({
+              message: 'Validation Error',
+              status: httpStatus.BAD_REQUEST,
+              errors: [
+                {
+                  field: 'quiz.question',
+                  location: 'body',
+                  message: 'Invalid value'
+                }
+              ]
+            })
+          );
+        }
+
+        /* saveQuiz = */ await Quiz.findOneAndUpdate(
+          {
+            people,
+            schedule,
+            question: question._id
+          },
+          {
+            people,
+            schedule,
+            reply: saveReply._id,
+            question: question._id.toString(),
+            answer: quiz.answer,
+            isCorrect: question.correctAnswers.includes(quiz.answer),
+            ...omitWithNull({
+              answerText: quiz.answerText
+            })
+          },
+          {
+            upsert: true,
+            new: true
+          }
+        );
       }
 
       // check body request for save to model progress
       if (typeof progress === 'object' && progress.status) {
-        // save people progress
-        const saveProgress = Progress.findOneAndUpdate(
+        /* saveProgress = */ await Progress.findOneAndUpdate(
           { people, schedule },
           {
             people,
@@ -212,11 +228,7 @@ router.post(
             new: true
           }
         );
-
-        promise.push(saveProgress);
       }
-
-      await Promise.all(promise);
 
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {

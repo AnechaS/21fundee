@@ -50,6 +50,11 @@ export default {
             page: "database/people"
           },
           {
+            title: "Quiz",
+            root: true,
+            page: "database/quiz"
+          },
+          {
             title: "Question",
             root: true,
             page: "database/question"

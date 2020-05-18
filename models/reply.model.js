@@ -35,19 +35,6 @@ const ReplySchema = new mongoose.Schema(
     submittedType: {
       type: String,
       enum: REPLY_SUBMITTED_TYPES
-    },
-    quiz: {
-      question: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Question',
-        index: true
-      },
-      answer: {
-        type: Number
-      },
-      isCorrect: {
-        type: Boolean
-      }
     }
   },
   {

@@ -8,13 +8,13 @@ import { ReactComponent as WriteIcon } from "../../../_metronic/layout/assets/la
 import KTContent from "../../../_metronic/layout/KtContent";
 import Table from "../../partials/content/TableEdit";
 import {
-  getComment,
-  createComment,
-  updateComment,
-  deleteComment
-} from "../../crud/comment.crud";
+  getQuiz,
+  createQuiz,
+  updateQuiz,
+  deleteQuiz
+} from "../../crud/quiz.crud";
 
-export default class Comment extends Component {
+export default class Quiz extends Component {
   columns = [
     {
       Header: "id",
@@ -27,6 +27,16 @@ export default class Comment extends Component {
       type: "Populate"
     },
     {
+      Header: "schedule",
+      accessor: "schedule",
+      type: "Populate"
+    },
+    {
+      Header: "reply",
+      accessor: "reply",
+      type: "Populate"
+    },
+    {
       Header: "question",
       accessor: "question",
       type: "Populate"
@@ -34,7 +44,12 @@ export default class Comment extends Component {
     {
       Header: "answer",
       accessor: "answer",
-      type: "String"
+      type: "Number"
+    },
+    {
+      Header: "isCorrect",
+      accessor: "isCorrect",
+      type: "Boolean"
     },
     {
       Header: "createdAt",
@@ -76,7 +91,7 @@ export default class Comment extends Component {
   // TODO handle error
   createData = async body => {
     this.setState({ isLoading: true });
-    const response = await createComment(body);
+    const response = await createQuiz(body);
     this.setState(prevState => ({
       isCreatingData: false,
       isLoading: false,
@@ -88,7 +103,7 @@ export default class Comment extends Component {
   fetchData = async () => {
     try {
       this.setState({ isLoading: true });
-      const response = await getComment();
+      const response = await getQuiz();
 
       if (this._isMounted) {
         this.setState({ data: response.data, isLoading: false });
@@ -134,7 +149,7 @@ export default class Comment extends Component {
       newData[rowIndex] = { ...data[rowIndex], [column]: value };
       this.setState({ data: newData });
 
-      /* const response =  */ await updateComment(data[rowIndex]._id, {
+      /* const response =  */ await updateQuiz(data[rowIndex]._id, {
         [column]: value
       });
     } catch (error) {
@@ -161,7 +176,7 @@ export default class Comment extends Component {
     const newData = [];
     data.forEach((o, i) => {
       if (indexes.includes(i)) {
-        const response = deleteComment(o._id);
+        const response = deleteQuiz(o._id);
         promise.push(response);
       } else {
         newData.push(o);

@@ -5,6 +5,7 @@ import Question from "./Question";
 import People from "./People";
 import Progress from "./Progress";
 import Reply from "./Reply";
+import Quiz from "./Quiz";
 import Comment from "./Comment";
 
 export default function DatabasePage() {
@@ -15,6 +16,7 @@ export default function DatabasePage() {
       <Route path="/database/people" component={People} />
       <Route path="/database/progress" component={Progress} />
       <Route path="/database/reply" component={Reply} />
+      <Route path="/database/quiz" component={Quiz} />
       <Route path="/database/comment" component={Comment} />
     </Switch>
   );

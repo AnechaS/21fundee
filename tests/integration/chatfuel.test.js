@@ -11,6 +11,7 @@ const Question = require('../../models/question.model');
 const Reply = require('../../models/reply.model');
 const Progress = require('../../models/progress.model');
 const Comment = require('../../models/comment.model');
+const Quiz = require('../../models/quiz.model');
 
 mongoose.Promise = global.Promise;
 
@@ -25,6 +26,7 @@ beforeEach(async () => {
   await Schedule.deleteMany({});
   await Question.deleteMany({});
   await Reply.deleteMany({});
+  await Quiz.deleteMany({});
   await Progress.deleteMany({});
   await Comment.deleteMany({});
 
@@ -327,18 +329,23 @@ describe('POST /chatfuel/reply', () => {
 
     const { quiz, ...o } = payloadQuiz;
 
-    const object = await Reply.findOne({
+    const getReply = await Reply.findOne({
       people: payload.people
     }).select('-createdAt -updatedAt -__v');
-    const result = JSON.parse(JSON.stringify(object));
-    expect(result).toMatchObject({
+    const resultReply = JSON.parse(JSON.stringify(getReply));
+    expect(resultReply).toMatchObject({
       ...o,
       botId: botId,
-      blockId: blockId,
-      quiz: {
-        ...quiz,
-        isCorrect: true
-      }
+      blockId: blockId
+    });
+
+    const getQuiz = await Quiz.findOne({ people: payload.people }).select(
+      '-createdAt -updatedAt -__v'
+    );
+    const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
+    expect(resultQuiz).toMatchObject({
+      ...quiz,
+      isCorrect: true
     });
   });
 
@@ -356,18 +363,23 @@ describe('POST /chatfuel/reply', () => {
 
     const { quiz, ...o } = payloadQuiz;
 
-    const object = await Reply.findOne({
+    const getReply = await Reply.findOne({
       people: payload.people
     }).select('-createdAt -updatedAt -__v');
-    const result = JSON.parse(JSON.stringify(object));
-    expect(result).toMatchObject({
+    const resultReply = JSON.parse(JSON.stringify(getReply));
+    expect(resultReply).toMatchObject({
       ...o,
       botId: botId,
-      blockId: blockId,
-      quiz: {
-        ...quiz,
-        isCorrect: false
-      }
+      blockId: blockId
+    });
+
+    const getQuiz = await Quiz.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
+    expect(resultQuiz).toMatchObject({
+      ...quiz,
+      isCorrect: false
     });
   });
 
@@ -615,7 +627,7 @@ describe('POST /chatfuel/reply', () => {
   test.each([
     ['is equal to empty', ''],
     ['not match mongo id', 'asdf'],
-    ['is not exists', mongoose.Types.ObjectId().toS]
+    ['is not exists', mongoose.Types.ObjectId().toString()]
   ])('should report error when quiz question %s', async (s, v) => {
     payload.quiz = { question: v, answer: 1 };
 
