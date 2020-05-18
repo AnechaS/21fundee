@@ -28,12 +28,6 @@ export default class Schedule extends Component {
       edit: true
     },
     {
-      Header: "no",
-      accessor: "no",
-      type: "Number",
-      edit: true
-    },
-    {
       Header: "createdAt",
       accessor: "createdAt",
       type: "Date"

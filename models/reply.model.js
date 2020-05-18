@@ -81,12 +81,14 @@ ReplySchema.statics = {
         }
       },
       {
+        $sort: { 'schedule._id': 1 }
+      },
+      {
         $replaceRoot: {
           newRoot: {
             $mergeObjects: [
               {
                 name: '$schedule.name',
-                no: '$schedule.no',
                 // peoplesCount: '$peoplesCount',
                 percentage: {
                   $multiply: [{ $divide: ['$peoplesCount', peoplesCount] }, 100]
@@ -95,9 +97,6 @@ ReplySchema.statics = {
             ]
           }
         }
-      },
-      {
-        $sort: { no: 1 }
       }
     ]);
 
