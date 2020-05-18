@@ -9,14 +9,14 @@ const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
 const Question = require('../../models/question.model');
 const Reply = require('../../models/reply.model');
-const Quiz = require('../../models/quiz.model');
 const Progress = require('../../models/progress.model');
+const Comment = require('../../models/comment.model');
 
 mongoose.Promise = global.Promise;
 
 let dbPeople;
 let dbSchedule;
-let dbQuestion;
+let dbQuestions;
 let botId = '5eb92fd7f58c2808c98e385b';
 let blockId = '5eb92fd7f58c2808c98e419b';
 
@@ -24,9 +24,9 @@ beforeEach(async () => {
   await People.deleteMany({});
   await Schedule.deleteMany({});
   await Question.deleteMany({});
-  await Quiz.deleteMany({});
   await Reply.deleteMany({});
   await Progress.deleteMany({});
+  await Comment.deleteMany({});
 
   const savedPeople = await People.create({
     _id: 'zxcvb',
@@ -49,13 +49,21 @@ beforeEach(async () => {
 
   dbSchedule = JSON.parse(JSON.stringify(savedSchedule));
 
-  const savedQuestion = await Question.create({
-    name: 'a',
-    correctAnswers: [1],
-    schedule: dbSchedule._id
-  });
+  const savedQuestion = await Question.create([
+    {
+      name: 'a',
+      correctAnswers: [1],
+      schedule: dbSchedule._id,
+      type: 1
+    },
+    {
+      name: 'b',
+      schedule: dbSchedule._id,
+      type: 3
+    }
+  ]);
 
-  dbQuestion = JSON.parse(JSON.stringify(savedQuestion));
+  dbQuestions = JSON.parse(JSON.stringify(savedQuestion));
 });
 
 afterAll(async () => {
@@ -64,8 +72,6 @@ afterAll(async () => {
 
 describe('POST /chatfuel/people', () => {
   let payload;
-
-  console.log(botId);
 
   beforeEach(() => {
     payload = {
@@ -249,7 +255,7 @@ describe('POST /chatfuel/reply', () => {
       text: 'a',
       submittedType: REPLY_SUBMITTED_TYPES[0],
       quiz: {
-        question: dbQuestion._id,
+        question: dbQuestions[0]._id,
         answer: 1
       }
     };
@@ -634,7 +640,7 @@ describe('POST /chatfuel/reply', () => {
     ['is equal to empty', ''],
     ['is equal to text', 'asdf']
   ])('should report error when quiz answer %s', async (s, v) => {
-    payload.quiz = { question: dbQuestion._id, answer: v };
+    payload.quiz = { question: dbQuestions[0]._id, answer: v };
 
     const agent = await request(app)
       .post('/chatfuel/reply')
@@ -675,5 +681,63 @@ describe('POST /chatfuel/reply', () => {
     expect(field).toBe('progress.status');
     expect(location).toBe('body');
     expect(message).toBe(v ? 'Invalid value' : 'Is required');
+  });
+});
+
+describe('POST /chatfuel/comment', () => {
+  let payload;
+
+  beforeEach(() => {
+    payload = {
+      people: dbPeople._id,
+      question: dbQuestions[1]._id,
+      answer: 'good'
+    };
+  });
+
+  test('should create a new comment', async () => {
+    const agent = await request(app)
+      .post('/chatfuel/comment')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.CREATED);
+
+    expect(agent.body).toEqual({ created: true });
+
+    let result = await Comment.findOne({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    result = JSON.parse(JSON.stringify(result));
+    expect(result.people).toBe(payload.people);
+    expect(result.question).toBe(payload.question);
+    expect(result.answer).toBe(payload.answer);
+  });
+
+  test('should update comment when exist people and question', async () => {
+    const oldResult = await Comment.create(payload);
+
+    payload.answer = 'bad';
+
+    const agent = await request(app)
+      .post('/chatfuel/comment')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.CREATED);
+
+    expect(agent.body).toEqual({ created: true });
+
+    const results = await Comment.find({
+      people: payload.people
+    }).select('-createdAt -updatedAt -__v');
+    const result = JSON.parse(JSON.stringify(results[0]));
+    expect(results).toHaveLength(1);
+    expect(result._id).toBe(oldResult._id.toString());
+    expect(result.people).toBe(payload.people);
+    expect(result.question).toBe(payload.question);
+    expect(result.answer).toBe(payload.answer);
   });
 });

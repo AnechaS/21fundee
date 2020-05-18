@@ -2,6 +2,7 @@ const express = require('express');
 
 const authRouter = require('./auth');
 const userRouters = require('./user');
+const commentRouters = require('./comment');
 const peopleRouters = require('./people');
 const scheduleRouters = require('./schedule');
 const questionRouters = require('./question');
@@ -14,6 +15,7 @@ const router = express.Router();
 
 router.use('/auth', authRouter);
 router.use('/users', userRouters);
+router.use('/comments', commentRouters);
 router.use('/peoples', peopleRouters);
 router.use('/schedules', scheduleRouters);
 router.use('/questions', questionRouters);

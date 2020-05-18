@@ -11,6 +11,11 @@ const QuestionSchema = new mongoose.Schema(
       type: String,
       trim: true
     },
+    type: {
+      type: Number,
+      enum: [1, 2, 3]
+    },
+
     // TODO add field list answer
     // answers: Array,
 

@@ -8,13 +8,13 @@ import { ReactComponent as WriteIcon } from "../../../_metronic/layout/assets/la
 import KTContent from "../../../_metronic/layout/KtContent";
 import Table from "../../partials/content/TableEdit";
 import {
-  getQuestion,
-  createQuestion,
-  updateQuestion,
-  deleteQuestion
-} from "../../crud/question.crud";
+  getComment,
+  createComment,
+  updateComment,
+  deleteComment
+} from "../../crud/comment.crud";
 
-export default class Question extends Component {
+export default class Comment extends Component {
   columns = [
     {
       Header: "id",
@@ -22,28 +22,19 @@ export default class Question extends Component {
       type: "ObjectId"
     },
     {
-      Header: "name",
-      accessor: "name",
-      type: "String",
-      edit: true
+      Header: "people",
+      accessor: "people._id",
+      type: "Populate"
     },
     {
-      Header: "correctAnswers",
-      accessor: "correctAnswers",
-      type: "Array",
-      edit: true
+      Header: "question",
+      accessor: "schedule._id",
+      type: "Populate"
     },
     {
-      Header: "type",
-      accessor: "type",
-      type: "Number",
-      edit: true
-    },
-    {
-      Header: "schedule",
-      accessor: "schedule",
-      type: "Populate",
-      edit: true
+      Header: "answer",
+      accessor: "answer",
+      type: "String"
     },
     {
       Header: "createdAt",
@@ -78,13 +69,14 @@ export default class Question extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
+
     document.removeEventListener("keydown", this.handleKeyDown, false);
   }
 
   // TODO handle error
   createData = async body => {
     this.setState({ isLoading: true });
-    const response = await createQuestion(body);
+    const response = await createComment(body);
     this.setState(prevState => ({
       isCreatingData: false,
       isLoading: false,
@@ -96,7 +88,7 @@ export default class Question extends Component {
   fetchData = async () => {
     try {
       this.setState({ isLoading: true });
-      const response = await getQuestion();
+      const response = await getComment();
 
       if (this._isMounted) {
         this.setState({ data: response.data, isLoading: false });
@@ -142,7 +134,7 @@ export default class Question extends Component {
       newData[rowIndex] = { ...data[rowIndex], [column]: value };
       this.setState({ data: newData });
 
-      /* const response =  */ await updateQuestion(data[rowIndex]._id, {
+      /* const response =  */ await updateComment(data[rowIndex]._id, {
         [column]: value
       });
     } catch (error) {
@@ -169,7 +161,7 @@ export default class Question extends Component {
     const newData = [];
     data.forEach((o, i) => {
       if (indexes.includes(i)) {
-        const response = deleteQuestion(o._id);
+        const response = deleteComment(o._id);
         promise.push(response);
       } else {
         newData.push(o);
@@ -200,6 +192,7 @@ export default class Question extends Component {
             <SubHeader.Button
               color="secondary"
               title="Add Row"
+              disabled={true}
               onClick={this.handleCreateDataClick}
             >
               <PlusIcon className="kt-svg-icon kt-svg-icon-sm" />
@@ -223,7 +216,10 @@ export default class Question extends Component {
                 &nbsp; Edit
               </SubHeader.Dropdown.Toggle>
               <SubHeader.Dropdown.Menu style={{ width: "200px" }}>
-                <SubHeader.Dropdown.Item onClick={this.handleCreateDataClick}>
+                <SubHeader.Dropdown.Item
+                  disabled={true}
+                  onClick={this.handleCreateDataClick}
+                >
                   Add a row
                 </SubHeader.Dropdown.Item>
                 <SubHeader.Dropdown.Divider />

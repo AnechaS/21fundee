@@ -13,6 +13,7 @@ const Reply = require('../models/reply.model');
 const Schedule = require('../models/schedule.model');
 const Question = require('../models/question.model');
 const Progress = require('../models/progress.model');
+const Comment = require('../models/comment.model');
 
 const router = express.Router();
 
@@ -177,6 +178,7 @@ router.post(
           {
             people,
             schedule,
+            botId,
             blockId
           },
           {
@@ -219,6 +221,62 @@ router.post(
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        created: false,
+        message: error.message
+      });
+    }
+  }
+);
+
+router.post(
+  '/comment',
+  removeReqBodyWithNull,
+  checkApiPublicKey,
+  validator([
+    body('people')
+      .exists()
+      .withMessage('Is required')
+      .bail()
+      .custom(value =>
+        People.findById(value).then(result => {
+          if (!result) {
+            return Promise.reject('Invalid value');
+          }
+        })
+      ),
+    body('question')
+      .exists()
+      .withMessage('Is required')
+      .bail()
+      .isMongoId()
+      .bail()
+      .custom(value =>
+        Question.findOne({ _id: value, type: 3 }).then(result => {
+          if (!result) {
+            return Promise.reject('Invalid value');
+          }
+        })
+      ),
+    body('answer')
+      .exists()
+      .withMessage('Is required')
+  ]),
+  async (req, res) => {
+    try {
+      const { people, question, answer } = req.body;
+
+      await Comment.findOneAndUpdate(
+        { people, question },
+        { people, question, answer },
+        {
+          upsert: true,
+          new: true
+        }
+      );
+
+      return res.status(httpStatus.CREATED).json({ created: true });
+    } catch (error) {
+      return res.status(500).json({
         created: false,
         message: error.message
       });

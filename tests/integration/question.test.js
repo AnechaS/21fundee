@@ -66,13 +66,13 @@ afterAll(async () => {
   await mongoose.disconnect();
 });
 
-const format = object => {
-  const getSchedule = dbSchedules.find(o => o._id === object.schedule);
-  return {
-    ...object,
-    schedule: getSchedule
-  };
-};
+// const format = object => {
+//   const getSchedule = dbSchedules.find(o => o._id === object.schedule);
+//   return {
+//     ...object,
+//     schedule: getSchedule
+//   };
+// };
 
 describe('GET /questions', () => {
   test('should get all questions', async () => {
@@ -83,8 +83,8 @@ describe('GET /questions', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    const questionTransformed = dbQuestions.map(o => format(o));
-    expect(agent.body).toEqual(questionTransformed);
+    // const questionTransformed = dbQuestions.map(o => format(o));
+    expect(agent.body).toEqual(dbQuestions);
   });
 
   test.todo('add should get all questions with pagination');
@@ -107,8 +107,6 @@ describe('POST /questions', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    console.log(agent.body);
-
     expect(agent.body).toMatchObject(question);
   });
 });
@@ -124,8 +122,8 @@ describe('GET /questions/:id', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    const questionTransformed = format(dbQuestions[0]);
-    expect(agent.body).toEqual(questionTransformed);
+    // const questionTransformed = format(dbQuestions[0]);
+    expect(agent.body).toEqual(dbQuestions[0]);
   });
 
   test('should report error when question does not exists', async () => {

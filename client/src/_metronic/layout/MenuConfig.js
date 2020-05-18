@@ -35,6 +35,11 @@ export default {
         icon: "flaticon2-cube",
         submenu: [
           {
+            title: "Comment",
+            root: true,
+            page: "database/comment"
+          },
+          {
             title: "Reply",
             root: true,
             page: "database/reply"
