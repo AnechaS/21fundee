@@ -193,7 +193,6 @@ router.post(
         /* saveQuiz = */ await Quiz.findOneAndUpdate(
           {
             people,
-            schedule,
             question: question._id
           },
           {
@@ -204,7 +203,7 @@ router.post(
             answer: quiz.answer,
             isCorrect: question.correctAnswers.includes(quiz.answer),
             ...omitWithNull({
-              answerText: quiz.answerText
+              answerText: quiz.answerText || text
             })
           },
           {
