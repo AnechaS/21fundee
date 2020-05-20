@@ -9,7 +9,6 @@ const Reply = require('../models/reply.model');
 
 const router = express.Router();
 
-// TODO testing
 router.get('/', authorize(), async (req, res, next) => {
   try {
     const { period: per, dateStart, dateEnd } = req.query;
@@ -88,8 +87,6 @@ router.get('/', authorize(), async (req, res, next) => {
       dLteQDCPeoples = moment()
         .endOf('date')
         .toDate();
-
-      console.log(moment().toDate());
     } else if (dEnd && !dStart) {
       dGtlQDCPeoples = moment()
         .startOf('day')

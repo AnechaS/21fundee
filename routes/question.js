@@ -31,6 +31,10 @@ router.param('id', async (req, res, next, id) => {
   }
 });
 
+/**
+ * List question
+ * @api {get} /question
+ */
 router.get('/', authorize(), async (req, res, next) => {
   try {
     const question = await Question.find().limit(2000);
@@ -40,6 +44,10 @@ router.get('/', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Create a new question
+ * @api {post} /question
+ */
 router.post('/', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
@@ -50,6 +58,10 @@ router.post('/', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Get question infomation
+ * @api {get} /question/:id
+ */
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
     const question = await req.question;
@@ -59,6 +71,10 @@ router.get('/:id', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Update question
+ * @api {put} /question/:id
+ */
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
@@ -70,6 +86,10 @@ router.put('/:id', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Delete a question
+ * @api {delete} /question/:id
+ */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {
     const question = req.question;

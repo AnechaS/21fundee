@@ -11,44 +11,37 @@ const User = require('../models/user.model');
 
 const router = express.Router();
 
-// /**
-//  * @api {post} auth/register Register
-//  * @apiDescription Register a new user
-//  * @apiVersion 1.0.0
-//  * @apiName Register
-//  * @apiGroup Auth
-//  */
-// router.post('/register', validator([
-//   body('email')
-//     .trim()
-//     .notEmpty().withMessage('Is required')
-//     .bail()
-//     .isEmail().withMessage('Must be a valid email'),
-//   body('password')
-//     .trim()
-//     .notEmpty().withMessage('Is required')
-//     .bail()
-//     .isLength({ min: 6, max: 128 })
-// ]), async (req, res, next) => {
-//   try {
-//     const userData = _.omit(req.body, 'role');
-//     const user = await new User(userData).save();
-//     const userTransformed = user.transform();
-//     const sessionToken = SessionToken.generate(user).token;
-//     res.status(httpStatus.CREATED);
-//     return res.json({ ...userTransformed, sessionToken });
-//   } catch (error) {
-//     return next(User.checkDuplicateEmail(error));
-//   }
-// });
+/**
+ * Register
+ * @api {post} auth/register
+ */
+/* router.post('/register', validator([
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Is required')
+    .bail()
+    .isEmail().withMessage('Must be a valid email'),
+  body('password')
+    .trim()
+    .notEmpty().withMessage('Is required')
+    .bail()
+    .isLength({ min: 6, max: 128 })
+]), async (req, res, next) => {
+  try {
+    const userData = _.omit(req.body, 'role');
+    const user = await new User(userData).save();
+    const userTransformed = user.transform();
+    const sessionToken = SessionToken.generate(user).token;
+    res.status(httpStatus.CREATED);
+    return res.json({ ...userTransformed, sessionToken });
+  } catch (error) {
+    return next(User.checkDuplicateEmail(error));
+  }
+}); */
 
 /**
- * @api {post} v1/auth/login Login
- * @apiDescription Get an accessToken
- * @apiVersion 1.0.0
- * @apiName Login
- * @apiGroup Auth
- * @apiPermission public
+ * Login
+ * @api {post} auth/login
  */
 router.post(
   '/login',
@@ -65,7 +58,7 @@ router.post(
       .notEmpty()
       .withMessage('Is required')
       .bail()
-      .isLength({ max: 128 }),
+      .isLength({ max: 128 })
   ]),
   async (req, res, next) => {
     try {
@@ -80,7 +73,7 @@ router.post(
       return next(
         new APIError({
           status: httpStatus.UNAUTHORIZED,
-          message: 'Incorrect email or password',
+          message: 'Incorrect email or password'
         })
       );
     } catch (error) {
@@ -90,12 +83,8 @@ router.post(
 );
 
 /**
- * @api {post} v1/auth/logout Logout Token
- * @apiDescription Logout user
- * @apiVersion 1.0.0
- * @apiName Logout
- * @apiGroup Auth
- * @apiPermission public
+ * Logout user
+ * @api {post} auth/logout
  */
 router.post('/logout', authorize(), async (req, res, next) => {
   try {

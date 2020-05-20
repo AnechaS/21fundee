@@ -32,7 +32,7 @@ router.param('id', async (req, res, next, id) => {
 });
 
 /**
- * List Quizs
+ * List quizzes
  * @api {get} /quizzes
  */
 router.get('/', authorize(), async (req, res, next) => {
@@ -80,7 +80,7 @@ router.get('/:id', authorize(), async (req, res, next) => {
 });
 
 /**
- * Update some fields of a quiz document
+ * Update quiz
  * @api {put} /quizzes/:id
  */
 router.put('/:id', authorize(), async (req, res, next) => {
@@ -96,7 +96,7 @@ router.put('/:id', authorize(), async (req, res, next) => {
 
 /**
  * Delete a schedule
- * @api {delete} /quizzes/:id Delete a schedule
+ * @api {delete} /quizzes/:id
  */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {

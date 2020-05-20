@@ -16,3 +16,7 @@ package-lock.json
 # app config
 config/development.json
 config/production.json
+
+# logs
+logs
+test_logs

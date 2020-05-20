@@ -1,9 +1,8 @@
 const express = require('express');
 const { body } = require('express-validator');
 const httpStatus = require('http-status');
+const appConfig = require('../config');
 const APIError = require('../utils/APIError');
-const removeReqBodyWithNull = require('../middlewares/removeReqBodyWithNull');
-const checkApiPublicKey = require('../middlewares/checkApiPublicKey');
 const validator = require('../middlewares/validator');
 const omitWithNull = require('../utils/omitWithNull');
 const { REPLY_SUBMITTED_TYPES } = require('../utils/constants');
@@ -18,14 +17,28 @@ const Comment = require('../models/comment.model');
 
 const router = express.Router();
 
+router.use((req, res, next) => {
+  req.body = omitWithNull(req.body);
+
+  const key = req.query.key;
+  if (key && key === appConfig.apiPublicKey) {
+    return next();
+  }
+
+  return next(
+    new APIError({
+      message: 'Forbidden',
+      status: httpStatus.FORBIDDEN
+    })
+  );
+});
+
 /**
  * Create a new people
  * @api {POST} /chatfuel/people
  */
 router.post(
   '/people',
-  removeReqBodyWithNull,
-  checkApiPublicKey,
   validator([
     body('id', 'Is required').exists(),
     body('botId')
@@ -60,8 +73,6 @@ router.post(
  */
 router.post(
   '/reply',
-  removeReqBodyWithNull,
-  checkApiPublicKey,
   validator([
     body('people')
       .exists()
@@ -241,8 +252,6 @@ router.post(
 
 router.post(
   '/comment',
-  removeReqBodyWithNull,
-  checkApiPublicKey,
   validator([
     body('people')
       .exists()

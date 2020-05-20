@@ -29,5 +29,12 @@ switch (env) {
 
 exports.env = env;
 exports.port = parsed.port || 3000;
+
+exports.logsFolder = parsed.logsFolder;
+exports.logLevel = parsed.logLevel;
+exports.maxLogFiles = parsed.maxLogFiles || '14d';
+exports.jsonLogs = parsed.jsonLogs || true;
+
 exports.mongoURI = parsed.mongoURI;
+
 exports.apiPublicKey = parsed.apiPublicKey;

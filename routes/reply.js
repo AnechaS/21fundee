@@ -32,10 +32,8 @@ router.param('id', async (req, res, next, id) => {
 });
 
 /**
- * @api {get} /replys List Replys
- * @apiDescription Get a list of quiz
- * @apiName ListReplys
- * @apiGroup Reply
+ * List replies
+ * @api {get} /replies
  */
 router.get('/', authorize(), async (req, res, next) => {
   try {
@@ -50,10 +48,8 @@ router.get('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {post} /replys Create Reply
- * @apiDescription Create a new reply
- * @apiName CreateReply
- * @apiGroup Reply
+ * Create a new reply
+ * @api {post} /replies
  */
 router.post('/', authorize(), async (req, res, next) => {
   try {
@@ -65,6 +61,10 @@ router.post('/', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Create reply infomation
+ * @api {post} /replies
+ */
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
     const reply = await req.reply
@@ -78,10 +78,8 @@ router.get('/:id', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {put} /replys/:id Update Reply
- * @apiDescription Update some fields of a reply document
- * @apiName UpdateReply
- * @apiGroup Reply
+ * Update reply
+ * @api {put} /replies/:id
  */
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
@@ -95,10 +93,8 @@ router.put('/:id', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {delete} /replys/:id Delete a schedule
- * @apiDescription Delete a schedule
- * @apiName DeleteReply
- * @apiGroup Reply
+ * Delete a reply
+ * @api {delete} /replies/:id
  */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {

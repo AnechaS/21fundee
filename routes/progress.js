@@ -32,7 +32,7 @@ router.param('id', async (req, res, next, id) => {
 });
 
 /**
- * List Progress
+ * List progresses
  * @api {get} /progresses
  */
 router.get('/', authorize(), async (req, res, next) => {
@@ -45,7 +45,7 @@ router.get('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * Create a new Progress
+ * Create a new progress
  * @api {post} /progresses
  */
 router.post('/', authorize(), async (req, res, next) => {
@@ -59,7 +59,7 @@ router.post('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * Get The Progress
+ * Get progress information
  * @api {get} /progresses/:id
  */
 router.get('/:id', authorize(), async (req, res, next) => {
@@ -72,7 +72,7 @@ router.get('/:id', authorize(), async (req, res, next) => {
 });
 
 /**
- * Update some fields of a progress document
+ * Update progress
  * @api {put} /progresses/:id
  */
 router.put('/:id', authorize(), async (req, res, next) => {

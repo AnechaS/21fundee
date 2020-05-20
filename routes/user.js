@@ -28,6 +28,10 @@ router.param('id', async (req, res, next, id) => {
   }
 });
 
+/**
+ * List users
+ * @api {get} /users
+ */
 router.get('/', authorize(), async (req, res, next) => {
   try {
     const users = await User.find().limit(2000);
@@ -38,6 +42,10 @@ router.get('/', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Get user with token
+ * @api {get} /users/me
+ */
 router.get('/me', authorize(), async (req, res, next) => {
   try {
     const user = req.user;
@@ -47,6 +55,10 @@ router.get('/me', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Create a new user
+ * @api {post} /users
+ */
 router.post('/', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
@@ -57,6 +69,10 @@ router.post('/', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Get user infomation
+ * @api {post} /users
+ */
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
     const user = req.locals;
@@ -66,6 +82,10 @@ router.get('/:id', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Update user
+ * @api {put} /users/:id
+ */
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
     const object = req.body;
@@ -77,6 +97,10 @@ router.put('/:id', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Delete a user
+ * @api {delete} /users/:id
+ */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {
     const user = req.locals;

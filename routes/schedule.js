@@ -32,10 +32,8 @@ router.param('id', async (req, res, next, id) => {
 });
 
 /**
- * @api {get} /schedules List Schedules
- * @apiDescription Get a list of schedules
- * @apiName ListSchedules
- * @apiGroup Schedule
+ * List Schedules
+ * @api {get} /schedules
  */
 router.get('/', authorize(), async (req, res, next) => {
   try {
@@ -47,10 +45,8 @@ router.get('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {post} /schedules Create Schedule
- * @apiDescription Create a new schedule
- * @apiName CreateSchedule
- * @apiGroup Schedule
+ * Create a new schedule
+ * @api {post} /schedules
  */
 router.post('/', authorize(), async (req, res, next) => {
   try {
@@ -63,10 +59,8 @@ router.post('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {get} /schedules/:id Get Schedule
- * @apiDescription Get schedule information
- * @apiName GetSchedule
- * @apiGroup Schedule
+ * Get schedule infomation
+ * @api {get} /schedules/:id
  */
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
@@ -78,12 +72,8 @@ router.get('/:id', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {put} /schedules/:id Update Schedule
- * @apiDescription Update some fields of a schedule document
- * @apiName UpdateSchedule
- * @apiGroup Schedule
- *
- * TODO Update _id
+ * Update schedule
+ * @api {put} /schedules/:id
  */
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
@@ -97,10 +87,8 @@ router.put('/:id', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {delete} /peoples/:id Delete Schedule
- * @apiDescription Delete a schedule
- * @apiName DeleteSchedule
- * @apiGroup Schedule
+ * Delete a schedule
+ * @api {delete} /peoples/:id
  */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {

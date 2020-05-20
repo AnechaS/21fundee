@@ -59,7 +59,7 @@ router.post('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * Get a comment
+ * Get comment information
  * @api {post} /comments
  */
 router.get('/:id', authorize(), async (req, res, next) => {

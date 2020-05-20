@@ -30,10 +30,8 @@ router.param('id', async (req, res, next, id) => {
 });
 
 /**
- * @api {get} /peoples List Peoples
- * @apiDescription Get a list of peoples
- * @apiName ListPeoples
- * @apiGroup People
+ * List Peoples
+ * @api {get} /peoples
  */
 router.get('/', authorize(), async (req, res, next) => {
   try {
@@ -45,10 +43,8 @@ router.get('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {post} /peoples Create Peoples
- * @apiDescription Create a new people
- * @apiName CreatePeople
- * @apiGroup People
+ * Create a new people
+ * @api {post} /peoples
  */
 router.post('/', authorize(), async (req, res, next) => {
   try {
@@ -61,10 +57,8 @@ router.post('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {get} /peoples/:id Get people
- * @apiDescription Get people information
- * @apiName Getpeople
- * @apiGroup people
+ * Get people information
+ * @api {get} /peoples/:id
  */
 router.get('/:id', authorize(), async (req, res, next) => {
   try {
@@ -76,10 +70,8 @@ router.get('/:id', authorize(), async (req, res, next) => {
 });
 
 /**
- * @api {put} /peoples/:id Update People
- * @apiDescription Update some fields of a people document
- * @apiName UpdatePeople
- * @apiGroup People
+ * Update people
+ * @api {put} /peoples/:id
  */
 router.put('/:id', authorize(), async (req, res, next) => {
   try {
@@ -88,17 +80,13 @@ router.put('/:id', authorize(), async (req, res, next) => {
     const savedPeople = await people.save();
     return res.json(savedPeople);
   } catch (error) {
-    console.log(error);
-
     return next(error);
   }
 });
 
 /**
- * @api {delete} /peoples/:id Delete People
- * @apiDescription Delete a people
- * @apiName DeleteUser
- * @apiGroup People
+ * Delete a people
+ * @api {delete} /peoples/:id
  */
 router.delete('/:id', authorize(), async (req, res, next) => {
   try {

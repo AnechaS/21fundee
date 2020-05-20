@@ -36,7 +36,9 @@
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "mongoose": "^5.8.0",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "^1.1.3",

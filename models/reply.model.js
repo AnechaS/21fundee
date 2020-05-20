@@ -43,7 +43,7 @@ const ReplySchema = new mongoose.Schema(
 );
 
 ReplySchema.statics = {
-  // TODO optomize speed query
+  // TODO optimize speed query
   async schedulePercentOfPeoples(query = {}, peoplesCount = 0) {
     let newQuery = query;
 

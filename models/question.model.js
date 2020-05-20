@@ -15,10 +15,9 @@ const QuestionSchema = new mongoose.Schema(
       type: Number,
       enum: [1, 2, 3]
     },
-
-    // TODO add field list answer
-    // answers: Array,
-
+    answers: {
+      type: Array
+    },
     correctAnswers: {
       type: [Number],
       required: true
