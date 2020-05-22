@@ -753,3 +753,23 @@ describe('POST /chatfuel/comment', () => {
     expect(result.answer).toBe(payload.answer);
   });
 });
+
+describe('POST /chatfuel/cetificate', () => {
+  /* let payload;
+
+  beforeEach(() => {
+    payload = {
+      imageUrl:
+        'https://scontent.xx.fbcdn.net/v/t1.15752-9/98484477_597577834194633_4758591208668790784_n.jpg?_nc_cat=104%26_nc_sid=b96e70%26_nc_ohc=vP3MX4PE2SAAX_aCKD1%26_nc_ad=z-m%26_nc_cid=0%26_nc_zor=9%26_nc_ht=scontent.xx%26oh=0f57a271d36aa654d1248bbe6f59dc28%26oe=5EED3815'
+    };
+  }); */
+
+  test('should return currect', async () => {
+    /* const agent = await request(app)
+      .post('/chatfuel/comment')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/); */
+  });
+});

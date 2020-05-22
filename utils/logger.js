@@ -8,6 +8,8 @@ const path = require('path');
 const _ = require('lodash');
 const appConfig = require('../config');
 
+// const logLevels = ['error', 'warn', 'info', 'debug', 'verbose', 'silly'];
+
 const defaults = {
   logsFolder: process.env.NODE_ENV === 'test' ? './test_logs/' : './logs/',
   jsonLogs: false
@@ -73,14 +75,12 @@ function configureLogger({
   const consoleFormat = options.json
     ? winston.format.json()
     : winston.format.simple();
-  const consoleOptions = Object.assign(
-    {
-      colorize: true,
-      name: 'console',
-      format: consoleFormat
-    },
-    options
-  );
+  const consoleOptions = {
+    colorize: true,
+    name: 'console',
+    format: consoleFormat,
+    ...options
+  };
 
   transports.push(new winston.transports.Console(consoleOptions));
 

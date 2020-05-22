@@ -3,6 +3,7 @@ const moment = require('moment');
 const _ = require('lodash');
 const authorize = require('../middlewares/auth');
 const dateArray = require('../utils/dateArray');
+const logger = require('../utils/logger');
 
 const People = require('../models/people.model');
 const Reply = require('../models/reply.model');
@@ -401,6 +402,7 @@ router.get('/', authorize(), async (req, res, next) => {
 
     return res.json(result);
   } catch (error) {
+    logger.error(error.message, error);
     return next(error);
   }
 });

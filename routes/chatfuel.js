@@ -5,6 +5,7 @@ const appConfig = require('../config');
 const APIError = require('../utils/APIError');
 const validator = require('../middlewares/validator');
 const omitWithNull = require('../utils/omitWithNull');
+const logger = require('../utils/logger');
 const { REPLY_SUBMITTED_TYPES } = require('../utils/constants');
 
 const People = require('../models/people.model');
@@ -50,7 +51,6 @@ router.post(
   async (req, res) => {
     try {
       const { id, ...o } = req.body;
-
       /* const people =  */ await People.findByIdAndUpdate(id, o, {
         upsert: true,
         new: true
@@ -59,6 +59,7 @@ router.post(
 
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {
+      logger.error(error.message, error);
       return res.status(500).json({
         created: false,
         message: error.message
@@ -242,6 +243,7 @@ router.post(
 
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {
+      logger.error(error.message, error);
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         created: false,
         message: error.message
@@ -296,6 +298,7 @@ router.post(
 
       return res.status(httpStatus.CREATED).json({ created: true });
     } catch (error) {
+      logger.error(error.message, error);
       return res.status(500).json({
         created: false,
         message: error.message
@@ -303,5 +306,12 @@ router.post(
     }
   }
 );
+
+router.post('/cetificate', (req, res) => {
+  // const { image } = req.query;
+  // valid parameter image equal to image url
+  // if parameter image not image url then back block
+  // else transform image url
+});
 
 module.exports = router;

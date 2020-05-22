@@ -4,9 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const logger = require('morgan');
 const mongoose = require('mongoose');
 const appConfig = require('./config');
+const morgan = require('morgan');
 const APIError = require('./utils/APIError');
 
 const routes = require('./routes');
@@ -17,13 +17,13 @@ mongoose.connect(appConfig.mongoURI, {
   keepAlive: 1,
   useUnifiedTopology: true,
   useCreateIndex: true,
-  useFindAndModify: false,
+  useFindAndModify: false
 });
 
 const app = express();
 
 app.use(cors());
-app.use(logger('dev'));
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -43,14 +43,14 @@ app.use((err, req, res, next) => {
     convertedError = new APIError({
       message: err.message,
       status: err.status,
-      stack: err.stack,
+      stack: err.stack
     });
   }
 
   const response = {
     code: convertedError.status,
     message: convertedError.message || httpStatus[convertedError.status],
-    errors: convertedError.errors,
+    errors: convertedError.errors
     // stack: convertedError.stack,
   };
 
