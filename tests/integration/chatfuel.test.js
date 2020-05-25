@@ -767,7 +767,54 @@ describe('POST /chatfuel/cetificate', () => {
     };
   });
 
-  test('should generate certificate', async () => {
+  test('should generate certificate with query request', async () => {
+    jest.spyOn(cloudinary, 'upload').mockResolvedValue({
+      asset_id: 'd028e60447be58a86aae0fb025179010',
+      public_id: 'cat',
+      version: 1590419344,
+      version_id: 'd493d21c1c4bb627ebc46a6c5e48e1d3',
+      signature: '30ba44301ab9b55e2498091708d4dc3f17dc06e5',
+      width: 1000,
+      height: 558,
+      format: 'jpg',
+      resource_type: 'image',
+      result_at: '2020-05-25T15:09:04Z',
+      tags: [],
+      bytes: 72516,
+      type: 'upload',
+      etag: 'ad2edb4ec9f4526f05d138b87e02a076',
+      placeholder: false,
+      url: 'http://res.cloudinary.com/simple/image/upload/v1590419344/cat.jpg',
+      secure_url:
+        'https://res.cloudinary.com/simple/image/upload/v1590419344/cat.jpg',
+      original_filename: 'cat'
+    });
+
+    const agent = await request(app)
+      .post('/chatfuel/certificate')
+      .query({ key: appConfig.apiPublicKey, ...payload })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+
+    expect(cloudinary.upload).toHaveBeenCalled();
+
+    expect(agent.body).toEqual({
+      result: true,
+      messages: [
+        {
+          attachment: {
+            type: 'image',
+            payload: { url: cloudinary.image('cat') }
+          }
+        }
+      ]
+    });
+
+    cloudinary.upload.mockRestore();
+  });
+
+  test('should generate certificate with body request', async () => {
     jest.spyOn(cloudinary, 'upload').mockResolvedValue({
       asset_id: 'd028e60447be58a86aae0fb025179010',
       public_id: 'cat',
@@ -875,5 +922,22 @@ describe('POST /chatfuel/cetificate', () => {
     expect(field).toBe('image');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
+  });
+
+  test('should report when image value not match', async () => {
+    payload.image = 'http://example.com/abcd';
+
+    const agent = await request(app)
+      .post('/chatfuel/certificate')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+
+    expect(agent.body).toEqual({
+      result: false,
+      redirect_to_blocks: ['upload photo']
+    });
   });
 });

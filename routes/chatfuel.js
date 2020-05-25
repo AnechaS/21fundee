@@ -5,9 +5,10 @@ const appConfig = require('../config');
 const APIError = require('../utils/APIError');
 const validator = require('../middlewares/validator');
 const omitWithNull = require('../utils/omitWithNull');
-const cloudinary = require('../utils/cloudinary');
-const logger = require('../utils/logger');
 const { REPLY_SUBMITTED_TYPES } = require('../utils/constants');
+const logger = require('../utils/logger');
+const cloudinary = require('../utils/cloudinary');
+const isImageUrl = require('../utils/isImageUrl');
 
 const People = require('../models/people.model');
 const Reply = require('../models/reply.model');
@@ -340,6 +341,13 @@ router.post(
     try {
       const people = req.query.people || req.body.people;
       const image = req.query.image || req.body.image;
+      if (!isImageUrl(image)) {
+        return res.json({
+          result: false,
+          redirect_to_blocks: ['upload photo']
+        });
+      }
+
       const upload = await cloudinary.upload(image, {
         public_id: people
       });
@@ -357,13 +365,10 @@ router.post(
       });
     } catch (error) {
       logger.error(error.message, error);
-      return res
-        .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .json({
-          result: false,
-          message: 'Image transform failure',
-          redirect_to_blocks: ['']
-        });
+      return res.json({
+        result: false,
+        redirect_to_blocks: ['upload photo']
+      });
     }
   }
 );
