@@ -5,8 +5,8 @@ const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-const appConfig = require('./config');
 const morgan = require('morgan');
+const appConfig = require('./config');
 const APIError = require('./utils/APIError');
 
 const routes = require('./routes');

@@ -1,10 +1,11 @@
 const express = require('express');
-const { body } = require('express-validator');
+const { body, buildCheckFunction } = require('express-validator');
 const httpStatus = require('http-status');
 const appConfig = require('../config');
 const APIError = require('../utils/APIError');
 const validator = require('../middlewares/validator');
 const omitWithNull = require('../utils/omitWithNull');
+const cloudinary = require('../utils/cloudinary');
 const logger = require('../utils/logger');
 const { REPLY_SUBMITTED_TYPES } = require('../utils/constants');
 
@@ -17,6 +18,8 @@ const Progress = require('../models/progress.model');
 const Comment = require('../models/comment.model');
 
 const router = express.Router();
+
+const checkBodyAndQuery = buildCheckFunction(['body', 'query']);
 
 router.use((req, res, next) => {
   req.body = omitWithNull(req.body);
@@ -57,11 +60,11 @@ router.post(
         // overwrite: true
       });
 
-      return res.status(httpStatus.CREATED).json({ created: true });
+      return res.status(httpStatus.CREATED).json({ result: true });
     } catch (error) {
       logger.error(error.message, error);
       return res.status(500).json({
-        created: false,
+        result: false,
         message: error.message
       });
     }
@@ -241,17 +244,21 @@ router.post(
         );
       }
 
-      return res.status(httpStatus.CREATED).json({ created: true });
+      return res.status(httpStatus.CREATED).json({ result: true });
     } catch (error) {
       logger.error(error.message, error);
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-        created: false,
+        result: false,
         message: error.message
       });
     }
   }
 );
 
+/**
+ * Create a new comment
+ * @api {POST} /chatfuel/comment
+ */
 router.post(
   '/comment',
   validator([
@@ -296,22 +303,69 @@ router.post(
         }
       );
 
-      return res.status(httpStatus.CREATED).json({ created: true });
+      return res.status(httpStatus.CREATED).json({ result: true });
     } catch (error) {
       logger.error(error.message, error);
-      return res.status(500).json({
-        created: false,
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        result: false,
         message: error.message
       });
     }
   }
 );
 
-router.post('/cetificate', (req, res) => {
-  // const { image } = req.query;
-  // valid parameter image equal to image url
-  // if parameter image not image url then back block
-  // else transform image url
-});
+/**
+ * Generate certificate
+ * @api {POST} /chatfuel/certificate
+ */
+router.post(
+  '/certificate',
+  validator([
+    checkBodyAndQuery('people')
+      .exists()
+      .withMessage('Is required')
+      .bail()
+      .custom(value =>
+        People.findById(value).then(result => {
+          if (!result) {
+            return Promise.reject('Invalid value');
+          }
+        })
+      ),
+    checkBodyAndQuery('image')
+      .exists()
+      .withMessage('Is required')
+  ]),
+  async (req, res) => {
+    try {
+      const people = req.query.people || req.body.people;
+      const image = req.query.image || req.body.image;
+      const upload = await cloudinary.upload(image, {
+        public_id: people
+      });
+      const url = cloudinary.image(upload.public_id);
+      return res.json({
+        result: true,
+        messages: [
+          {
+            attachment: {
+              type: 'image',
+              payload: { url }
+            }
+          }
+        ]
+      });
+    } catch (error) {
+      logger.error(error.message, error);
+      return res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .json({
+          result: false,
+          message: 'Image transform failure',
+          redirect_to_blocks: ['']
+        });
+    }
+  }
+);
 
 module.exports = router;

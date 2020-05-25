@@ -4,6 +4,7 @@ const httpStatus = require('http-status');
 const app = require('../../app');
 const appConfig = require('../../config');
 const { REPLY_SUBMITTED_TYPES } = require('../../utils/constants');
+const cloudinary = require('../../utils/cloudinary');
 
 const People = require('../../models/people.model');
 const Schedule = require('../../models/schedule.model');
@@ -12,6 +13,8 @@ const Reply = require('../../models/reply.model');
 const Progress = require('../../models/progress.model');
 const Comment = require('../../models/comment.model');
 const Quiz = require('../../models/quiz.model');
+
+// jest.mock('../../utils/cloudinary');
 
 mongoose.Promise = global.Promise;
 
@@ -99,13 +102,13 @@ describe('POST /chatfuel/people', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     payload._id = payload.id;
     delete payload.id;
 
     const getPeople = await People.findById(payload._id).select(
-      '-createdAt -updatedAt -__v'
+      '-resultAt -updatedAt -__v'
     );
     const result = JSON.parse(JSON.stringify(getPeople));
     expect(result).toMatchObject(payload);
@@ -131,7 +134,7 @@ describe('POST /chatfuel/people', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     const getPeople = await People.findById(payloadX.id);
     const result = JSON.parse(JSON.stringify(getPeople));
@@ -153,10 +156,10 @@ describe('POST /chatfuel/people', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     const getPeople = await People.findById(dbPeople._id).select(
-      '-createdAt -updatedAt -__v'
+      '-resultAt -updatedAt -__v'
     );
     const result = JSON.parse(JSON.stringify(getPeople));
     expect(result).toMatchObject(payload);
@@ -271,11 +274,11 @@ describe('POST /chatfuel/reply', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     const object = await Reply.findOne({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const result = JSON.parse(JSON.stringify(object));
     expect(result).toMatchObject({
       ...payload,
@@ -300,12 +303,12 @@ describe('POST /chatfuel/reply', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     const object = await Reply.find({
       people: payload.people,
       schedule: payload.schedule
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const [result] = JSON.parse(JSON.stringify(object));
 
     expect(object).toHaveLength(1);
@@ -325,13 +328,13 @@ describe('POST /chatfuel/reply', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     const { quiz, ...o } = payloadQuiz;
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...o,
@@ -340,7 +343,7 @@ describe('POST /chatfuel/reply', () => {
     });
 
     const getQuiz = await Quiz.findOne({ people: payload.people }).select(
-      '-createdAt -updatedAt -__v'
+      '-resultAt -updatedAt -__v'
     );
     const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
     expect(resultQuiz).toMatchObject({
@@ -359,13 +362,13 @@ describe('POST /chatfuel/reply', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     const { quiz, ...o } = payloadQuiz;
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...o,
@@ -375,7 +378,7 @@ describe('POST /chatfuel/reply', () => {
 
     const getQuiz = await Quiz.findOne({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
     expect(resultQuiz).toMatchObject({
       ...quiz,
@@ -397,11 +400,11 @@ describe('POST /chatfuel/reply', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     const getProgress = await Progress.findOne({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const result = JSON.parse(JSON.stringify(getProgress));
 
     expect(result.people).toBe(payload.people);
@@ -420,11 +423,11 @@ describe('POST /chatfuel/reply', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    expect(agent.body.created).toBe(true);
+    expect(agent.body.result).toBe(true);
 
     const getProgresses = await Progress.find({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const [resultProgress] = getProgresses;
     expect(getProgresses).toHaveLength(1);
     expect(resultProgress.people.toString()).toBe(payload.people);
@@ -435,7 +438,7 @@ describe('POST /chatfuel/reply', () => {
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...payload,
@@ -716,11 +719,11 @@ describe('POST /chatfuel/comment', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    expect(agent.body).toEqual({ created: true });
+    expect(agent.body).toEqual({ result: true });
 
     let result = await Comment.findOne({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     result = JSON.parse(JSON.stringify(result));
     expect(result.people).toBe(payload.people);
     expect(result.question).toBe(payload.question);
@@ -740,11 +743,11 @@ describe('POST /chatfuel/comment', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    expect(agent.body).toEqual({ created: true });
+    expect(agent.body).toEqual({ result: true });
 
     const results = await Comment.find({
       people: payload.people
-    }).select('-createdAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -__v');
     const result = JSON.parse(JSON.stringify(results[0]));
     expect(results).toHaveLength(1);
     expect(result._id).toBe(oldResult._id.toString());
@@ -755,21 +758,122 @@ describe('POST /chatfuel/comment', () => {
 });
 
 describe('POST /chatfuel/cetificate', () => {
-  /* let payload;
+  let payload;
 
   beforeEach(() => {
     payload = {
-      imageUrl:
-        'https://scontent.xx.fbcdn.net/v/t1.15752-9/98484477_597577834194633_4758591208668790784_n.jpg?_nc_cat=104%26_nc_sid=b96e70%26_nc_ohc=vP3MX4PE2SAAX_aCKD1%26_nc_ad=z-m%26_nc_cid=0%26_nc_zor=9%26_nc_ht=scontent.xx%26oh=0f57a271d36aa654d1248bbe6f59dc28%26oe=5EED3815'
+      people: dbPeople._id,
+      image: 'https://scontent.xx.fbcdn.net/v/t1.15752-9/cat.jpg'
     };
-  }); */
+  });
 
-  test('should return currect', async () => {
-    /* const agent = await request(app)
-      .post('/chatfuel/comment')
+  test('should generate certificate', async () => {
+    jest.spyOn(cloudinary, 'upload').mockResolvedValue({
+      asset_id: 'd028e60447be58a86aae0fb025179010',
+      public_id: 'cat',
+      version: 1590419344,
+      version_id: 'd493d21c1c4bb627ebc46a6c5e48e1d3',
+      signature: '30ba44301ab9b55e2498091708d4dc3f17dc06e5',
+      width: 1000,
+      height: 558,
+      format: 'jpg',
+      resource_type: 'image',
+      result_at: '2020-05-25T15:09:04Z',
+      tags: [],
+      bytes: 72516,
+      type: 'upload',
+      etag: 'ad2edb4ec9f4526f05d138b87e02a076',
+      placeholder: false,
+      url: 'http://res.cloudinary.com/simple/image/upload/v1590419344/cat.jpg',
+      secure_url:
+        'https://res.cloudinary.com/simple/image/upload/v1590419344/cat.jpg',
+      original_filename: 'cat'
+    });
+
+    const agent = await request(app)
+      .post('/chatfuel/certificate')
       .query({ key: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
-      .expect('Content-Type', /json/); */
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+
+    expect(cloudinary.upload).toHaveBeenCalled();
+
+    expect(agent.body).toEqual({
+      result: true,
+      messages: [
+        {
+          attachment: {
+            type: 'image',
+            payload: { url: cloudinary.image('cat') }
+          }
+        }
+      ]
+    });
+
+    cloudinary.upload.mockRestore();
+  });
+
+  test('should report error when people is not provided', async () => {
+    delete payload.people;
+
+    const agent = await request(app)
+      .post('/chatfuel/certificate')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+
+
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('people');
+    expect(location).toBe('body');
+    expect(message).toBe('Is required');
+  });
+
+  test('should report error when people is not exists', async () => {
+    payload.people = 'asdfgh';
+
+    const agent = await request(app)
+      .post('/chatfuel/certificate')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('people');
+    expect(location).toBe('body');
+    expect(message).toBe('Invalid value');
+  });
+
+  test('should report error when image is not provided', async () => {
+    delete payload.image;
+
+    const agent = await request(app)
+      .post('/chatfuel/certificate')
+      .query({ key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+
+
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('image');
+    expect(location).toBe('body');
+    expect(message).toBe('Is required');
   });
 });
