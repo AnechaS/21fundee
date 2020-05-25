@@ -34,11 +34,11 @@ describe('Cloudinary', () => {
         )
       )
     );
-    /* const upload =  */ await cloudinary.upload('http://example.com/image/cat.jpg');
+    /* const upload =  await  */ cloudinary.upload('http://example.com/image/cat.jpg');
     expect(fetch).toHaveBeenCalled();
   });
 
   test('should get image transform', async () => {
-    expect(cloudinary.image('cat.jpg')).toBeDefined();
+    expect(cloudinary.image('cat.jpg', 'good man')).toBeDefined();
   });
 });

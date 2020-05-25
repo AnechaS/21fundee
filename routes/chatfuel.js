@@ -322,30 +322,35 @@ router.post(
 router.post(
   '/certificate',
   validator([
-    checkBodyAndQuery('people')
-      .exists()
-      .withMessage('Is required')
-      .bail()
-      .custom(value =>
-        People.findById(value).then(result => {
-          if (!result) {
-            return Promise.reject('Invalid value');
-          }
-        })
-      ),
-    checkBodyAndQuery('image')
-      .exists()
-      .withMessage('Is required')
+    checkBodyAndQuery('people', 'Is required').exists(),
+    checkBodyAndQuery('image', 'Is required').exists()
   ]),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
-      const people = req.query.people || req.body.people;
+      const peopleId = req.query.people || req.body.people;
       const image = req.query.image || req.body.image;
       if (!isImageUrl(image)) {
         return res.json({
           result: false,
           redirect_to_blocks: ['upload photo']
         });
+      }
+
+      const people = await People.findById(peopleId);
+      if (!people) {
+        return next(
+          new APIError({
+            message: 'Validation Error',
+            status: httpStatus.BAD_REQUEST,
+            errors: [
+              {
+                field: 'people',
+                location: req.query.people ? 'query' : 'body',
+                message: 'Invalid value'
+              }
+            ]
+          })
+        );
       }
 
       const upload = await cloudinary.upload(image, {

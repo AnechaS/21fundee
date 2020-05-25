@@ -28,6 +28,7 @@ exports.upload = async function(source) {
  * Get image
  * @example image('image.jpg')
  * @param {String} source
+ * @param {String} text
  * @return {String} Url image
  */
 exports.image = function(source) {
@@ -35,3 +36,4 @@ exports.image = function(source) {
   const url = `http://res.cloudinary.com/x21fundee/image/upload/${transformations}/${source}`;
   return url;
 };
+
