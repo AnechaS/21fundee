@@ -31,8 +31,9 @@ exports.upload = async function(source) {
  * @param {String} text
  * @return {String} Url image
  */
-exports.image = function(source) {
-  const transformations = 'c_thumb,g_face:auto,h_700,w_700/l_Frames:frame-1,y_160/l_text:Fonts:Itim-Regular.ttf_70:NAME,y_400,co_rgb:4E2A10';
+exports.image = function(source, text) {
+  text = encodeURIComponent(text);
+  const transformations = `c_thumb,g_face:auto,h_700,w_700/l_Frames:frame-1,y_160/l_text:Fonts:Itim-Regular.ttf_70:${text},y_400,co_rgb:4E2A10`;
   const url = `http://res.cloudinary.com/x21fundee/image/upload/${transformations}/${source}`;
   return url;
 };

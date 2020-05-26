@@ -356,7 +356,9 @@ router.post(
       const upload = await cloudinary.upload(image, {
         public_id: people
       });
-      const url = cloudinary.image(upload.public_id);
+
+      const name = `${people.firstName} ${people.lastName}`;
+      const url = cloudinary.image(upload.public_id, name);
       return res.json({
         result: true,
         messages: [
@@ -370,6 +372,7 @@ router.post(
       });
     } catch (error) {
       logger.error(error.message, error);
+      // Todo handle error
       return res.json({
         result: false,
         redirect_to_blocks: ['upload photo']
