@@ -330,10 +330,7 @@ router.post(
       const peopleId = req.query.people || req.body.people;
       const image = req.query.image || req.body.image;
       if (!isImageUrl(image)) {
-        return res.json({
-          result: false,
-          redirect_to_blocks: ['upload photo']
-        });
+        throw new Error('Invalid parame image');
       }
 
       const people = await People.findById(peopleId);
@@ -361,6 +358,9 @@ router.post(
       const url = cloudinary.image(upload.public_id, name);
       return res.json({
         result: true,
+        set_attributes: {
+          request_certificate_success: '1'
+        },
         messages: [
           {
             attachment: {
@@ -375,7 +375,9 @@ router.post(
       // Todo handle error
       return res.json({
         result: false,
-        redirect_to_blocks: ['upload photo']
+        set_attributes: {
+          request_certificate_success: '0'
+        }
       });
     }
   }
