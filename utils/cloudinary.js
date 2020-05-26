@@ -7,9 +7,10 @@ const queryString = require('querystring');
  * @param {String} source
  * @return {Promise} Response upload to cloudinary
  */
-exports.upload = async function(source) {
+exports.upload = async function(source, options) {
   const qs = queryString.stringify({
     file: source,
+    ...options,
     upload_preset: 'ufbglfuq'
   });
   const url = `https://api.cloudinary.com/v1_1/x21fundee/image/upload?${qs}`;
