@@ -37,4 +37,5 @@ exports.jsonLogs = parsed.jsonLogs || true;
 
 exports.mongoURI = parsed.mongoURI;
 
+exports.apiKey = parsed.apiKey;
 exports.apiPublicKey = parsed.apiPublicKey;

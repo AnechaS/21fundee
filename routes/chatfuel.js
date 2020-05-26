@@ -25,7 +25,7 @@ const checkBodyAndQuery = buildCheckFunction(['body', 'query']);
 router.use((req, res, next) => {
   req.body = omitWithNull(req.body);
 
-  const key = req.query.key;
+  const key = req.query.apiKey || req.header('x-api-key');
   if (key && key === appConfig.apiPublicKey) {
     return next();
   }
@@ -63,7 +63,7 @@ router.post(
 
       return res.status(httpStatus.CREATED).json({ result: true });
     } catch (error) {
-      logger.error(error.message, error);
+      logger.error('Error create people: ', error);
       return res.status(500).json({
         result: false,
         message: error.message
@@ -247,7 +247,7 @@ router.post(
 
       return res.status(httpStatus.CREATED).json({ result: true });
     } catch (error) {
-      logger.error(error.message, error);
+      logger.error('Error create reply: ', error);
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         result: false,
         message: error.message
@@ -306,7 +306,7 @@ router.post(
 
       return res.status(httpStatus.CREATED).json({ result: true });
     } catch (error) {
-      logger.error(error.message, error);
+      logger.error('Error create comment: ', error);
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
         result: false,
         message: error.message
@@ -371,8 +371,7 @@ router.post(
         ]
       });
     } catch (error) {
-      logger.error(error.message, error);
-      // Todo handle error
+      logger.error('Error generate certificate: ', error);
       return res.json({
         result: false,
         set_attributes: {

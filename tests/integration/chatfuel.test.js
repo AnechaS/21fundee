@@ -96,7 +96,7 @@ describe('POST /chatfuel/people', () => {
   test('should create a new people', async () => {
     const agent = await request(app)
       .post('/chatfuel/people')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -128,7 +128,7 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payloadX)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -147,7 +147,7 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send({
         id: dbPeople._id,
         ...payload
@@ -170,7 +170,7 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -190,7 +190,7 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -210,7 +210,7 @@ describe('POST /chatfuel/people', () => {
 
     const agent = await request(app)
       .post('/chatfuel/people')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -269,7 +269,7 @@ describe('POST /chatfuel/reply', () => {
   test('should create a new reply', async () => {
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -298,7 +298,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -323,7 +323,7 @@ describe('POST /chatfuel/reply', () => {
   test('should create a new reply and quiz when answer correct', async () => {
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payloadQuiz)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -357,7 +357,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payloadQuiz)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -394,7 +394,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -417,7 +417,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -452,7 +452,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -472,7 +472,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -492,7 +492,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -512,7 +512,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -532,7 +532,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -552,7 +552,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -572,7 +572,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -592,7 +592,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -612,7 +612,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -636,7 +636,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -659,7 +659,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -683,7 +683,7 @@ describe('POST /chatfuel/reply', () => {
 
     const agent = await request(app)
       .post('/chatfuel/reply')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -713,7 +713,7 @@ describe('POST /chatfuel/comment', () => {
   test('should create a new comment', async () => {
     const agent = await request(app)
       .post('/chatfuel/comment')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -737,7 +737,7 @@ describe('POST /chatfuel/comment', () => {
 
     const agent = await request(app)
       .post('/chatfuel/comment')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -792,7 +792,7 @@ describe('POST /chatfuel/cetificate', () => {
 
     const agent = await request(app)
       .post('/chatfuel/certificate')
-      .query({ key: appConfig.apiPublicKey, ...payload })
+      .query({ apiKey: appConfig.apiPublicKey, ...payload })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
@@ -801,11 +801,19 @@ describe('POST /chatfuel/cetificate', () => {
 
     expect(agent.body).toEqual({
       result: true,
+      set_attributes: {
+        request_certificate_success: '1'
+      },
       messages: [
         {
           attachment: {
             type: 'image',
-            payload: { url: cloudinary.image('cat') }
+            payload: {
+              url: cloudinary.image(
+                'cat',
+                `${dbPeople.firstName} ${dbPeople.lastName}`
+              )
+            }
           }
         }
       ]
@@ -839,7 +847,7 @@ describe('POST /chatfuel/cetificate', () => {
 
     const agent = await request(app)
       .post('/chatfuel/certificate')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -849,11 +857,19 @@ describe('POST /chatfuel/cetificate', () => {
 
     expect(agent.body).toEqual({
       result: true,
+      set_attributes: {
+        request_certificate_success: '1'
+      },
       messages: [
         {
           attachment: {
             type: 'image',
-            payload: { url: cloudinary.image('cat') }
+            payload: {
+              url: cloudinary.image(
+                'cat',
+                `${dbPeople.firstName} ${dbPeople.lastName}`
+              )
+            }
           }
         }
       ]
@@ -867,12 +883,11 @@ describe('POST /chatfuel/cetificate', () => {
 
     const agent = await request(app)
       .post('/chatfuel/certificate')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
-
 
     expect(agent.body.code).toBe(400);
     expect(agent.body.message).toBe('Validation Error');
@@ -888,7 +903,7 @@ describe('POST /chatfuel/cetificate', () => {
 
     const agent = await request(app)
       .post('/chatfuel/certificate')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -908,12 +923,11 @@ describe('POST /chatfuel/cetificate', () => {
 
     const agent = await request(app)
       .post('/chatfuel/certificate')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(httpStatus.BAD_REQUEST);
-
 
     expect(agent.body.code).toBe(400);
     expect(agent.body.message).toBe('Validation Error');
@@ -929,7 +943,7 @@ describe('POST /chatfuel/cetificate', () => {
 
     const agent = await request(app)
       .post('/chatfuel/certificate')
-      .query({ key: appConfig.apiPublicKey })
+      .query({ apiKey: appConfig.apiPublicKey })
       .send(payload)
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -937,7 +951,9 @@ describe('POST /chatfuel/cetificate', () => {
 
     expect(agent.body).toEqual({
       result: false,
-      redirect_to_blocks: ['upload photo']
+      set_attributes: {
+        request_certificate_success: '0'
+      }
     });
   });
 });
