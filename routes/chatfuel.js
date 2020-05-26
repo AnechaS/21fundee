@@ -351,7 +351,7 @@ router.post(
       }
 
       const upload = await cloudinary.upload(image, {
-        public_id: people
+        public_id: peopleId
       });
 
       const name = `${people.firstName} ${people.lastName}`;
