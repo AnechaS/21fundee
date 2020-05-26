@@ -25,7 +25,7 @@ const checkBodyAndQuery = buildCheckFunction(['body', 'query']);
 router.use((req, res, next) => {
   req.body = omitWithNull(req.body);
 
-  const key = req.query.apiKey || req.header('x-api-key');
+  const key = req.query.api_key || req.header('x-api-key');
   if (key && key === appConfig.apiPublicKey) {
     return next();
   }
