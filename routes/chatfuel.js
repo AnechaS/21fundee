@@ -70,17 +70,6 @@ router.post(
 router.post(
   '/reply',
   validator([
-    body('people')
-      .exists()
-      .withMessage('Is required')
-      .bail()
-      .custom(value =>
-        People.findById(value).then(result => {
-          if (!result) {
-            return Promise.reject('Invalid value');
-          }
-        })
-      ),
     body('schedule')
       .exists()
       .withMessage('Is required')
