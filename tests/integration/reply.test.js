@@ -18,7 +18,6 @@ let dbSchedules;
 let dbReplys;
 let reply;
 
-const botId = 'asdfqwer';
 const blockIds = ['zxcvbnm', 'qwertyu'];
 
 beforeEach(async () => {
@@ -47,8 +46,7 @@ beforeEach(async () => {
       dentalId: 'x',
       childName: 'Ant',
       childBirthday: '2560',
-      gender: 'male',
-      botId
+      gender: 'male'
     },
     {
       firstName: 'Makus',
@@ -58,8 +56,7 @@ beforeEach(async () => {
       dentalId: 'x',
       childName: 'Bee',
       childBirthday: '2560',
-      gender: 'male',
-      botId
+      gender: 'male'
     }
   ]);
   dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
@@ -79,14 +76,12 @@ beforeEach(async () => {
       people: dbPeoples[0]._id,
       schedule: dbSchedules[0]._id,
       text: 'Hello',
-      botId,
       blockId: blockIds[0]
     },
     {
       people: dbPeoples[1]._id,
       schedule: dbSchedules[0]._id,
       text: 'Hello',
-      botId,
       blockId: blockIds[0]
     }
   ]);
@@ -96,7 +91,6 @@ beforeEach(async () => {
     people: dbPeoples[0]._id,
     schedule: dbSchedules[1]._id,
     text: 'abc',
-    botId,
     blockId: blockIds[1]
   };
 });

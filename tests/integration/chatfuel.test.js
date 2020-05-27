@@ -21,7 +21,6 @@ mongoose.Promise = global.Promise;
 let dbPeople;
 let dbSchedule;
 let dbQuestions;
-let botId = '5eb92fd7f58c2808c98e385b';
 let blockId = '5eb92fd7f58c2808c98e419b';
 
 beforeEach(async () => {
@@ -42,8 +41,7 @@ beforeEach(async () => {
     dentalId: 'x',
     childName: 'Ant',
     childBirthday: '2560',
-    gender: 'male',
-    botId
+    gender: 'male'
   });
 
   dbPeople = JSON.parse(JSON.stringify(savedPeople));
@@ -88,8 +86,7 @@ describe('POST /chatfuel/people', () => {
       childName: 'Bee',
       childBirthday: '2560',
       gender: 'male',
-      pic: 'https://platform-lookaside.fbsbx.com/...',
-      botId
+      pic: 'https://platform-lookaside.fbsbx.com/...'
     };
   });
 
@@ -112,7 +109,6 @@ describe('POST /chatfuel/people', () => {
     );
     const result = JSON.parse(JSON.stringify(getPeople));
     expect(result).toMatchObject(payload);
-    expect(result.botId).toBe(botId);
   });
 
   test('should create a new people with value null', async () => {
@@ -122,8 +118,7 @@ describe('POST /chatfuel/people', () => {
       lastName: 'null',
       province: 'สงขลา',
       gender: 'null',
-      pic: 'null',
-      botId
+      pic: 'null'
     };
 
     const agent = await request(app)
@@ -185,46 +180,6 @@ describe('POST /chatfuel/people', () => {
     expect(message).toBe('Is required');
   });
 
-  test('should report error when botId is not provided', async () => {
-    delete payload.botId;
-
-    const agent = await request(app)
-      .post('/chatfuel/people')
-      .query({ api_key: appConfig.apiPublicKey })
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('botId');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-  });
-
-  test('should report error when botId not match', async () => {
-    payload.botId = 'abcdef';
-
-    const agent = await request(app)
-      .post('/chatfuel/people')
-      .query({ api_key: appConfig.apiPublicKey })
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('botId');
-    expect(location).toBe('body');
-    expect(message).toBe('Invalid value');
-  });
-
   test('should report error when without api key', async () => {
     const agent = await request(app)
       .post('/chatfuel/people')
@@ -248,14 +203,12 @@ describe('POST /chatfuel/reply', () => {
       schedule: dbSchedule._id,
       text: 'Hi',
       submittedType: REPLY_SUBMITTED_TYPES[0],
-      botId,
       blockId
     };
 
     payloadQuiz = {
       people: dbPeople._id,
       schedule: dbSchedule._id,
-      botId,
       blockId,
       text: 'a',
       submittedType: REPLY_SUBMITTED_TYPES[0],
@@ -282,7 +235,6 @@ describe('POST /chatfuel/reply', () => {
     const result = JSON.parse(JSON.stringify(object));
     expect(result).toMatchObject({
       ...payload,
-      botId: botId,
       blockId: blockId
     });
   });
@@ -292,8 +244,7 @@ describe('POST /chatfuel/reply', () => {
       people: payload.people,
       schedule: payload.schedule,
       text: 'x',
-      blockId,
-      botId
+      blockId
     });
 
     const agent = await request(app)
@@ -315,7 +266,6 @@ describe('POST /chatfuel/reply', () => {
     expect(prevResult._id.toString()).toBe(result._id);
     expect(result).toMatchObject({
       ...payload,
-      botId: botId,
       blockId: blockId
     });
   });
@@ -338,7 +288,6 @@ describe('POST /chatfuel/reply', () => {
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...o,
-      botId: botId,
       blockId: blockId
     });
 
@@ -372,7 +321,6 @@ describe('POST /chatfuel/reply', () => {
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...o,
-      botId: botId,
       blockId: blockId
     });
 
@@ -442,7 +390,6 @@ describe('POST /chatfuel/reply', () => {
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...payload,
-      botId: botId,
       blockId: blockId
     });
   });
@@ -523,46 +470,6 @@ describe('POST /chatfuel/reply', () => {
 
     const { field, location, message } = agent.body.errors[0];
     expect(field).toBe('schedule');
-    expect(location).toBe('body');
-    expect(message).toBe('Invalid value');
-  });
-
-  test('should report error when botId is not provided', async () => {
-    delete payload.botId;
-
-    const agent = await request(app)
-      .post('/chatfuel/reply')
-      .query({ api_key: appConfig.apiPublicKey })
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('botId');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-  });
-
-  test('should report error when botId not match', async () => {
-    payload.botId = 'asdfg';
-
-    const agent = await request(app)
-      .post('/chatfuel/reply')
-      .query({ api_key: appConfig.apiPublicKey })
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('botId');
     expect(location).toBe('body');
     expect(message).toBe('Invalid value');
   });
@@ -762,67 +669,13 @@ describe('POST /chatfuel/cetificate', () => {
 
   beforeEach(() => {
     payload = {
-      people: dbPeople._id,
-      image: 'https://scontent.xx.fbcdn.net/v/t1.15752-9/cat.jpg'
+      public_id: dbPeople._id,
+      image: 'https://scontent.xx.fbcdn.net/v/t1.15752-9/cat.jpg',
+      name: `${dbPeople.firstName} ${dbPeople.lastName}` 
     };
   });
 
-  test('should generate certificate with query request', async () => {
-    jest.spyOn(cloudinary, 'upload').mockResolvedValue({
-      asset_id: 'd028e60447be58a86aae0fb025179010',
-      public_id: 'cat',
-      version: 1590419344,
-      version_id: 'd493d21c1c4bb627ebc46a6c5e48e1d3',
-      signature: '30ba44301ab9b55e2498091708d4dc3f17dc06e5',
-      width: 1000,
-      height: 558,
-      format: 'jpg',
-      resource_type: 'image',
-      result_at: '2020-05-25T15:09:04Z',
-      tags: [],
-      bytes: 72516,
-      type: 'upload',
-      etag: 'ad2edb4ec9f4526f05d138b87e02a076',
-      placeholder: false,
-      url: 'http://res.cloudinary.com/simple/image/upload/v1590419344/cat.jpg',
-      secure_url:
-        'https://res.cloudinary.com/simple/image/upload/v1590419344/cat.jpg',
-      original_filename: 'cat'
-    });
-
-    const agent = await request(app)
-      .post('/chatfuel/certificate')
-      .query({ api_key: appConfig.apiPublicKey, ...payload })
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.OK);
-
-    expect(cloudinary.upload).toHaveBeenCalled();
-
-    expect(agent.body).toEqual({
-      result: true,
-      set_attributes: {
-        request_certificate_success: '1'
-      },
-      messages: [
-        {
-          attachment: {
-            type: 'image',
-            payload: {
-              url: cloudinary.image(
-                'cat',
-                `${dbPeople.firstName} ${dbPeople.lastName}`
-              )
-            }
-          }
-        }
-      ]
-    });
-
-    cloudinary.upload.mockRestore();
-  });
-
-  test('should generate certificate with body request', async () => {
+  test('should generate image certificate', async () => {
     jest.spyOn(cloudinary, 'upload').mockResolvedValue({
       asset_id: 'd028e60447be58a86aae0fb025179010',
       public_id: 'cat',
@@ -876,46 +729,6 @@ describe('POST /chatfuel/cetificate', () => {
     });
 
     cloudinary.upload.mockRestore();
-  });
-
-  test('should report error when people is not provided', async () => {
-    delete payload.people;
-
-    const agent = await request(app)
-      .post('/chatfuel/certificate')
-      .query({ api_key: appConfig.apiPublicKey })
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('people');
-    expect(location).toBe('body');
-    expect(message).toBe('Is required');
-  });
-
-  test('should report error when people is not exists', async () => {
-    payload.people = 'asdfgh';
-
-    const agent = await request(app)
-      .post('/chatfuel/certificate')
-      .query({ api_key: appConfig.apiPublicKey })
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('people');
-    expect(location).toBe('body');
-    expect(message).toBe('Invalid value');
   });
 
   test('should report error when image is not provided', async () => {
@@ -955,5 +768,25 @@ describe('POST /chatfuel/cetificate', () => {
         request_certificate_success: '0'
       }
     });
+  });
+
+  test('should report error when name is not provided', async () => {
+    delete payload.name;
+
+    const agent = await request(app)
+      .post('/chatfuel/certificate')
+      .query({ api_key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('name');
+    expect(location).toBe('body');
+    expect(message).toBe('Is required');
   });
 });

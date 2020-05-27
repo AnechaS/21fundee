@@ -16,10 +16,6 @@ const ReplySchema = new mongoose.Schema(
       index: true,
       required: true
     },
-    botId: {
-      type: String,
-      trim: true
-    },
     blockId: {
       type: String,
       trim: true

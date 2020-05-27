@@ -44,11 +44,6 @@ const PeopleSchema = new mongoose.Schema(
     childBirthday: {
       type: String,
       trim: true
-    },
-    botId: {
-      type: String,
-      trim: true,
-      required: true
     }
   },
   {

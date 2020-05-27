@@ -13,7 +13,6 @@ mongoose.Promise = global.Promise;
 let sessionToken;
 let dbPeoples;
 let people;
-const botId = 'asdfqwer';
 
 beforeEach(async () => {
   await User.deleteMany({});
@@ -37,8 +36,7 @@ beforeEach(async () => {
     dentalId: 'x',
     childName: 'Bee',
     childBirthday: '2560',
-    gender: 'male',
-    botId
+    gender: 'male'
   };
 
   const savedPeoples = await People.insertMany([
@@ -50,8 +48,7 @@ beforeEach(async () => {
       dentalId: 'x',
       childName: 'Ant',
       childBirthday: '2560',
-      gender: 'male',
-      botId
+      gender: 'male'
     }
   ]);
   dbPeoples = JSON.parse(JSON.stringify(savedPeoples));

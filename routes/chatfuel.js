@@ -1,5 +1,5 @@
 const express = require('express');
-const { body, buildCheckFunction } = require('express-validator');
+const { body } = require('express-validator');
 const httpStatus = require('http-status');
 const appConfig = require('../config');
 const APIError = require('../utils/APIError');
@@ -19,8 +19,6 @@ const Progress = require('../models/progress.model');
 const Comment = require('../models/comment.model');
 
 const router = express.Router();
-
-const checkBodyAndQuery = buildCheckFunction(['body', 'query']);
 
 router.use((req, res, next) => {
   req.body = omitWithNull(req.body);
@@ -44,14 +42,7 @@ router.use((req, res, next) => {
  */
 router.post(
   '/people',
-  validator([
-    body('id', 'Is required').exists(),
-    body('botId')
-      .exists()
-      .withMessage('Is required')
-      .bail()
-      .isLength({ max: 24, min: 24 })
-  ]),
+  validator([body('id', 'Is required').exists()]),
   async (req, res) => {
     try {
       const { id, ...o } = req.body;
@@ -103,11 +94,6 @@ router.post(
           }
         })
       ),
-    body('botId')
-      .exists()
-      .withMessage('Is required')
-      .bail()
-      .isLength({ max: 24, min: 24 }),
     body('blockId')
       .exists()
       .withMessage('Is required')
@@ -149,7 +135,6 @@ router.post(
         submittedType,
         quiz,
         progress,
-        botId,
         blockId
       } = req.body;
 
@@ -169,13 +154,11 @@ router.post(
           {
             people,
             schedule,
-            botId,
             blockId
           },
           {
             people,
             schedule,
-            botId,
             blockId,
             ...objectReply
           },
@@ -322,39 +305,18 @@ router.post(
 router.post(
   '/certificate',
   validator([
-    checkBodyAndQuery('people', 'Is required').exists(),
-    checkBodyAndQuery('image', 'Is required').exists()
+    body('image', 'Is required').exists(),
+    body('name', 'Is required').exists()
   ]),
   async (req, res, next) => {
     try {
-      const peopleId = req.query.people || req.body.people;
-      const image = req.query.image || req.body.image;
+      const { image, name, public_id } = req.body;
       if (!isImageUrl(image)) {
         throw new Error('Invalid parame image');
       }
 
-      const people = await People.findById(peopleId);
-      if (!people) {
-        return next(
-          new APIError({
-            message: 'Validation Error',
-            status: httpStatus.BAD_REQUEST,
-            errors: [
-              {
-                field: 'people',
-                location: req.query.people ? 'query' : 'body',
-                message: 'Invalid value'
-              }
-            ]
-          })
-        );
-      }
+      const upload = await cloudinary.upload(image, { public_id });
 
-      const upload = await cloudinary.upload(image, {
-        public_id: peopleId
-      });
-
-      const name = `${people.firstName} ${people.lastName}`;
       const url = cloudinary.image(upload.public_id, name);
       return res.json({
         result: true,
