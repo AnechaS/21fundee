@@ -299,7 +299,7 @@ router.post(
 );
 
 /**
- * Generate certificate
+ * Generate image certificate
  * @api {POST} /chatfuel/certificate
  */
 router.post(
