@@ -240,15 +240,7 @@ router.post(
   validator([
     body('people')
       .exists()
-      .withMessage('Is required')
-      .bail()
-      .custom(value =>
-        People.findById(value).then(result => {
-          if (!result) {
-            return Promise.reject('Invalid value');
-          }
-        })
-      ),
+      .withMessage('Is required'),
     body('question')
       .exists()
       .withMessage('Is required')
