@@ -310,12 +310,12 @@ router.post(
   ]),
   async (req, res, next) => {
     try {
-      const { image, name, public_id } = req.body;
+      const { image, name } = req.body;
       if (!isImageUrl(image)) {
         throw new Error('Invalid parame image');
       }
 
-      const upload = await cloudinary.upload(image, { public_id });
+      const upload = await cloudinary.upload(image);
 
       const url = cloudinary.image(upload.public_id, name);
       return res.json({
