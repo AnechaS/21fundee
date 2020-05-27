@@ -70,6 +70,9 @@ router.post(
 router.post(
   '/reply',
   validator([
+    body('people')
+      .exists()
+      .withMessage('Is required'),
     body('schedule')
       .exists()
       .withMessage('Is required')
@@ -301,7 +304,12 @@ router.post(
     try {
       const { image, name } = req.body;
       if (!isImageUrl(image)) {
-        throw new Error('Invalid parame image');
+        return res.json({
+          result: false,
+          set_attributes: {
+            request_certificate_success: '0'
+          }
+        });
       }
 
       const upload = await cloudinary.upload(image);

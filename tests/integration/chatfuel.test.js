@@ -414,26 +414,6 @@ describe('POST /chatfuel/reply', () => {
     expect(message).toBe('Is required');
   });
 
-  test('should report error when people is not exists', async () => {
-    payload.people = 'asdfgh';
-
-    const agent = await request(app)
-      .post('/chatfuel/reply')
-      .query({ api_key: appConfig.apiPublicKey })
-      .send(payload)
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(httpStatus.BAD_REQUEST);
-
-    expect(agent.body.code).toBe(400);
-    expect(agent.body.message).toBe('Validation Error');
-
-    const { field, location, message } = agent.body.errors[0];
-    expect(field).toBe('people');
-    expect(location).toBe('body');
-    expect(message).toBe('Invalid value');
-  });
-
   test('should report error when schedule is not provided', async () => {
     delete payload.schedule;
 
@@ -671,7 +651,7 @@ describe('POST /chatfuel/cetificate', () => {
     payload = {
       public_id: dbPeople._id,
       image: 'https://scontent.xx.fbcdn.net/v/t1.15752-9/cat.jpg',
-      name: `${dbPeople.firstName} ${dbPeople.lastName}` 
+      name: `${dbPeople.firstName} ${dbPeople.lastName}`
     };
   });
 
