@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const request = require('supertest');
 const httpStatus = require('http-status');
+const fetch = require('node-fetch');
+const { Response } = jest.requireActual('node-fetch');
 const app = require('../../app');
 const appConfig = require('../../config');
 const { REPLY_SUBMITTED_TYPES } = require('../../utils/constants');
@@ -14,7 +16,7 @@ const Progress = require('../../models/progress.model');
 const Comment = require('../../models/comment.model');
 const Quiz = require('../../models/quiz.model');
 
-// jest.mock('../../utils/cloudinary');
+jest.mock('node-fetch');
 
 mongoose.Promise = global.Promise;
 
@@ -231,7 +233,7 @@ describe('POST /chatfuel/reply', () => {
 
     const object = await Reply.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -createdAt -__v');
     const result = JSON.parse(JSON.stringify(object));
     expect(result).toMatchObject({
       ...payload,
@@ -259,7 +261,7 @@ describe('POST /chatfuel/reply', () => {
     const object = await Reply.find({
       people: payload.people,
       schedule: payload.schedule
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -createdAt -__v');
     const [result] = JSON.parse(JSON.stringify(object));
 
     expect(object).toHaveLength(1);
@@ -284,7 +286,7 @@ describe('POST /chatfuel/reply', () => {
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -createdAt -__v');
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...o,
@@ -292,7 +294,7 @@ describe('POST /chatfuel/reply', () => {
     });
 
     const getQuiz = await Quiz.findOne({ people: payload.people }).select(
-      '-resultAt -updatedAt -__v'
+      '-resultAt -updatedAt -createdAt -__v'
     );
     const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
     expect(resultQuiz).toMatchObject({
@@ -317,7 +319,7 @@ describe('POST /chatfuel/reply', () => {
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -createdAt -__v');
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...o,
@@ -326,7 +328,7 @@ describe('POST /chatfuel/reply', () => {
 
     const getQuiz = await Quiz.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -createdAt -__v');
     const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
     expect(resultQuiz).toMatchObject({
       ...quiz,
@@ -352,7 +354,7 @@ describe('POST /chatfuel/reply', () => {
 
     const getProgress = await Progress.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -createdAt -__v');
     const result = JSON.parse(JSON.stringify(getProgress));
 
     expect(result.people).toBe(payload.people);
@@ -375,7 +377,7 @@ describe('POST /chatfuel/reply', () => {
 
     const getProgresses = await Progress.find({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -createdAt -__v');
     const [resultProgress] = getProgresses;
     expect(getProgresses).toHaveLength(1);
     expect(resultProgress.people.toString()).toBe(payload.people);
@@ -386,11 +388,120 @@ describe('POST /chatfuel/reply', () => {
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -updatedAt -createdAt -__v');
     const resultReply = JSON.parse(JSON.stringify(getReply));
     expect(resultReply).toMatchObject({
       ...payload,
       blockId: blockId
+    });
+  });
+
+  test('should create a new reply and create a new people when api chatfuel is exists', async () => {
+    payload.people = '40738040699c7951';
+
+    fetch.mockReturnValue(
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            result: {
+              total_count: 2615,
+              count: 1,
+              users: [
+                [
+                  {
+                    type: 'system',
+                    name: 'user id',
+                    values: ['5ebd43c2b3142bbff1f26aec'],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'gender',
+                    values: ['female'],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'first name',
+                    values: ['asdf'],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'profile pic url',
+                    values: [
+                      'https://images.chatfuel.com/user/raw/103453611060507/5ebd4342bbcf1f26aec/profile.jpeg'
+                    ],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'last name',
+                    values: ['jkl'],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'messenger user id',
+                    values: ['40738040699c7951'],
+                    count: 0
+                  },
+                  {
+                    type: 'custom',
+                    name: 'region',
+                    values: ['กลาง'],
+                    count: 0
+                  },
+                  {
+                    type: 'custom',
+                    name: 'province',
+                    values: ['ปทุมธานี'],
+                    count: 0
+                  },
+                  {
+                    type: 'custom',
+                    name: 'name',
+                    values: ['ฟาเร'],
+                    count: 0
+                  },
+                  {
+                    type: 'custom',
+                    name: 'year',
+                    values: ['b4 2561'],
+                    count: 0
+                  }
+                ]
+              ]
+            },
+            success: true
+          })
+        )
+      )
+    );
+
+    const agent = await request(app)
+      .post('/chatfuel/reply')
+      .query({ api_key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.CREATED);
+    expect(agent.body.result).toBe(true);
+
+    const getPeople = await People.findById(payload.people).select(
+      '-resultAt -updatedAt -createdAt -__v'
+    );
+    const resultPeople = JSON.parse(JSON.stringify(getPeople));
+    expect(resultPeople).toEqual({
+      _id: '40738040699c7951',
+      gender: 'female',
+      firstName: 'asdf',
+      pic:
+        'https://images.chatfuel.com/user/raw/103453611060507/5ebd4342bbcf1f26aec/profile.jpeg',
+      lastName: 'jkl',
+      province: 'ปทุมธานี',
+      childName: 'ฟาเร',
+      childBirthday: 'ก่อน 2561'
     });
   });
 
@@ -610,7 +721,7 @@ describe('POST /chatfuel/comment', () => {
 
     let result = await Comment.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -createdAt -updatedAt -__v');
     result = JSON.parse(JSON.stringify(result));
     expect(result.people).toBe(payload.people);
     expect(result.question).toBe(payload.question);
@@ -634,13 +745,122 @@ describe('POST /chatfuel/comment', () => {
 
     const results = await Comment.find({
       people: payload.people
-    }).select('-resultAt -updatedAt -__v');
+    }).select('-resultAt -createdAt -updatedAt -__v');
     const result = JSON.parse(JSON.stringify(results[0]));
     expect(results).toHaveLength(1);
     expect(result._id).toBe(oldResult._id.toString());
     expect(result.people).toBe(payload.people);
     expect(result.question).toBe(payload.question);
     expect(result.answer).toBe(payload.answer);
+  });
+
+  test('should create a new comment and create a new people when api chatfuel is exists', async () => {
+    payload.people = '40738040699c7951';
+
+    fetch.mockReturnValue(
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            result: {
+              total_count: 2615,
+              count: 1,
+              users: [
+                [
+                  {
+                    type: 'system',
+                    name: 'user id',
+                    values: ['5ebd43c2b3142bbff1f26aec'],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'gender',
+                    values: ['female'],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'first name',
+                    values: ['asdf'],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'profile pic url',
+                    values: [
+                      'https://images.chatfuel.com/user/raw/103453611060507/5ebd4342bbcf1f26aec/profile.jpeg'
+                    ],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'last name',
+                    values: ['jkl'],
+                    count: 0
+                  },
+                  {
+                    type: 'system',
+                    name: 'messenger user id',
+                    values: ['40738040699c7951'],
+                    count: 0
+                  },
+                  {
+                    type: 'custom',
+                    name: 'region',
+                    values: ['กลาง'],
+                    count: 0
+                  },
+                  {
+                    type: 'custom',
+                    name: 'province',
+                    values: ['ปทุมธานี'],
+                    count: 0
+                  },
+                  {
+                    type: 'custom',
+                    name: 'name',
+                    values: ['ฟาเร'],
+                    count: 0
+                  },
+                  {
+                    type: 'custom',
+                    name: 'year',
+                    values: ['b4 2561'],
+                    count: 0
+                  }
+                ]
+              ]
+            },
+            success: true
+          })
+        )
+      )
+    );
+
+    const agent = await request(app)
+      .post('/chatfuel/comment')
+      .query({ api_key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.CREATED);
+    expect(agent.body.result).toBe(true);
+
+    const getPeople = await People.findById(payload.people).select(
+      '-resultAt -updatedAt -createdAt -__v'
+    );
+    const resultPeople = JSON.parse(JSON.stringify(getPeople));
+    expect(resultPeople).toEqual({
+      _id: '40738040699c7951',
+      gender: 'female',
+      firstName: 'asdf',
+      pic:
+        'https://images.chatfuel.com/user/raw/103453611060507/5ebd4342bbcf1f26aec/profile.jpeg',
+      lastName: 'jkl',
+      province: 'ปทุมธานี',
+      childName: 'ฟาเร',
+      childBirthday: 'ก่อน 2561'
+    });
   });
 });
 

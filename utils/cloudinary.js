@@ -1,5 +1,9 @@
 const fetch = require('node-fetch');
 const queryString = require('querystring');
+const appConfig = require('../config');
+
+const CLOUD_NAME = appConfig.cloudinaryCloudName;
+const UPLOAD_PRESET = appConfig.cloudinaryUploadPreset;
 
 /**
  * Upload image to cloudinaru
@@ -11,9 +15,9 @@ exports.upload = async function(source, options) {
   const qs = queryString.stringify({
     file: source,
     ...options,
-    upload_preset: 'ufbglfuq'
+    upload_preset: UPLOAD_PRESET
   });
-  const url = `https://api.cloudinary.com/v1_1/x21fundee/image/upload?${qs}`;
+  const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload?${qs}`;
   return fetch(url, {
     method: 'POST'
   }).then(response => {
@@ -35,7 +39,6 @@ exports.upload = async function(source, options) {
 exports.image = function(source, text = '') {
   text = encodeURIComponent(text);
   const transformations = `c_thumb,g_face:auto,h_700,w_700/l_Frames:frame-1,y_160/l_text:Fonts:Itim-Regular.ttf_70:${text},y_400,co_rgb:4E2A10`;
-  const url = `http://res.cloudinary.com/x21fundee/image/upload/${transformations}/${source}`;
+  const url = `http://res.cloudinary.com/${CLOUD_NAME}/image/upload/${transformations}/${source}`;
   return url;
 };
-

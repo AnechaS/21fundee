@@ -39,3 +39,10 @@ exports.mongoURI = parsed.mongoURI;
 
 exports.apiKey = parsed.apiKey;
 exports.apiPublicKey = parsed.apiPublicKey;
+
+exports.chatfuelBotId = parsed.chatfuelBotId;
+exports.chatfuelAPIToken = parsed.chatfuelAPIToken;
+
+exports.cloudinaryCloudName = parsed.cloudinaryCloudName;
+exports.cloudinaryAPIKey = parsed.cloudinaryAPIKey;
+exports.cloudinaryUploadPreset = parsed.cloudinaryUploadPreset;

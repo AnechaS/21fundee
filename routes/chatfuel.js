@@ -72,7 +72,15 @@ router.post(
   validator([
     body('people')
       .exists()
-      .withMessage('Is required'),
+      .withMessage('Is required')
+      .bail()
+      .custom(value =>
+        People.getAndFetch(value).then(result => {
+          if (!result) {
+            return Promise.reject('Invalid value');
+          }
+        })
+      ),
     body('schedule')
       .exists()
       .withMessage('Is required')
@@ -131,8 +139,6 @@ router.post(
       } = req.body;
 
       let saveReply;
-      // let saveQuiz;
-      // let saveProgress;
 
       const objectReply = omitWithNull({
         text,
@@ -240,7 +246,15 @@ router.post(
   validator([
     body('people')
       .exists()
-      .withMessage('Is required'),
+      .withMessage('Is required')
+      .bail()
+      .custom(value =>
+        People.getAndFetch(value).then(result => {
+          if (!result) {
+            return Promise.reject('Invalid value');
+          }
+        })
+      ),
     body('question')
       .exists()
       .withMessage('Is required')
