@@ -72,15 +72,7 @@ router.post(
   validator([
     body('people')
       .exists()
-      .withMessage('Is required')
-      .bail()
-      .custom(value =>
-        People.getAndFetch(value).then(result => {
-          if (!result) {
-            return Promise.reject('Invalid value');
-          }
-        })
-      ),
+      .withMessage('Is required'),
     body('schedule')
       .exists()
       .withMessage('Is required')
@@ -137,6 +129,23 @@ router.post(
         progress,
         blockId
       } = req.body;
+
+      const _people = await People.getAndFetch(people);
+      if (!_people) {
+        return next(
+          new APIError({
+            message: 'Validation Error',
+            status: httpStatus.BAD_REQUEST,
+            errors: [
+              {
+                field: 'people',
+                location: 'body',
+                message: 'Invalid value'
+              }
+            ]
+          })
+        );
+      }
 
       let saveReply;
 
@@ -246,15 +255,7 @@ router.post(
   validator([
     body('people')
       .exists()
-      .withMessage('Is required')
-      .bail()
-      .custom(value =>
-        People.getAndFetch(value).then(result => {
-          if (!result) {
-            return Promise.reject('Invalid value');
-          }
-        })
-      ),
+      .withMessage('Is required'),
     body('question')
       .exists()
       .withMessage('Is required')
@@ -272,9 +273,26 @@ router.post(
       .exists()
       .withMessage('Is required')
   ]),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const { people, question, answer } = req.body;
+
+      const _people = await People.getAndFetch(people);
+      if (!_people) {
+        return next(
+          new APIError({
+            message: 'Validation Error',
+            status: httpStatus.BAD_REQUEST,
+            errors: [
+              {
+                field: 'people',
+                location: 'body',
+                message: 'Invalid value'
+              }
+            ]
+          })
+        );
+      }
 
       await Comment.findOneAndUpdate(
         { people, question },

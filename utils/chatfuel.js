@@ -32,17 +32,17 @@ exports.getUser = async function(id) {
       'content-type': ' application/json;charset=UTF-8',
       authorization: `Bearer ${API_TOKEN}`
     },
-    body
+    body: JSON.stringify(body)
   }).then(response => {
     if (!response.ok) {
-      throw new Error(`HTTP status ${response.status}`);
+      throw new Error('The People request on api chatfuel failed');
     }
 
     return response.json();
   });
 
   if (!resp.success) {
-    throw new Error('Request failure');
+    throw new Error('The People request on api chatfuel failed');
   }
 
   if (resp.result.count) {
