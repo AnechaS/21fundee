@@ -140,7 +140,7 @@ describe('Chatfuel API method getUser', () => {
       )
     );
     await expect(chatfuel.getUser('40738041159c7951')).rejects.toThrow(
-      'HTTP status 500'
+      'The People request on api chatfuel failed'
     );
     expect(fetch).toHaveBeenCalled();
   });
