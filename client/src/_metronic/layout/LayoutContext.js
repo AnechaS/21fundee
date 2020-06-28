@@ -172,7 +172,6 @@ export function LayoutContextProvider({ history, children, menuConfig }) {
 
   useEffect(() => {
     const splashScreen = document.getElementById("splash-screen");
-
     if (splashScreenVisible) {
       splashScreen.classList.remove("hidden");
 
@@ -181,13 +180,13 @@ export function LayoutContextProvider({ history, children, menuConfig }) {
       };
     }
 
-    const timeout = setTimeout(() => {
-      splashScreen.classList.add("hidden");
-    }, 1000);
+    // const timeout = setTimeout(() => {
+    splashScreen.classList.add("hidden");
+    // }, 100);
 
-    return () => {
+    /* return () => {
       clearTimeout(timeout);
-    };
+    }; */
   }, [splashScreenVisible]);
 
   // Pass state and dispatch to it's contexts.

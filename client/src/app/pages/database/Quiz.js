@@ -21,24 +21,24 @@ export default class Quiz extends Component {
       accessor: "_id",
       type: "ObjectId"
     },
-    {
-      Header: "people",
-      accessor: "people",
-      type: "Populate"
-    },
+    // {
+    //   Header: "people",
+    //   accessor: "people",
+    //   type: "Populate"
+    // },
     {
       Header: "schedule",
-      accessor: "schedule",
+      accessor: "schedule._id",
       type: "Populate"
     },
     {
       Header: "reply",
-      accessor: "reply",
+      accessor: "reply._id",
       type: "Populate"
     },
     {
       Header: "question",
-      accessor: "question",
+      accessor: "question._id",
       type: "Populate"
     },
     {

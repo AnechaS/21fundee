@@ -8,3 +8,4 @@ require("./_metronic/_assets/plugins/flaticon/flaticon.css");
 require("./_metronic/_assets/plugins/flaticon2/flaticon.css");
 require("./_metronic/_assets/plugins/daterangepicker/daterangepicker.js");
 require("./_metronic/_assets/plugins/daterangepicker/daterangepicker.css");
+require("moment/locale/th");

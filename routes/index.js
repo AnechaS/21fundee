@@ -10,7 +10,7 @@ const replyRouters = require('./reply');
 const quizRouters = require('./quiz');
 const progressRouters = require('./progress');
 const chatfuelRouters = require('./chatfuel');
-const dashboardRoutes = require('./dashboard');
+const widgetRoutes = require('./widgets');
 
 const router = express.Router();
 
@@ -23,8 +23,8 @@ router.use('/questions', questionRouters);
 router.use('/replies', replyRouters);
 router.use('/quizzes', quizRouters);
 router.use('/progresses', progressRouters);
-router.use('/dashboards', dashboardRoutes);
 router.use('/chatfuel', chatfuelRouters);
+router.use('/widgets', widgetRoutes);
 router.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 module.exports = router;

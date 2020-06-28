@@ -7,10 +7,13 @@ import "react-app-polyfill/stable";
 import React from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
+import moment from "moment";
 import { /* mockAxios,  */ setupAxios } from "./_metronic";
 import store, { persistor } from "./app/store/store";
+
 import "./globals";
 import "./index.scss";
+
 import App from "./App";
 
 /**
@@ -35,6 +38,8 @@ const { PUBLIC_URL, REACT_APP_API_URL } = process.env;
  */
 axios.defaults.baseURL = REACT_APP_API_URL;
 setupAxios(axios, store);
+
+moment.locale("th");
 
 ReactDOM.render(
   <App store={store} persistor={persistor} basename={PUBLIC_URL} />,

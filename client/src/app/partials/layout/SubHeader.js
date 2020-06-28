@@ -4,7 +4,7 @@ import React, {
   useCallback,
   useState,
   forwardRef,
-  useImperativeHandle
+  useEffect
 } from "react";
 import { connect } from "react-redux";
 import objectPath from "object-path";
@@ -17,9 +17,7 @@ import { ReactComponent as SearchIcon } from "../../../_metronic/layout/assets/l
 import Daterangepicker from "./Daterangepicker";
 import KTUtil from "../../../_metronic/_assets/js/util";
 
-const $ = window.$;
-
-const Main = ({ children, subheaderMobileToggle }) => (
+const Main = ({ children, title: titleDefault, subheaderMobileToggle }) => (
   <div className="kt-subheader__main">
     {subheaderMobileToggle && (
       <button
@@ -29,15 +27,13 @@ const Main = ({ children, subheaderMobileToggle }) => (
         <span />
       </button>
     )}
-
     <LayoutContextConsumer>
       {({ subheader: { title } }) => (
         <>
-          <h3 className="kt-subheader__title">{title}</h3>
+          <h3 className="kt-subheader__title">{titleDefault || title}</h3>
         </>
       )}
     </LayoutContextConsumer>
-
     <span className="kt-subheader__separator kt-subheader__separator--v" />
     {children}
   </div>
@@ -125,9 +121,10 @@ Dropdown.Toggle = ({ children, color = "primary" }) => (
   </button>
 );
 
-Dropdown.Menu = ({ children, style }) => (
+Dropdown.Menu = ({ children, drop, style }) => (
   <div
-    className="dropdown-menu dropdown-menu-fit dropdown-menu-md dropdown-menu-right"
+    className={`dropdown-menu dropdown-menu-fit dropdown-menu-md dropdown-menu-${drop ||
+      "right"}`}
     style={style}
   >
     <ul className="kt-nav">{children}</ul>
@@ -140,6 +137,7 @@ Dropdown.Item = ({ children, onClick, disabled = false, ...rest }) => (
       type="button"
       className={clsx("kt-nav__link kt-nav__link-button", { disabled })}
       onClick={onClick}
+      disabled={disabled}
       {...rest}
     >
       <span className="kt-nav__link-text">{children}</span>
@@ -152,47 +150,56 @@ Dropdown.Divider = () => <li className="kt-nav__separator"></li>;
 /**
  * Component Header Date rang picker
  */
-const Datepicker = forwardRef(({ onChange }, ref) => {
-  const startDate = useMemo(() => moment(), []);
-  const endDate = useMemo(() => moment(), []);
-
-  const [title, setTitle] = useState("Today:");
-  const [range, setRange] = useState(startDate.format("MMM D"));
-
-  const options = useMemo(
-    () => ({
+const Datepicker = forwardRef(({ onChange, maxDate, minDate }, ref) => {
+  const startDate = useMemo(() => moment("2019-08-01"), []);
+  const endDate = useMemo(() => moment(maxDate), [maxDate]);
+  const options = useMemo(() => {
+    return {
       direction: KTUtil.isRTL(),
-      startDate: startDate,
-      endDate: endDate,
+      startDate,
+      endDate,
+      minDate,
+      maxDate,
       opens: "left",
+      locale: {
+        customRangeLabel: "กำหนดเอง"
+      },
       ranges: {
-        Today: [moment(), moment()],
-        Yesterday: [moment().subtract(1, "days"), moment().subtract(1, "days")],
-        "Last 7 Days": [moment().subtract(6, "days"), moment()],
-        "Last 30 Days": [moment().subtract(29, "days"), moment()],
-        "This Month": [moment().startOf("month"), moment().endOf("month")],
-        "Last Month": [
-          moment()
+        ทั้งหมด: [startDate, endDate],
+        "7 วันสุดท้าย": [
+          startDate,
+          endDate.clone().subtract(6, "days"),
+          endDate
+        ],
+        "30 วันสุดท้าย": [endDate.clone().subtract(29, "days"), endDate],
+        เดื่อนนี้: [
+          endDate
+            .clone()
             .subtract(1, "month")
             .startOf("month"),
-          moment()
+          endDate
+            .clone()
             .subtract(1, "month")
             .endOf("month")
         ]
       }
-    }),
-    [startDate, endDate]
-  );
+    };
+  }, [startDate, endDate, maxDate, minDate]);
+
+  const [title, setTitle] = useState("วันที่:");
+  const [range, setRange] = useState(endDate.format("MMM D"));
+
+  useEffect(() => {
+    setRange(endDate.format("MMM D"));
+  }, [endDate]);
 
   const cb = useCallback(
     (start, end, label = "") => {
-      if (end - start < 100 || label === "Today") {
-        setTitle("Today:");
-        setRange(start.format("MMM D"));
-      } else if (label === "Yesterday") {
-        setTitle("Yesterday:");
-        setRange(start.format("MMM D"));
+      if (label === "ทั้งหมด") {
+        setTitle("วันที่:");
+        setRange(end.format("MMM D"));
       } else {
+        setTitle("ระหว่าง:");
         setRange(start.format("MMM D") + " - " + end.format("MMM D"));
       }
 
@@ -201,7 +208,7 @@ const Datepicker = forwardRef(({ onChange }, ref) => {
     [onChange]
   );
 
-  useImperativeHandle(
+  /* useImperativeHandle(
     ref,
     () => {
       return {
@@ -210,16 +217,14 @@ const Datepicker = forwardRef(({ onChange }, ref) => {
           $el
             .data("daterangepicker")
             .setStartDate(startDate.format("MM/DD/YYYY"));
-
           $el.data("daterangepicker").setEndDate(endDate.format("MM/DD/YYYY"));
-
-          setTitle("Today:");
+          setTitle("วันที่:");
           setRange(startDate.format("MMM D"));
         }
       };
     },
-    [startDate, endDate]
-  );
+    [startDate]
+  ); */
 
   return (
     <Daterangepicker options={options} cb={cb}>
