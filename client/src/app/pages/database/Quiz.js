@@ -21,11 +21,11 @@ export default class Quiz extends Component {
       accessor: "_id",
       type: "ObjectId"
     },
-    // {
-    //   Header: "people",
-    //   accessor: "people",
-    //   type: "Populate"
-    // },
+    {
+      Header: "people",
+      accessor: "people._id",
+      type: "Populate"
+    },
     {
       Header: "schedule",
       accessor: "schedule._id",
