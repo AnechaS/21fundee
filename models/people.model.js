@@ -55,7 +55,7 @@ const PeopleSchema = new mongoose.Schema(
 PeopleSchema.statics = {
   async getAndFetch(id) {
     if (!id) {
-      return;
+      throw new mongoose.Error('parame is required');
     }
 
     const people = await this.findById(id);

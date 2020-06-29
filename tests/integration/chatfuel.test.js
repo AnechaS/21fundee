@@ -35,7 +35,7 @@ beforeEach(async () => {
   await Comment.deleteMany({});
 
   const savedPeople = await People.create({
-    _id: 'zxcvb',
+    _id: '3922551107771011',
     firstName: 'Sara',
     lastName: 'De',
     province: 'สงขลา',
@@ -71,6 +71,10 @@ beforeEach(async () => {
   dbQuestions = JSON.parse(JSON.stringify(savedQuestion));
 });
 
+afterEach(() => {
+  fetch.mockReset();
+});
+
 afterAll(async () => {
   await mongoose.disconnect();
 });
@@ -80,7 +84,7 @@ describe('POST /chatfuel/people', () => {
 
   beforeEach(() => {
     payload = {
-      id: 'abcde',
+      id: '3922551107771012',
       firstName: 'Makus',
       lastName: 'Yui',
       province: 'สงขลา',
@@ -115,7 +119,7 @@ describe('POST /chatfuel/people', () => {
 
   test('should create a new people with value null', async () => {
     const payloadX = {
-      id: 'qwert',
+      id: '3922551107771063',
       firstName: 'null',
       lastName: 'null',
       province: 'สงขลา',
@@ -336,7 +340,7 @@ describe('POST /chatfuel/reply', () => {
     });
   });
 
-  test('should create a new progress', async () => {
+  test('should create a new reply and progress', async () => {
     delete payload.text;
     delete payload.type;
 
@@ -362,7 +366,7 @@ describe('POST /chatfuel/reply', () => {
     expect(result.status).toBe(payload.progress.status);
   });
 
-  test('should create a new reply and update the progress when status equal complete', async () => {
+  test('should create a new reply and change status the progress', async () => {
     payload.progress = { status: 2 };
 
     const agent = await request(app)
@@ -396,8 +400,8 @@ describe('POST /chatfuel/reply', () => {
     });
   });
 
-  test('should create a new reply and create a new people when api chatfuel is exists', async () => {
-    payload.people = '40738040699c7951';
+  test('should create a new reply and people when exists the user of chatfuel', async () => {
+    payload.people = '3922551107771013';
 
     fetch.mockReturnValue(
       Promise.resolve(
@@ -411,7 +415,7 @@ describe('POST /chatfuel/reply', () => {
                   {
                     type: 'system',
                     name: 'user id',
-                    values: ['5ebd43c2b3142bbff1f26aec'],
+                    values: ['3922551107771013'],
                     count: 0
                   },
                   {
@@ -443,7 +447,7 @@ describe('POST /chatfuel/reply', () => {
                   {
                     type: 'system',
                     name: 'messenger user id',
-                    values: ['40738040699c7951'],
+                    values: ['3922551107771013'],
                     count: 0
                   },
                   {
@@ -493,7 +497,7 @@ describe('POST /chatfuel/reply', () => {
     );
     const resultPeople = JSON.parse(JSON.stringify(getPeople));
     expect(resultPeople).toEqual({
-      _id: '40738040699c7951',
+      _id: '3922551107771013',
       gender: 'female',
       firstName: 'asdf',
       pic:
@@ -523,6 +527,40 @@ describe('POST /chatfuel/reply', () => {
     expect(field).toBe('people');
     expect(location).toBe('body');
     expect(message).toBe('Is required');
+  });
+
+  test('should report error when people is not exists', async () => {
+    payload.people = '2432046740184515';
+
+    fetch.mockReturnValue(
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            result: {
+              total_count: 0,
+              count: 0,
+              users: []
+            },
+            success: true
+          })
+        )
+      )
+    );
+    
+    const agent = await request(app)
+      .post('/chatfuel/reply')
+      .query({ api_key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.BAD_REQUEST);
+    expect(agent.body.code).toBe(400);
+    expect(agent.body.message).toBe('Validation Error');
+
+    const { field, location, message } = agent.body.errors[0];
+    expect(field).toBe('people');
+    expect(location).toBe('body');
+    expect(message).toBe('Invalid value');
   });
 
   test('should report error when schedule is not provided', async () => {

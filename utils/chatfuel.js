@@ -13,7 +13,7 @@ const API_TOKEN = appConfig.chatfuelAPIToken;
  */
 exports.getUser = async function(id) {
   if (!id) {
-    return;
+    throw new Error('Parame is required');
   }
 
   const body = {

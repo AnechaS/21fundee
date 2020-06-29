@@ -320,6 +320,10 @@ router.get('/6', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Widget district of peoples
+ * @api {get} /widgets/7
+ */
 router.get('/7', authorize(), async (req, res, next) => {
   try {
     const pipeline = [
@@ -366,6 +370,10 @@ router.get('/7', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Widget district of peoples At befual date 2020-04-04
+ * @api {get} /widgets/8
+ */
 router.get('/8', authorize(), async (req, res, next) => {
   try {
     const pipeline = [
@@ -446,6 +454,10 @@ router.get('/8', authorize(), async (req, res, next) => {
   }
 });
 
+/**
+ * Widget
+ * @api {get} /widgets/9
+ */
 router.get(
   '/9',
   authorize(),
@@ -528,6 +540,10 @@ router.get(
   }
 );
 
+/**
+ * Widget
+ * @api {get} /widgets/10
+ */
 router.get(
   '/10',
   validator([
