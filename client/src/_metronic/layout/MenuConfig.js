@@ -18,7 +18,7 @@ export default {
         title: "Dashboard",
         root: true,
         icon: "flaticon2-graphic",
-        page: "dashboard/1",
+        page: "dashboard/2",
         translate: "MENU.DASHBOARD",
         bullet: "dot"
       },
