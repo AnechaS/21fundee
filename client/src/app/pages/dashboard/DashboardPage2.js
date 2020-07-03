@@ -2,12 +2,12 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import moment from "moment";
 import { metronic } from "../../../_metronic";
-import PeopleScoreCard from "../../widgets/PeopleScoreCard";
-import ScheduleCompletedChart from "../../widgets/ScheduleCompletedChart";
-import NewPeoples from "../../widgets/NewPeoples";
-import ProvinceDatatable2 from "../../widgets/ProvinceDatatable2";
-import DistrictDatatable2 from "../../widgets/DistrictDatatable2";
-import PeoplesStatisticsChart from "../../widgets/PeopleStatisticsChart";
+import PeopleScoreCard from "../../widgets/dashboard/PeopleScoreCard";
+import ScheduleCompletedChart from "../../widgets/dashboard/ScheduleCompletedChart";
+import NewPeoples from "../../widgets/dashboard/NewPeoples";
+import ProvinceDatatable2 from "../../widgets/dashboard/ProvinceDatatable2";
+import DistrictDatatable2 from "../../widgets/dashboard/DistrictDatatable2";
+import PeoplesStatisticsChart from "../../widgets/dashboard/PeopleStatisticsChart";
 
 class DashboardPage2 extends Component {
   render() {
@@ -40,7 +40,7 @@ class DashboardPage2 extends Component {
 
         <div className="row">
           <div className="col-xl-3">
-            <NewPeoples />
+            <NewPeoples limit={6} />
           </div>
           <div className="col-xl-4">
             <ProvinceDatatable2 />

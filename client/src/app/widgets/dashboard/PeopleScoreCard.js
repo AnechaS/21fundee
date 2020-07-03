@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Skeleton from "@material-ui/lab/Skeleton";
-import { getWidgetById } from "../crud/widget.crud";
-import { Portlet, PortletBody } from "../partials/content/Portlet";
+import { getWidgetById } from "../../crud/widget.crud";
+import { Portlet, PortletBody } from "../../partials/content/Portlet";
 
 export default function PeopleScoreCard({ title, desc, query }) {
   const [value, setValue] = useState(0);

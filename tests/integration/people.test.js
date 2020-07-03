@@ -29,24 +29,34 @@ beforeEach(async () => {
   sessionToken = SessionToken.generate(savedUser).token;
 
   people = {
-    firstName: 'Makus',
-    lastName: 'Yui',
+    firstName: 'Vegeta',
+    lastName: '',
     province: 'สงขลา',
     district: 'เทพา',
     dentalId: 'x',
-    childName: 'Bee',
+    childName: 'Trunks',
     childBirthday: '2560',
     gender: 'male'
   };
 
   const savedPeoples = await People.insertMany([
     {
-      firstName: 'Sara',
-      lastName: 'De',
+      firstName: 'Krillin',
+      lastName: '',
       province: 'สงขลา',
       district: 'เทพา',
       dentalId: 'x',
-      childName: 'Ant',
+      childName: 'Marron',
+      childBirthday: '2560',
+      gender: 'male'
+    },
+    {
+      firstName: 'Son',
+      lastName: 'Goku',
+      province: 'ยะลา',
+      district: 'เมือง',
+      dentalId: '5976438',
+      childName: 'Gohan',
       childBirthday: '2560',
       gender: 'male'
     }
@@ -66,17 +76,28 @@ describe('GET /peoples', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(dbPeoples);
+    expect(agent.body.results).toEqual(dbPeoples);
   });
 
-  test.todo('add should get all peoples with pagination');
+  test('should get people with where', async () => {
+    const agent = await request(app)
+      .get('/peoples')
+      .query({
+        where: JSON.stringify({
+          firstName: 'Son',
+          lastName: 'Goku'
+        })
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
 
-  test.todo('add should filter peoples');
-
-  // prettier-ignore
-  test.todo('add should report error when pagination\'s parameters are not a number');
-
-  test.todo('add should report error if logged user is not an admin');
+    const matchResults = dbPeoples.filter(
+      o => o.firstName === 'Son' && o.lastName === 'Goku'
+    );
+    expect(agent.body.results).toEqual(matchResults);
+  });
 });
 
 describe('POST /peoples', () => {

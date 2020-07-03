@@ -3,13 +3,13 @@ import { Chart } from "chart.js";
 import { useSelector } from "react-redux";
 import _ from "lodash";
 import Skeleton from "@material-ui/lab/Skeleton";
-import { metronic } from "../../_metronic";
-import { getWidgetById } from "../crud/widget.crud";
+import { metronic } from "../../../_metronic";
+import { getWidgetById } from "../../crud/widget.crud";
 import {
   PortletBody,
   Portlet,
   PortletHeader
-} from "../partials/content/Portlet";
+} from "../../partials/content/Portlet";
 
 function ChartComponent({ data }) {
   const ref = useRef();

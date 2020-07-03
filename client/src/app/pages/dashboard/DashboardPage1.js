@@ -2,12 +2,12 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import moment from "moment";
 import { metronic } from "../../../_metronic";
-import PeopleScoreCard from "../../widgets/PeopleScoreCard";
-import PeopleStatisticsChart from "../../widgets/PeopleStatisticsChart";
-import ProvinceDatatable1 from "../../widgets/ProvinceDatatable1";
-import DistrictDatatable1 from "../../widgets/DistrictDatatable1";
-import ScheduleCompletedChart from "../../widgets/ScheduleCompletedChart";
-import NewPeoples from "../../widgets/NewPeoples";
+import PeopleScoreCard from "../../widgets/dashboard/PeopleScoreCard";
+import PeopleStatisticsChart from "../../widgets/dashboard/PeopleStatisticsChart";
+import ProvinceDatatable1 from "../../widgets/dashboard/ProvinceDatatable1";
+import DistrictDatatable1 from "../../widgets/dashboard/DistrictDatatable1";
+import ScheduleCompletedChart from "../../widgets/dashboard/ScheduleCompletedChart";
+import NewPeoples from "../../widgets/dashboard/NewPeoples";
 
 class DashboardPage1 extends Component {
   _isMounted = false;

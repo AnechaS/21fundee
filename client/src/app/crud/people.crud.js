@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const PEOPLE_URL = "/peoples";
 
-export function getPeople() {
-  return axios.get(PEOPLE_URL);
+export function getPeople(params) {
+  return axios.get(PEOPLE_URL, { params });
 }
 
 export function getPeopleById(id) {

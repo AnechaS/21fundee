@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Skeleton from "@material-ui/lab/Skeleton";
-import { getWidgetById } from "../crud/widget.crud";
+import { getWidgetById } from "../../crud/widget.crud";
 import {
   Portlet,
   PortletHeader,
   PortletBody
-} from "../partials/content/Portlet";
+} from "../../partials/content/Portlet";
 
 const colorMedials = ["success", "danger", "warning", "info"];
 
@@ -25,15 +25,20 @@ export default function NewPeoples({ query, limit = 5 }) {
   }, [query, limit]);
 
   let content = data.map(
-    ({ _id, firstName, lastName, province, district }, i) => {
+    ({ _id, firstName, lastName, province, district, pic }, i) => {
       return (
         <div key={_id} className="kt-widget4__item">
           <div className="kt-widget4__pic kt-widget4__pic--pic">
-            <div
-              className={`kt-media kt-media--${colorMedials[i] || "warning"}`}
-            >
-              <span>{firstName.substring(0, 2)}</span>
-            </div>
+            {pic ? (
+              <img src={pic} alt="" />
+            ) : (
+              <div
+                className={`kt-media kt-media--sm kt-media--${colorMedials[i] ||
+                  "warning"}`}
+              >
+                <span>{firstName.substring(0, 2)}</span>
+              </div>
+            )}
           </div>
           <div className="kt-widget4__info ">
             <div className="kt-widget4__username">
@@ -54,7 +59,7 @@ export default function NewPeoples({ query, limit = 5 }) {
       .map((_, i) => (
         <div key={(i + 1).toString()} className="kt-widget4__item">
           <div className="kt-widget4__pic kt-widget4__pic--pic">
-            <Skeleton variant="rect" width={50} height={50} />
+            <Skeleton variant="rect" width={32} height={32} />
           </div>
           <div className="kt-widget4__info ">
             <div className="kt-widget4__username">

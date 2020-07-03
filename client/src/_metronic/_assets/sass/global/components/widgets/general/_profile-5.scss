@@ -1,22 +1,19 @@
 //
-// User Profile 2
+// User Profile 5
 //
 
 .kt-widget {
-  &.kt-widget--user-profile-2 {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    height: 100%;
-
+  &.kt-widget--user-profile-5 {
     .kt-widget__head {
-      display: flex;
-      align-items: center;
-      margin-top: -45px;
+      margin-top: 1rem;
 
       .kt-widget__media {
+        display: flex;
+        justify-content: center;
+
         .kt-widget__img {
           max-width: 90px;
+          max-height: 90px;
 
           @include kt-rounded {
             border-radius: 50%;
@@ -44,35 +41,21 @@
       }
 
       .kt-widget__info {
-        padding-left: 1rem;
-
         .kt-widget__username {
-          font-size: 1.4rem;
+          text-align: center;
+          display: block;
+          padding: 0.8rem 0 0.6rem 0;
+          font-size: 1.3rem;
           color: kt-base-color(label, 4);
           font-weight: 500;
-
-          &:hover {
-            color: kt-brand-color();
-            transition: color 0.3s ease;
-          }
-        }
-
-        .kt-widget__titel {
-          font-size: 1.4rem;
-          color: kt-base-color(label, 4);
-          font-weight: 500;
-
-          &:hover {
-            color: kt-brand-color();
-            transition: color 0.3s ease;
-          }
         }
 
         .kt-widget__desc {
+          text-align: center;
           display: block;
           font-weight: 500;
           font-size: 1.1rem;
-          padding-top: 0.4rem;
+          padding: 0 0.8rem;
           color: kt-base-color(label, 2);
         }
       }
@@ -160,7 +143,7 @@
     }
 
     .kt-widget__footer {
-      margin-top: 2rem;
+      margin-top: 0.5rem;
 
       .btn {
         font-size: 1rem;

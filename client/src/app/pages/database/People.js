@@ -67,11 +67,6 @@ export default class People extends Component {
       type: "String"
     },
     {
-      Header: "botId",
-      accessor: "botId",
-      type: "String"
-    },
-    {
       Header: "createdAt",
       accessor: "createdAt",
       type: "Date"
@@ -84,6 +79,7 @@ export default class People extends Component {
   ];
 
   state = {
+    count: 0,
     data: [],
     isLoading: true,
     isCreatingData: false,
@@ -96,15 +92,12 @@ export default class People extends Component {
 
   componentDidMount() {
     this._isMounted = true;
-
     this.fetchData();
-
     document.addEventListener("keydown", this.handleKeyDown, false);
   }
 
   componentWillUnmount() {
     this._isMounted = false;
-
     document.removeEventListener("keydown", this.handleKeyDown, false);
   }
 
@@ -123,10 +116,14 @@ export default class People extends Component {
   fetchData = async () => {
     try {
       this.setState({ isLoading: true });
-      const response = await getPeople();
-
+      const response = await getPeople({ count: 1, sort: "-createdAt" });
+      const json = response.data;
       if (this._isMounted) {
-        this.setState({ data: response.data, isLoading: false });
+        this.setState({
+          data: json.results,
+          count: json.count,
+          isLoading: false
+        });
       }
     } catch (error) {
       // TODO handle error
@@ -212,14 +209,20 @@ export default class People extends Component {
   };
 
   render() {
-    const { data, skipPageReset, isCreatingData, isLoading } = this.state;
+    const {
+      data,
+      count,
+      skipPageReset,
+      isCreatingData,
+      isLoading
+    } = this.state;
 
     return (
       <>
         <SubHeader>
           <SubHeader.Main>
             <SubHeader.Group>
-              <SubHeader.Desc>{data.length} Total</SubHeader.Desc>
+              {!isLoading && <SubHeader.Desc>{count} Total</SubHeader.Desc>}
               {/* <SubHeader.Search /> */}
             </SubHeader.Group>
           </SubHeader.Main>

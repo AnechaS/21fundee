@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import _ from "lodash";
 import Skeleton from "@material-ui/lab/Skeleton";
-import Table from "../partials/content/Table";
-import { getWidgetById } from "../crud/widget.crud";
+import Table from "../../partials/content/Table";
+import { getWidgetById } from "../../crud/widget.crud";
 import {
   Portlet,
   PortletHeader,
   PortletBody
-} from "../partials/content/Portlet";
+} from "../../partials/content/Portlet";
 
 export default function ProvinceDatatable1({ height }) {
   const [isLoading, setIsLoading] = useState(true);

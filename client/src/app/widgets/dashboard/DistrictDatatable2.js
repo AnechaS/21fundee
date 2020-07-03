@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from "react";
 import _ from "lodash";
-import Skeleton from "@material-ui/lab/Skeleton";
-import Table from "../partials/content/Table";
-import { getWidgetById } from "../crud/widget.crud";
+import Table from "../../partials/content/Table";
+import { getWidgetById } from "../../crud/widget.crud";
 import {
-  Portlet,
   PortletHeader,
-  PortletBody
-} from "../partials/content/Portlet";
+  PortletBody,
+  Portlet
+} from "../../partials/content/Portlet";
+import Skeleton from "@material-ui/lab/Skeleton";
 
-export default function ProvinceDatatable2() {
+export default function DistrictDatatable2() {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setDate] = useState([]);
   const [max, setMax] = useState("-");
 
   useEffect(() => {
-    getWidgetById(5)
+    getWidgetById(7)
       .then(response => {
         const body = response.data;
         const _max = _.maxBy(body.data, "count");
         if (_max) {
-          setMax(`จ.${_max.province} ${_max.count} คน`);
+          setMax(`อ.${_max.district} ${_max.count} คน`);
         }
 
         setDate(body.data);
@@ -32,7 +32,7 @@ export default function ProvinceDatatable2() {
 
   return (
     <Portlet fluidHeight={true}>
-      <PortletHeader title="จังหวัด" />
+      <PortletHeader title="อำเภอ" />
       <PortletBody fit={true}>
         <div className="kt-widget34">
           <div
@@ -83,6 +83,12 @@ export default function ProvinceDatatable2() {
                 }}
                 data={data}
                 columns={[
+                  {
+                    Header: "อำเภอ",
+                    accessor: "district",
+                    width: 100,
+                    sortable: false
+                  },
                   {
                     Header: "จังหวัด",
                     accessor: "province",

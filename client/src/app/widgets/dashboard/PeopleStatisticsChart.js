@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Chart } from "chart.js";
 import { useSelector } from "react-redux";
-import { metronic } from "../../_metronic";
+import { metronic } from "../../../_metronic";
 import {
   Portlet,
   PortletBody,
   PortletHeader,
   PortletHeaderToolbar
-} from "../partials/content/Portlet";
-import { getWidgetById } from "../crud/widget.crud";
+} from "../../partials/content/Portlet";
+import { getWidgetById } from "../../crud/widget.crud";
 
 function ChartComponent({ data }) {
   const ref = useRef();

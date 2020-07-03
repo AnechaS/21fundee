@@ -79,23 +79,40 @@ const Button = ({
   </button>
 );
 
-const Search = () => (
-  <form className="kt-margin-l-20" id="kt_subheader_search_form">
-    <div className="kt-input-icon kt-input-icon--right kt-subheader__search">
-      <input
-        type="text"
-        className="form-control"
-        placeholder="Search..."
-        id="generalSearch"
-      />
-      <span className="kt-input-icon__icon kt-input-icon__icon--right">
-        <span>
-          <SearchIcon className="kt-svg-icon" />
+const Search = ({ onSubmit }) => {
+  const [text, setText] = useState("");
+
+  const handleChange = e => {
+    setText(e.target.value.trim());
+  };
+
+  const handleSubmit = useCallback(
+    e => {
+      e.preventDefault();
+      onSubmit(text);
+    },
+    [text, onSubmit]
+  );
+
+  return (
+    <form className="kt-margin-l-20" autoComplete="off" onSubmit={handleSubmit}>
+      <div className="kt-input-icon kt-input-icon--right kt-subheader__search">
+        <input
+          type="text"
+          name="search"
+          className="form-control"
+          placeholder="Search..."
+          onChange={handleChange}
+        />
+        <span className="kt-input-icon__icon kt-input-icon__icon--right">
+          <span>
+            <SearchIcon className="kt-svg-icon" onClick={handleSubmit} />
+          </span>
         </span>
-      </span>
-    </div>
-  </form>
-);
+      </div>
+    </form>
+  );
+};
 
 const Dropdown = ({ children, ...rest }) => {
   return (
