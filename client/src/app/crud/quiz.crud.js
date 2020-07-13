@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const QUIZ_URL = "/quizzes";
 
-export function getQuiz() {
-  return axios.get(QUIZ_URL);
+export function getQuiz(params) {
+  return axios.get(QUIZ_URL, { params });
 }
 
 export function getQuizById(id) {

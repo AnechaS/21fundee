@@ -1,8 +1,10 @@
 const express = require('express');
+const { query } = require('express-validator');
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const APIError = require('../utils/APIError');
 const authorize = require('../middlewares/auth');
+const validator = require('../middlewares/validator');
 
 const Schedule = require('../models/schedule.model');
 
@@ -35,14 +37,67 @@ router.param('id', async (req, res, next, id) => {
  * List Schedules
  * @api {get} /schedules
  */
-router.get('/', authorize(), async (req, res, next) => {
-  try {
-    const schedule = await Schedule.find().limit(2000);
-    return res.json(schedule);
-  } catch (error) {
-    return next(error);
+router.get(
+  '/',
+  authorize(),
+  validator([
+    query('where')
+      .if(value => value)
+      .isJSON()
+      .customSanitizer(value => {
+        return JSON.parse(value);
+      }),
+    query('limit')
+      .if(value => value)
+      .isInt()
+      .toInt(),
+    query('skip')
+      .if(value => value)
+      .isInt()
+      .toInt(),
+    query('count')
+      .if(value => value)
+      .isIn(['0', '1'])
+      .toInt()
+  ]),
+  async (req, res, next) => {
+    try {
+      const { where, sort, limit = 100, skip, select, count } = req.query;
+
+      let results = [];
+      if (limit !== 0) {
+        const query = Schedule.find();
+
+        if (where) {
+          query.where(where);
+        }
+
+        if (sort) {
+          query.sort(sort);
+        }
+
+        if (select) {
+          query.select(select);
+        }
+
+        if (skip) {
+          query.skip(skip);
+        }
+
+        results = await query.limit(limit);
+      }
+
+      let countDoc;
+      if (count) {
+        countDoc = await Schedule.countDocuments(where);
+      }
+
+      return res.json({ results, count: countDoc });
+    } catch (error) {
+      return next(error);
+    }
   }
-});
+);
 
 /**
  * Create a new schedule

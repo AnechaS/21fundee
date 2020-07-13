@@ -22,7 +22,6 @@ let dbQuestions;
 let dbQuizs;
 let quiz;
 
-const botId = 'asdfqwer';
 const blockIds = ['zxcvbnm', 'qwertyu'];
 
 beforeEach(async () => {
@@ -46,26 +45,24 @@ beforeEach(async () => {
 
   const savedPeoples = await People.create([
     {
-      firstName: 'Sara',
-      lastName: 'De',
+      firstName: 'Krillin',
+      lastName: '',
       province: 'สงขลา',
       district: 'เทพา',
       dentalId: 'x',
-      childName: 'Ant',
+      childName: 'Marron',
       childBirthday: '2560',
-      gender: 'male',
-      botId
+      gender: 'male'
     },
     {
-      firstName: 'Makus',
-      lastName: 'Yui',
-      province: 'สงขลา',
-      district: 'เทพา',
-      dentalId: 'x',
-      childName: 'Bee',
+      firstName: 'Son',
+      lastName: 'Goku',
+      province: 'ยะลา',
+      district: 'เมือง',
+      dentalId: '5976438',
+      childName: 'Gohan',
       childBirthday: '2560',
-      gender: 'male',
-      botId
+      gender: 'male'
     }
   ]);
   dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
@@ -86,7 +83,6 @@ beforeEach(async () => {
       schedule: dbSchedules[0]._id,
       text: 'a',
       type: 'button',
-      botId,
       blockId: blockIds[0]
     },
     {
@@ -94,7 +90,6 @@ beforeEach(async () => {
       schedule: dbSchedules[0]._id,
       text: 'b',
       type: 'button',
-      botId,
       blockId: blockIds[0]
     },
     {
@@ -102,7 +97,6 @@ beforeEach(async () => {
       schedule: dbSchedules[1]._id,
       text: 'a',
       type: 'button',
-      botId,
       blockId: blockIds[1]
     }
   ]);
@@ -176,9 +170,19 @@ describe('GET /quizzes', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(200);
+    expect(agent.body.results).toEqual(dbQuizs);
+  });
 
-    const quizTransformed = dbQuizs.map(o => format(o));
-    expect(agent.body).toEqual(quizTransformed);
+  test('should get count', async () => {
+    const agent = await request(app)
+      .get('/quizzes')
+      .query({ count: 1, limit: 0 })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(200);
+    expect(agent.body.count).toBe(2);
+    expect(agent.body.results).toEqual([]);
   });
 });
 

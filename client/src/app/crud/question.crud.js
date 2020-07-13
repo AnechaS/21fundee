@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const QUESTION_URL = "/questions";
 
-export function getQuestion() {
-  return axios.get(QUESTION_URL);
+export function getQuestion(params) {
+  return axios.get(QUESTION_URL, { params });
 }
 
 export function getQuestionById(id) {

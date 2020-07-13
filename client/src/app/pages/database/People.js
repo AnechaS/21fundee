@@ -1,10 +1,5 @@
-import React, { Component, createRef } from "react";
-import BlockUi from "react-block-ui";
-import SubHeader from "../../partials/layout/SubHeader";
-import { ReactComponent as PlusIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Plus.svg";
-import { ReactComponent as UpdateIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Update.svg";
-import { ReactComponent as FilterIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Filter.svg";
-import { ReactComponent as WriteIcon } from "../../../_metronic/layout/assets/layout-svg-icons/Write.svg";
+import React, { Component } from "react";
+import SubHeader from "../../partials/layout/SubHeaderDatabase";
 import KTContent from "../../../_metronic/layout/KtContent";
 import Table from "../../partials/content/TableEdit";
 import {
@@ -13,58 +8,68 @@ import {
   updatePeople,
   createPeople
 } from "../../crud/people.crud";
+import queryFromFilters from "../../utils/queryFromFilters";
 
 export default class People extends Component {
   columns = [
     {
-      Header: "id",
+      Header: "_id",
       accessor: "_id",
       type: "ObjectId"
     },
     {
       Header: "firstName",
       accessor: "firstName",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "lastName",
       accessor: "lastName",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "gender",
       accessor: "gender",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "pic",
       accessor: "pic",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "province",
       accessor: "province",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "district",
       accessor: "district",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "dentalId",
       accessor: "dentalId",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "childName",
       accessor: "childName",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "childBirthday",
       accessor: "childBirthday",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "createdAt",
@@ -79,20 +84,22 @@ export default class People extends Component {
   ];
 
   state = {
+    isLoading: true,
     count: 0,
     data: [],
-    isLoading: true,
-    isCreatingData: false,
-    skipPageReset: false
+    selectRows: [],
+    pageIndex: 0,
+    limit: 15,
+    isCreating: false,
+    skipPageReset: false,
+    filters: []
   };
-
-  tableRef = createRef();
 
   _isMounted = false;
 
   componentDidMount() {
     this._isMounted = true;
-    this.fetchData();
+    this.fetchData({ count: 1 });
     document.addEventListener("keydown", this.handleKeyDown, false);
   }
 
@@ -101,111 +108,128 @@ export default class People extends Component {
     document.removeEventListener("keydown", this.handleKeyDown, false);
   }
 
-  // TODO handle error
-  createData = async body => {
-    this.setState({ isLoading: true });
-    const response = await createPeople(body);
-    this.setState(prevState => ({
-      isCreatingData: false,
-      isLoading: false,
-      data: [response.data, ...prevState.data]
-    }));
-  };
-
-  // TODO Query with uri parameter
-  fetchData = async () => {
+  fetchData = async params => {
     try {
-      this.setState({ isLoading: true });
-      const response = await getPeople({ count: 1, sort: "-createdAt" });
+      // turn on spinner
+      this.setState(prevState => {
+        if (!prevState.isLoading) {
+          return { isLoading: true };
+        }
+      });
+
+      const { limit, pageIndex } = this.state;
+      const query = {
+        sort: "-createdAt",
+        skip: pageIndex * limit,
+        limit,
+        ...params
+      };
+      const response = await getPeople(query);
       const json = response.data;
       if (this._isMounted) {
-        this.setState({
-          data: json.results,
-          count: json.count,
-          isLoading: false
-        });
+        const state = {
+          data: json.results
+        };
+
+        if (typeof json.count !== "undefined") {
+          state.count = json.count;
+        }
+
+        this.setState(state);
       }
     } catch (error) {
       // TODO handle error
-      if (this._isMounted) {
-        this.setState({ isLoading: false });
-      }
+    } finally {
+      // turn off spinner
+      this.setState(prevState => {
+        if (prevState.isLoading) {
+          return { isLoading: false };
+        }
+      });
     }
   };
 
-  handleCreateDataClick = () => {
-    this.setState({ isCreatingData: true });
+  handleCreate = async object => {
+    try {
+      await createPeople(object);
+      await this.fetchData({ count: 1 });
+      this.setState({ isCreating: false });
+    } catch (error) {
+      // TODO handle error create method
+    }
   };
 
-  handleDeleteDataClick = () => {
-    this.deleteData();
+  handleUpdate = async (rowIndex, column, value) => {
+    try {
+      const { data } = this.state;
+      if (data[rowIndex][column] === value) {
+        return;
+      }
+
+      const object = data[rowIndex];
+      const newData = data.slice();
+      newData[rowIndex] = { ...object, [column]: value };
+      this.setState({ data: newData, skipPageReset: true });
+      await updatePeople(object._id, {
+        [column]: value
+      });
+    } catch (error) {
+      // TODO handle error update method
+    }
   };
 
-  handleDeleteAllDataClick = () => {
-    // TODO delete all data
+  handleDelete = async () => {
+    try {
+      const { data, selectRows } = this.state;
+      if (!selectRows.length) {
+        return;
+      }
+
+      const promise = selectRows.map(rowIndex =>
+        deletePeople(data[rowIndex]._id)
+      );
+      await Promise.all(promise);
+      await this.fetchData({ count: 1 });
+    } catch (error) {
+      // TODO handle error delete moethod
+    }
+  };
+
+  handleCheckRows = rows => {
+    this.setState({ selectRows: rows });
+  };
+
+  handlePagingChange = pageIndex => {
+    this.setState({ pageIndex, isCreating: false }, () => {
+      this.fetchData();
+    });
+  };
+
+  handlePageSizeChange = value => {
+    this.setState({ limit: value }, () => {
+      this.fetchData();
+    });
+  };
+
+  handleAddRow = () => {
+    this.setState({ isCreating: true });
   };
 
   handleKeyDown = e => {
     if (e.keyCode === 27) {
-      this.setState({ isCreatingData: false });
+      this.setState({ isCreating: false });
     }
   };
 
-  handleRefreshClick = () => {
-    this.setState({ isCreatingData: false });
+  handleRefresh = () => {
+    this.setState({ isCreating: false });
     this.fetchData();
   };
 
-  updateData = async (rowIndex, column, value) => {
-    this.setState({ skipPageReset: true, isLoading: true });
-
-    const { data } = this.state;
-
-    try {
-      const newData = [...data];
-      newData[rowIndex] = { ...data[rowIndex], [column]: value };
-      this.setState({ data: newData });
-
-      /* const response =  */ await updatePeople(data[rowIndex]._id, {
-        [column]: value
-      });
-    } catch (error) {
-      this.setState({ data });
-    }
-
-    this.setState({ skipPageReset: false, isLoading: false });
-  };
-
-  deleteData = async () => {
-    const { data } = this.state;
-    const selectedRowIds = this.tableRef.current.selectedRowIds;
-    const indexes = Object.keys(selectedRowIds).map(v => Number(v));
-    if (!indexes.length) {
-      return;
-    }
-
-    this.setState({
-      skipPageReset: true,
-      isLoading: true
-    });
-
-    const promise = [];
-    const newData = [];
-    data.forEach((o, i) => {
-      if (indexes.includes(i)) {
-        const response = deletePeople(o._id);
-        promise.push(response);
-      } else {
-        newData.push(o);
-      }
-    });
-
-    /* const response = */ await Promise.all(promise);
-    this.setState({ data: newData });
-    this.setState({
-      skipPageReset: false,
-      isLoading: false
-    });
+  handleFilterChange = filters => {
+    this.setState({ filters });
+    const query = queryFromFilters(filters);
+    this.fetchData({ where: query, count: 1 });
   };
 
   render() {
@@ -213,85 +237,43 @@ export default class People extends Component {
       data,
       count,
       skipPageReset,
-      isCreatingData,
-      isLoading
+      isCreating,
+      isLoading,
+      limit,
+      pageIndex,
+      filters
     } = this.state;
-
     return (
       <>
-        <SubHeader>
-          <SubHeader.Main>
-            <SubHeader.Group>
-              {!isLoading && <SubHeader.Desc>{count} Total</SubHeader.Desc>}
-              {/* <SubHeader.Search /> */}
-            </SubHeader.Group>
-          </SubHeader.Main>
-          <SubHeader.Toolbar>
-            <SubHeader.Button
-              color="secondary"
-              title="Add Row"
-              disabled={true}
-              onClick={this.handleCreateDataClick}
-            >
-              <PlusIcon className="kt-svg-icon kt-svg-icon-sm" />
-              &nbsp; Add Row
-            </SubHeader.Button>
-            <SubHeader.Button
-              color="secondary"
-              title="Refresh"
-              onClick={this.handleRefreshClick}
-            >
-              <UpdateIcon className="kt-svg-icon kt-svg-icon-sm" />
-              &nbsp; Refresh
-            </SubHeader.Button>
-            <SubHeader.Button color="secondary" title="Filter">
-              <FilterIcon className="kt-svg-icon kt-svg-icon-sm" />
-              &nbsp; Filter
-            </SubHeader.Button>
-            <SubHeader.Dropdown title="Edit">
-              <SubHeader.Dropdown.Toggle color="secondary">
-                <WriteIcon className="kt-svg-icon kt-svg-icon--sm" />
-                &nbsp; Edit
-              </SubHeader.Dropdown.Toggle>
-              <SubHeader.Dropdown.Menu style={{ width: "200px" }}>
-                <SubHeader.Dropdown.Item
-                  disabled={true}
-                  onClick={this.handleCreateDataClick}
-                >
-                  Add a row
-                </SubHeader.Dropdown.Item>
-                <SubHeader.Dropdown.Divider />
-                <SubHeader.Dropdown.Item onClick={this.handleDeleteDataClick}>
-                  Delete these rows
-                </SubHeader.Dropdown.Item>
-                <SubHeader.Dropdown.Item
-                  onClick={this.handleDeleteAllDataClick}
-                >
-                  Delete all rows
-                </SubHeader.Dropdown.Item>
-                <SubHeader.Dropdown.Divider />
-                <SubHeader.Dropdown.Item>Import data</SubHeader.Dropdown.Item>
-                <SubHeader.Dropdown.Item>
-                  Export this data
-                </SubHeader.Dropdown.Item>
-              </SubHeader.Dropdown.Menu>
-            </SubHeader.Dropdown>
-          </SubHeader.Toolbar>
-        </SubHeader>
+        <SubHeader
+          loading={isLoading}
+          count={count}
+          columns={this.columns}
+          filters={filters}
+          onAddRow={this.handleAddRow}
+          onRefresh={this.handleRefresh}
+          onDeleteRows={this.handleDelete}
+          onFilterChange={this.handleFilterChange}
+        />
         <KTContent>
           <div className="kt-portlet kt-portlet--mobile">
             <div className="kt-portlet__body kt-portlet__body--fit">
-              <BlockUi tag="div" blocking={isLoading}>
-                <Table
-                  ref={this.tableRef}
-                  data={data}
-                  columns={this.columns}
-                  skipPageReset={skipPageReset}
-                  showRowCreateData={isCreatingData}
-                  createData={this.createData}
-                  updateData={this.updateData}
-                />
-              </BlockUi>
+              <Table
+                pageSize={limit}
+                pageIndex={pageIndex}
+                pageCount={count}
+                data={data}
+                columns={this.columns}
+                skipPageReset={skipPageReset}
+                onCheckRows={this.handleCheckRows}
+                onPagingChange={this.handlePagingChange}
+                onPageSizeChange={this.handlePageSizeChange}
+                showRowCreate={isCreating}
+                onCreate={this.handleCreate}
+                onUpdate={this.handleUpdate}
+                loading={isLoading}
+                minHeight={660}
+              />
             </div>
           </div>
         </KTContent>

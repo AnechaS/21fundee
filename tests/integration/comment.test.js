@@ -20,8 +20,6 @@ let dbQuestions;
 let dbComments;
 let comment;
 
-const botId = 'asdfqwer';
-
 beforeEach(async () => {
   await User.deleteMany({});
   await SessionToken.deleteMany({});
@@ -41,26 +39,24 @@ beforeEach(async () => {
 
   const savedPeoples = await People.create([
     {
-      firstName: 'Sara',
-      lastName: 'De',
+      firstName: 'Krillin',
+      lastName: '',
       province: 'สงขลา',
       district: 'เทพา',
       dentalId: 'x',
-      childName: 'Ant',
+      childName: 'Marron',
       childBirthday: '2560',
-      gender: 'male',
-      botId
+      gender: 'male'
     },
     {
-      firstName: 'Makus',
-      lastName: 'Yui',
-      province: 'สงขลา',
-      district: 'เทพา',
-      dentalId: 'x',
-      childName: 'Bee',
+      firstName: 'Son',
+      lastName: 'Goku',
+      province: 'ยะลา',
+      district: 'เมือง',
+      dentalId: '5976438',
+      childName: 'Gohan',
       childBirthday: '2560',
-      gender: 'male',
-      botId
+      gender: 'male'
     }
   ]);
   dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
@@ -118,7 +114,19 @@ describe('GET /comments', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(200);
-    expect(agent.body).toEqual(dbComments);
+    expect(agent.body.results).toEqual(dbComments);
+  });
+
+  test('should get count', async () => {
+    const agent = await request(app)
+      .get('/comments')
+      .query({ count: 1, limit: 0 })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(200);
+    expect(agent.body.results).toEqual([]);
+    expect(agent.body.count).toBe(1);
   });
 });
 

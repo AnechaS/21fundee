@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const COMMENT_URL = "/comments";
 
-export function getComment() {
-  return axios.get(COMMENT_URL);
+export function getComment(params) {
+  return axios.get(COMMENT_URL, { params });
 }
 
 export function getCommentById(id) {

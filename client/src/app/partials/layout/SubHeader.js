@@ -66,18 +66,24 @@ const Button = ({
   color = "primary",
   disabled = false,
   className,
+  as: Tag = "div",
   ...rest
-}) => (
-  <button
-    type="button"
-    className={clsx(`btn kt-subheader__btn-${color}`, { disabled }, className)}
-    onClick={onClick}
-    disabled={disabled}
-    {...rest}
-  >
-    {children}
-  </button>
-);
+}) => {
+  return (
+    <Tag
+      className={clsx(
+        `btn kt-subheader__btn-${color}`,
+        { disabled },
+        className
+      )}
+      onClick={onClick}
+      disabled={disabled}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  );
+};
 
 const Search = ({ onSubmit }) => {
   const [text, setText] = useState("");

@@ -24,7 +24,7 @@ beforeEach(async () => {
     email: 'jonsnow@gmail.com',
     password: passwordHashed,
     username: 'Jon Snow',
-    role: 'admin',
+    role: 'admin'
   });
   sessionToken = SessionToken.generate(savedUser).token;
 
@@ -32,11 +32,11 @@ beforeEach(async () => {
 
   const savedSchedules = await Schedule.insertMany([
     {
-      name: 'Day 1',
+      name: 'Day 1'
     },
     {
-      name: 'Day 2',
-    },
+      name: 'Day 2'
+    }
   ]);
   dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
 });
@@ -53,17 +53,20 @@ describe('GET /schedules', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(dbSchedules);
+    expect(agent.body.results).toEqual(dbSchedules);
   });
 
-  test.todo('add should get all schedules with pagination');
-
-  test.todo('add should filter schedules');
-
-  // prettier-ignore
-  test.todo('add should report error when pagination\'s parameters are not a number');
-
-  test.todo('add should report error if logged user is not an admin');
+  test('should get count', async () => {
+    const agent = await request(app)
+      .get('/schedules')
+      .query({ count: 1, limit: 0 })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body.count).toBe(2);
+    expect(agent.body.results).toEqual([]);
+  });
 });
 
 describe('POST /schedules', () => {

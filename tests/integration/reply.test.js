@@ -39,22 +39,22 @@ beforeEach(async () => {
 
   const savedPeoples = await People.create([
     {
-      firstName: 'Sara',
-      lastName: 'De',
+      firstName: 'Krillin',
+      lastName: '',
       province: 'สงขลา',
       district: 'เทพา',
       dentalId: 'x',
-      childName: 'Ant',
+      childName: 'Marron',
       childBirthday: '2560',
       gender: 'male'
     },
     {
-      firstName: 'Makus',
-      lastName: 'Yui',
-      province: 'สงขลา',
-      district: 'เทพา',
-      dentalId: 'x',
-      childName: 'Bee',
+      firstName: 'Son',
+      lastName: 'Goku',
+      province: 'ยะลา',
+      district: 'เมือง',
+      dentalId: '5976438',
+      childName: 'Gohan',
       childBirthday: '2560',
       gender: 'male'
     }
@@ -117,8 +117,19 @@ describe('GET /replies', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(200);
-    const replyTransformed = dbReplys.map(o => format(o));
-    expect(agent.body).toEqual(replyTransformed);
+    expect(agent.body.results).toEqual(dbReplys);
+  });
+
+  test('should get count', async () => {
+    const agent = await request(app)
+      .get('/replies')
+      .query({ count: 1, limit: 0 })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(200);
+    expect(agent.body.count).toBe(2);
+    expect(agent.body.results).toEqual([]);
   });
 });
 

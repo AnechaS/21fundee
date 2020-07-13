@@ -5,39 +5,6 @@
   $body_cell_font_color: kt-base-color(label, 3);
   $row-border-color: kt-base-color(shape, 1);
   $resize-bg: $row-border-color;
-  $scrollbar_color: darken(kt-base-color(shape, 2), 3%);
-
-  // &.kt-datatable--loaded {
-  //   > .kt-datatable__table {
-  //     &.kt-datatable__table--edit {
-  //       overflow-x: auto;
-
-  //       // Scroll
-  //       &::-webkit-scrollbar {
-  //         background: transparent;
-  //         opacity: 0;
-  //         height: 4px;
-  //         left: 0px;
-  //       }
-
-  //       &::-webkit-scrollbar-track {
-  //         background: transparent;
-  //       }
-
-  //       &::-webkit-scrollbar-thumb {
-  //         opacity: 1;
-  //         border-radius: 4px;
-  //         height: 4px;
-  //         background: $scrollbar_color;
-  //       }
-
-  //       &::-webkit-scrollbar-thumb:hover,
-  //       ::-webkit-scrollbar-thumb:focus {
-  //         opacity: 1;
-  //         background: $scrollbar_color;
-  //       }
-  //     }
-  //   }
 
   > .kt-datatable__table {
     &.kt-datatable__table--edit {

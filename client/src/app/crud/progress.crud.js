@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const PROGRESS_URL = "/progresses";
 
-export function getProgress() {
-  return axios.get(PROGRESS_URL);
+export function getProgress(params) {
+  return axios.get(PROGRESS_URL, { params });
 }
 
 export function getProgressById(id) {

@@ -82,19 +82,20 @@ describe('GET /questions', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-
-    // const questionTransformed = dbQuestions.map(o => format(o));
-    expect(agent.body).toEqual(dbQuestions);
+    expect(agent.body.results).toEqual(dbQuestions);
   });
 
-  test.todo('add should get all questions with pagination');
-
-  test.todo('add should filter questions');
-
-  // prettier-ignore
-  test.todo('add should report error when pagination\'s parameters are not a number');
-
-  test.todo('add should report error if logged user is not an admin');
+  test('should get count', async () => {
+    const agent = await request(app)
+      .get('/questions')
+      .query({ count: 1, limit: 0 })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body.results).toEqual([]);
+    expect(agent.body.count).toBe(2);
+  });
 });
 
 describe('POST /questions', () => {

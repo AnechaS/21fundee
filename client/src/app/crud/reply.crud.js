@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const REPLY_URL = "/replies";
 
-export function getReply() {
-  return axios.get(REPLY_URL);
+export function getReply(params) {
+  return axios.get(REPLY_URL, { params });
 }
 
 export function getReplyById(id) {

@@ -44,7 +44,7 @@ export function ProfileCard({ data, onClick }) {
                 <span className="kt-widget__data">{data.childName}</span>
               </div>
               <div className="kt-widget__contact">
-                <span className="kt-widget__label">ลูกเกิดเมื่อ:</span>
+                <span className="kt-widget__label">ลูกเกิดเมื่อ(พ.ศ.):</span>
                 <span className="kt-widget__data">{data.childBirthday}</span>
               </div>
               <div className="kt-widget__contact">

@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  forwardRef,
-  useRef,
-  useImperativeHandle
-} from "react";
+import React, { useState, useEffect, forwardRef, useRef } from "react";
 import {
   useTable,
   usePagination,
@@ -12,9 +6,21 @@ import {
   useBlockLayout,
   useResizeColumns
 } from "react-table";
-import { isEqual } from "lodash";
+import _ from "lodash";
 import clsx from "clsx";
 import pagination from "../../utils/pagination";
+
+/**
+ * Custrom Hook prev state
+ * @param {*} value
+ */
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
 /**
  * Data to json stringify scpace ", "
@@ -40,37 +46,31 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
   // If the initialValue is changed external, sync it up with our state
   useEffect(() => {
     // Tranfrom value to string
-    let tranfromValue = "";
+    let valueString = "";
     if (typeof initialValue !== "undefined") {
       switch (type) {
         case "array":
-          tranfromValue = Stringify_WithSpaces(initialValue);
+          valueString = Stringify_WithSpaces(initialValue);
           break;
 
         case "object":
-          tranfromValue = Stringify_WithSpaces(initialValue);
-          break;
-
-        case "boolean":
-          tranfromValue = initialValue.toString();
+          valueString = Stringify_WithSpaces(initialValue);
           break;
 
         default:
-          tranfromValue = initialValue;
+          valueString = initialValue.toString();
           break;
       }
     }
 
-    setValue(tranfromValue);
-    setOriginalValue(tranfromValue);
+    setValue(valueString);
+    setOriginalValue(valueString);
   }, [initialValue, type]);
 
   const handleDoubleClick = () => {
-    if (!edit) {
-      return;
+    if (edit) {
+      setEditing(true);
     }
-
-    setEditing(true);
   };
 
   const handleChange = e => {
@@ -97,21 +97,23 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
     }
   };
 
-  // Text placeholder
-  const text = typeof initialValue !== "undefined" ? value : "(Undefined)";
+  let text = value;
+  if (typeof initialValue === "undefined" && value === "") {
+    text = "(Undefined)";
+  }
+
+  if (!editing) {
+    return <span onDoubleClick={handleDoubleClick}>{text}</span>;
+  }
 
   return (
-    <span onDoubleClick={handleDoubleClick}>
-      {!editing ? (
-        text
-      ) : (
-        <input
-          value={value}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          autoFocus
-        />
-      )}
+    <span>
+      <input
+        value={value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        autoFocus
+      />
     </span>
   );
 };
@@ -120,13 +122,13 @@ const EditableCell = ({
   value: initialValue,
   row: { index },
   column: { id, type = "", edit },
-  updateData
+  onUpdate
 }) => {
   const t = type.toLocaleLowerCase();
 
   const onBlur = value => {
-    if (!isEqual(value, initialValue)) {
-      updateData(index, id, value);
+    if (!_.isEqual(value, initialValue)) {
+      onUpdate(index, id, value);
     }
   };
 
@@ -143,8 +145,7 @@ const EditableCell = ({
 const defaultColumn = {
   Cell: EditableCell,
   minWidth: 50,
-  width: 160,
-  maxWidth: 500
+  width: 160
 };
 
 const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref) => {
@@ -165,290 +166,354 @@ const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref) => {
   );
 });
 
-const Table = forwardRef(
-  (
-    { columns, data, showRowCreateData, createData, updateData, skipPageReset },
-    ref
-  ) => {
-    const {
-      headers,
-      getTableProps,
-      getTableBodyProps,
-      rows,
-      prepareRow,
-      page,
-      pageCount,
-      canPreviousPage,
-      canNextPage,
-      gotoPage,
-      nextPage,
-      previousPage,
-      setPageSize,
-      // selectedFlatRows,
-      state: { pageIndex, pageSize, selectedRowIds },
-      ...rest
-    } = useTable(
-      {
-        columns,
-        data,
-        initialState: { pageIndex: 0, pageSize: 15 },
-        defaultColumn,
-        autoResetPage: !skipPageReset,
-        updateData
+export default function Table({
+  loading = false,
+  columns,
+  data,
+  pageSize: initialPageSize = 10,
+  pageIndex: initialPageIndex = 0,
+  pageCount: controlledPageCount,
+  showRowCreate,
+  skipPageReset,
+  minHeight,
+  onCheckRows,
+  onPagingChange,
+  onPageSizeChange,
+  onCreate,
+  onUpdate
+}) {
+  const {
+    headers,
+    getTableProps,
+    getTableBodyProps,
+    rows,
+    prepareRow,
+    page,
+    pageCount,
+    canPreviousPage,
+    canNextPage,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    // selectedFlatRows,
+    state: { pageIndex, pageSize, selectedRowIds },
+    ...rest
+  } = useTable(
+    {
+      columns,
+      data,
+      initialState: {
+        pageIndex: initialPageIndex,
+        pageSize: initialPageSize
       },
-      useBlockLayout,
-      useResizeColumns,
-      usePagination,
-      useRowSelect,
-      hooks => {
-        hooks.visibleColumns.push(columns => [
-          {
-            id: "selection",
-            width: 50,
-            Header: ({ getToggleAllRowsSelectedProps }) => (
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            ),
-            Cell: ({ row }) => (
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            )
-          },
-          ...columns
-        ]);
-      }
-    );
+      defaultColumn,
+      onUpdate,
+      autoResetPage: !skipPageReset,
+      manualPagination: true,
+      pageCount: controlledPageCount
+    },
+    useBlockLayout,
+    useResizeColumns,
+    usePagination,
+    useRowSelect,
+    hooks => {
+      hooks.visibleColumns.push(columns => [
+        {
+          id: "selection",
+          width: 50,
+          Header: ({ getToggleAllRowsSelectedProps }) => (
+            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+          ),
+          Cell: ({ row }) => (
+            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+          )
+        },
+        ...columns
+      ]);
+    }
+  );
 
-    useImperativeHandle(ref, () => {
-      return {
-        selectedRowIds: selectedRowIds
-      };
-    });
+  const [isFirstRender, setIsFirstRender] = useState(true);
+  useEffect(() => {
+    if (!loading && isFirstRender) {
+      setIsFirstRender(false);
+    }
+  }, [loading, isFirstRender]);
 
-    const start = rows.length === 0 ? 0 : Math.max(pageSize * pageIndex + 1, 1);
-    const end =
-      pageIndex + 1 === pageCount || rows.length === 0
-        ? rows.length
-        : pageSize * (pageIndex + 1);
+  // useEffect(() => {
+  //   if (initialPageIndex === 0) {
+  //     gotoPage(0);
+  //   }
+  // }, [initialPageIndex]);
 
-    return (
-      <div className="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
-        <div
-          className="kt-datatable__table kt-datatable__table--scroll-x kt-datatable__table--edit"
-          {...getTableProps()}
-          style={{
-            display: "inline-block",
-            height: page.length < 15 ? "655px" : "auto"
-          }}
-        >
-          <div className="kt-datatable__head">
-            <div
-              className="kt-datatable__row __web-inspector-hide-shortcut__"
-              style={{ left: "0px" }}
-            >
-              {headers.map(column => {
-                if (column.id === "selection") {
-                  return (
-                    <div
-                      className={
-                        "kt-datatable__cell--center kt-datatable__cell kt-datatable__cell--check"
-                      }
-                      {...column.getHeaderProps()}
-                    >
-                      <span>{column.render("Header")}</span>
-                    </div>
-                  );
-                }
+  // handle onCheckRows
+  const prevSelectdRowIds = usePrevious(selectedRowIds);
+  useEffect(() => {
+    if (
+      typeof onCheckRows === "function" &&
+      !_.isEqual(selectedRowIds, prevSelectdRowIds) &&
+      !isFirstRender
+    ) {
+      onCheckRows(Object.keys(selectedRowIds));
+    }
+  }, [selectedRowIds, prevSelectdRowIds, onCheckRows, isFirstRender]);
 
+  // handle onPagingChange
+  const prevPageIndex = usePrevious(pageIndex);
+  useEffect(() => {
+    if (
+      typeof onPagingChange === "function" &&
+      !_.isEqual(pageIndex, prevPageIndex) &&
+      !isFirstRender
+    ) {
+      onPagingChange(pageIndex);
+    }
+  }, [pageIndex, prevPageIndex, isFirstRender, onPagingChange]);
+
+  // handle onPageSizeChange
+  const prevPageSize = usePrevious(pageSize);
+  useEffect(() => {
+    if (
+      typeof onPageSizeChange === "function" &&
+      !_.isEqual(pageSize, prevPageSize) &&
+      !isFirstRender
+    ) {
+      onPageSizeChange(pageSize);
+    }
+  }, [pageSize, prevPageSize, isFirstRender, onPageSizeChange]);
+
+  const start = rows.length === 0 ? 0 : Math.max(pageSize * pageIndex + 1, 1);
+  const end =
+    pageIndex + 1 === pageCount || rows.length === 0
+      ? rows.length
+      : pageSize * (pageIndex + 1);
+
+  return (
+    <div className="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
+      <div
+        className="kt-datatable__table kt-datatable__table--scroll-x kt-datatable__table--edit"
+        {...getTableProps()}
+        style={{ minHeight }}
+      >
+        <div className="kt-datatable__head">
+          <div
+            className="kt-datatable__row __web-inspector-hide-shortcut__"
+            style={{ left: "0px" }}
+          >
+            {headers.map(column => {
+              if (column.id === "selection") {
                 return (
                   <div
-                    className={"kt-datatable__cell kt-datatable__cell--sort"}
+                    className={
+                      "kt-datatable__cell--center kt-datatable__cell kt-datatable__cell--check"
+                    }
                     {...column.getHeaderProps()}
                   >
-                    <span>
-                      <div className="kt-datatable__column--name">
-                        {column.render("Header")}
-                      </div>
-                      <div className="kt-datatable__column--type">
-                        {column.type}
-                      </div>
-                    </span>
-                    <div
-                      {...column.getResizerProps()}
-                      className="kt-datatable__resizer"
-                    ></div>
+                    <span>{column.render("Header")}</span>
                   </div>
                 );
-              })}
-            </div>
-          </div>
-          <div className="kt-datatable__body" {...getTableBodyProps()}>
-            {showRowCreateData && (
-              <div className="kt-datatable__row">
+              }
+
+              return (
                 <div
-                  className="kt-datatable__cell--center kt-datatable__cell kt-datatable__cell--check"
-                  {...headers[0].getHeaderProps()}
+                  className={"kt-datatable__cell kt-datatable__cell--sort"}
+                  {...column.getHeaderProps()}
                 >
                   <span>
-                    <label className="kt-checkbox kt-checkbox--single kt-checkbox--solid kt-checkbox--disabled">
-                      <input type="checkbox" disabled={true} />
-                      &nbsp;<span></span>
-                    </label>
-                  </span>
-                </div>
-                {rest.columns.map(column => {
-                  return (
-                    <div
-                      className="kt-datatable__cell kt-datatable__cell--edit"
-                      {...column.getHeaderProps()}
-                    >
-                      <Edit
-                        edit={Boolean(column.edit)}
-                        onBlur={value => {
-                          createData({ [column.id]: value });
-                        }}
-                      />
+                    <div className="kt-datatable__column--name">
+                      {column.render("Header")}
                     </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {page.map(row => {
-              prepareRow(row);
-              return (
-                <div className="kt-datatable__row" {...row.getRowProps()}>
-                  {row.cells.map(cell => {
-                    if (cell.column.id === "selection") {
-                      return (
-                        <div
-                          className="kt-datatable__cell kt-datatable__cell--center kt-datatable__cell--check"
-                          {...cell.getCellProps()}
-                        >
-                          <span>{cell.render("Cell")}</span>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div
-                        className={clsx("kt-datatable__cell", {
-                          "kt-datatable__cell--edit": cell.column.edit
-                        })}
-                        {...cell.getCellProps()}
-                      >
-                        {cell.render("Cell")}
-                      </div>
-                    );
-                  })}
+                    <div className="kt-datatable__column--type">
+                      {column.type}
+                    </div>
+                  </span>
+                  <div
+                    {...column.getResizerProps()}
+                    className="kt-datatable__resizer"
+                  ></div>
                 </div>
               );
             })}
           </div>
         </div>
-
-        <div className="kt-datatable__pager kt-datatable--paging-loaded">
-          <ul className="kt-datatable__pager-nav">
-            <>
-              <li>
-                <button
-                  title="First"
-                  className={clsx(
-                    "kt-datatable__pager-link kt-datatable__pager-link--first",
-                    {
-                      "kt-datatable__pager-link--disabled": !canPreviousPage
-                    }
-                  )}
-                  onClick={() => gotoPage(0)}
-                  disabled={!canPreviousPage}
-                >
-                  <i className="flaticon2-fast-back"></i>
-                </button>
-              </li>
-              <li>
-                <button
-                  title="Previous"
-                  className={clsx(
-                    "kt-datatable__pager-link kt-datatable__pager-link--prev",
-                    {
-                      "kt-datatable__pager-link--disabled": !canPreviousPage
-                    }
-                  )}
-                  onClick={() => previousPage()}
-                  disabled={!canPreviousPage}
-                >
-                  <i className="flaticon2-back"></i>
-                </button>
-              </li>
-              {pagination(pageCount, pageIndex + 1).map((val, i) => (
-                <li key={`page-n-${val}`}>
-                  <button
-                    className={clsx(
-                      "kt-datatable__pager-link kt-datatable__pager-link-number",
-                      {
-                        "kt-datatable__pager-link--active":
-                          pageIndex + 1 === val
-                      }
-                    )}
-                    onClick={() => {
-                      gotoPage(val - 1);
-                    }}
-                    title={val}
+        {/* Table Body */}
+        <div className="kt-datatable__body" {...getTableBodyProps()}>
+          {/* Row Create */}
+          {showRowCreate && (
+            <div className="kt-datatable__row">
+              <div className="kt-datatable__cell--center kt-datatable__cell kt-datatable__cell--check">
+                <span>
+                  <label className="kt-checkbox kt-checkbox--single kt-checkbox--solid kt-checkbox--disabled">
+                    <input type="checkbox" disabled={true} />
+                    &nbsp;<span></span>
+                  </label>
+                </span>
+              </div>
+              {rest.columns.map(column => {
+                return (
+                  <div
+                    className="kt-datatable__cell kt-datatable__cell--edit"
+                    {...column.getHeaderProps()}
                   >
-                    {val}
-                  </button>
-                </li>
-              ))}
-              <li>
-                <button
-                  title="Next"
-                  className={clsx(
-                    "kt-datatable__pager-link kt-datatable__pager-link--next",
-                    { "kt-datatable__pager-link--disabled": !canNextPage }
-                  )}
-                  onClick={() => nextPage()}
-                  disabled={!canNextPage}
-                >
-                  <i className="flaticon2-next"></i>
-                </button>
-              </li>
-              <li>
-                <button
-                  title="Last"
-                  className={clsx(
-                    "kt-datatable__pager-link kt-datatable__pager-link--last",
-                    { "kt-datatable__pager-link--disabled": !canNextPage }
-                  )}
-                  onClick={() => gotoPage(pageCount - 1)}
-                  disabled={!canNextPage}
-                >
-                  <i className="flaticon2-fast-next"></i>
-                </button>
-              </li>
-            </>
-          </ul>
-          <div className="kt-datatable__pager-info">
-            <select
-              className="selectpicker kt-datatable__pager-size"
-              data-width="60px"
-              value={pageSize}
-              onChange={e => {
-                setPageSize(Number(e.target.value));
-              }}
-            >
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-            <span className="kt-datatable__pager-detail">
-              {`Showing  ${start} - ${end} of ${rows.length}`}
-            </span>
-          </div>
+                    <Edit
+                      edit={Boolean(column.edit)}
+                      onBlur={value => {
+                        onCreate({ [column.id]: value });
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Rows */}
+          {page.map(row => {
+            prepareRow(row);
+            return (
+              <div className="kt-datatable__row" {...row.getRowProps()}>
+                {row.cells.map(cell => {
+                  if (cell.column.id === "selection") {
+                    return (
+                      <div
+                        className="kt-datatable__cell kt-datatable__cell--center kt-datatable__cell--check"
+                        {...cell.getCellProps()}
+                      >
+                        <span>{cell.render("Cell")}</span>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      className={clsx("kt-datatable__cell", {
+                        "kt-datatable__cell--edit": cell.column.edit
+                      })}
+                      {...cell.getCellProps()}
+                    >
+                      {cell.render("Cell")}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       </div>
-    );
-  }
-);
 
-export default Table;
+      <div className="kt-datatable__pager kt-datatable--paging-loaded">
+        <ul className="kt-datatable__pager-nav">
+          <>
+            <li>
+              <button
+                title="First"
+                className={clsx(
+                  "kt-datatable__pager-link kt-datatable__pager-link--first",
+                  {
+                    "kt-datatable__pager-link--disabled": !canPreviousPage
+                  }
+                )}
+                onClick={() => gotoPage(0)}
+                disabled={!canPreviousPage}
+              >
+                <i className="flaticon2-fast-back"></i>
+              </button>
+            </li>
+            <li>
+              <button
+                title="Previous"
+                className={clsx(
+                  "kt-datatable__pager-link kt-datatable__pager-link--prev",
+                  {
+                    "kt-datatable__pager-link--disabled": !canPreviousPage
+                  }
+                )}
+                onClick={() => previousPage()}
+                disabled={!canPreviousPage}
+              >
+                <i className="flaticon2-back"></i>
+              </button>
+            </li>
+            {pagination(pageCount, pageIndex + 1).map((val, i) => (
+              <li key={`page-n-${val}`}>
+                <button
+                  className={clsx(
+                    "kt-datatable__pager-link kt-datatable__pager-link-number",
+                    {
+                      "kt-datatable__pager-link--active": pageIndex + 1 === val
+                    }
+                  )}
+                  onClick={() => {
+                    gotoPage(val - 1);
+                  }}
+                  title={val}
+                >
+                  {val}
+                </button>
+              </li>
+            ))}
+            <li>
+              <button
+                title="Next"
+                className={clsx(
+                  "kt-datatable__pager-link kt-datatable__pager-link--next",
+                  { "kt-datatable__pager-link--disabled": !canNextPage }
+                )}
+                onClick={() => nextPage()}
+                disabled={!canNextPage}
+              >
+                <i className="flaticon2-next"></i>
+              </button>
+            </li>
+            <li>
+              <button
+                title="Last"
+                className={clsx(
+                  "kt-datatable__pager-link kt-datatable__pager-link--last",
+                  { "kt-datatable__pager-link--disabled": !canNextPage }
+                )}
+                onClick={() => gotoPage(pageCount - 1)}
+                disabled={!canNextPage}
+              >
+                <i className="flaticon2-fast-next"></i>
+              </button>
+            </li>
+          </>
+        </ul>
+        <div className="kt-datatable__pager-info">
+          {loading && (
+            <>
+              <span
+                className="spinner-border spinner-border-sm text-primary mr-1"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              <span className="kt-datatable__pager-detail mr-3">
+                Loading...
+              </span>
+            </>
+          )}
+          <select
+            className="form-control form-control-sm font-weight-bold mr-4 border-0 bg-light"
+            style={{ width: 75 }}
+            value={pageSize}
+            onChange={e => {
+              setPageSize(Number(e.target.value));
+            }}
+          >
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <span className="kt-datatable__pager-detail">
+            {`Showing  ${start} - ${end} of ${controlledPageCount}`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}

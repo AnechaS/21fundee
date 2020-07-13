@@ -174,8 +174,8 @@ export default class PeopleListPage extends Component {
 
       const { limit } = this.state;
       const response = await getPeople({
-        limit,
         sort: "-createdAt",
+        limit,
         ...query
       });
       const json = response.data;
@@ -268,8 +268,8 @@ export default class PeopleListPage extends Component {
 
   handleLoadMoreClick = () => {
     const { offset, limit } = this.state;
+    const skip = offset * limit;
     const offsetIncrement = offset + 1;
-    const skip = offsetIncrement * limit;
 
     this.setState(
       {

@@ -40,19 +40,14 @@ export default {
             page: "database/comment"
           },
           {
-            title: "Reply",
-            root: true,
-            page: "database/reply"
-          },
-          {
             title: "People",
             root: true,
             page: "database/people"
           },
           {
-            title: "Quiz",
+            title: "Progress",
             root: true,
-            page: "database/quiz"
+            page: "database/progress"
           },
           {
             title: "Question",
@@ -60,9 +55,14 @@ export default {
             page: "database/question"
           },
           {
-            title: "Progress",
+            title: "Quiz",
             root: true,
-            page: "database/progress"
+            page: "database/quiz"
+          },
+          {
+            title: "Reply",
+            root: true,
+            page: "database/reply"
           },
           {
             title: "Schedule",

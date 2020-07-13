@@ -1,10 +1,11 @@
 // Custom Subheader
 .kt-subheader {
-  .btn:disabled,
-  .btn.disabled,
-  .kt-nav__link:disabled,
-  .kt-nav__link.disabled {
-    cursor: not-allowed !important;
-    opacity: 0.65;
+  > .kt-container {
+    > .kt-subheader__toolbar {
+      > .kt-subheader__wrapper {
+        #subheader-dropdown-filter {
+        }
+      }
+    }
   }
 }
