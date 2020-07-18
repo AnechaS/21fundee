@@ -4,6 +4,10 @@ const chatfuel = require('../../utils/chatfuel');
 
 jest.mock('node-fetch');
 
+afterEach(() => {
+  fetch.mockReset();
+});
+
 describe('Chatfuel API method getUser', () => {
   test('should return correct', async () => {
     fetch.mockReturnValue(
@@ -121,8 +125,8 @@ describe('Chatfuel API method getUser', () => {
     expect(result).toBeUndefined();
   });
 
-  test('should return undefind when parameter empty', async () => {
-    await expect(chatfuel.getUser()).resolves.toBeUndefined();
+  test('should return error when parame empty', async () => {
+    await expect(chatfuel.getUser()).rejects.toThrow();
   });
 
   test('should return error when request status not ok', async () => {

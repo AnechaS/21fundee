@@ -42,9 +42,16 @@ router.use((req, res, next) => {
  */
 router.post(
   '/people',
-  validator([body('id', 'Is required').exists()]),
+  validator([
+    body('id')
+      .notEmpty()
+      .trim()
+      .withMessage('Is required')
+      .matches(/^[0-9]{16}$/)
+  ]),
   async (req, res) => {
     try {
+      // TODO Validation id is exists users of chatfuel
       const { id, ...o } = req.body;
       /* const people =  */ await People.findByIdAndUpdate(id, o, {
         upsert: true,
@@ -71,10 +78,13 @@ router.post(
   '/reply',
   validator([
     body('people')
-      .exists()
-      .withMessage('Is required'),
+      .notEmpty()
+      .trim()
+      .withMessage('Is required')
+      .bail()
+      .matches(/^[0-9]{16}$/),
     body('schedule')
-      .exists()
+      .notEmpty()
       .withMessage('Is required')
       .bail()
       .isMongoId()
@@ -87,8 +97,9 @@ router.post(
         })
       ),
     body('blockId')
-      .exists()
+      .notEmpty()
       .withMessage('Is required')
+      .trim()
       .bail()
       .isLength({ max: 24, min: 24 }),
     body('submittedType')
@@ -100,8 +111,7 @@ router.post(
       .notEmpty()
       .withMessage('Is required')
       .bail()
-      .isMongoId()
-      .withMessage('Invalid value'),
+      .isMongoId(),
     body('quiz.answer')
       .if(body('quiz').exists())
       .notEmpty()
@@ -114,7 +124,7 @@ router.post(
       .notEmpty()
       .withMessage('Is required')
       .bail()
-      .isInt({ min: 1, max: 2 })
+      .isIn([1, 2])
       .toInt()
   ]),
   async (req, res, next) => {
@@ -129,7 +139,6 @@ router.post(
         progress,
         blockId
       } = req.body;
-
       const _people = await People.getAndFetch(people);
       if (!_people) {
         return next(
