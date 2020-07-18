@@ -333,7 +333,7 @@ router.get('/7', authorize(), async (req, res, next) => {
                   $gte: [{ $ifNull: ['$province', 'อื่นๆ'] }, 'อื่นๆ']
                 },
                 then: 'อำเภออื่นๆ',
-                else: '$district'
+                else: { $ifNull: ['$district', 'อำเภออื่นๆ'] }
               }
             }
           },
@@ -388,7 +388,7 @@ router.get('/8', authorize(), async (req, res, next) => {
                   $gte: [{ $ifNull: ['$province', 'อื่นๆ'] }, 'อื่นๆ']
                 },
                 then: 'อำเภออื่นๆ',
-                else: '$district'
+                else: { $ifNull: ['$district', 'อำเภออื่นๆ'] }
               }
             }
           },
