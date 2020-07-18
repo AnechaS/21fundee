@@ -206,7 +206,7 @@ export const DefaultComparisons = {
   String: "",
   Object: "",
   ObjectId: "",
-  Date: moment().toISOString()
+  Date: moment().format("YYYY-MM-DD")
 };
 
 export const BLACKLISTED_FILTERS = [

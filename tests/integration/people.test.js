@@ -55,7 +55,7 @@ beforeEach(async () => {
       lastName: 'Goku',
       province: 'ยะลา',
       district: 'เมือง',
-      dentalId: '5976438',
+      dentalId: '597643',
       childName: 'Gohan',
       childBirthday: '2560',
       gender: 'male'
@@ -97,6 +97,152 @@ describe('GET /peoples', () => {
       o => o.firstName === 'Son' && o.lastName === 'Goku'
     );
     expect(agent.body.results).toEqual(matchResults);
+  });
+});
+
+describe('GET /peoples/provinces', () => {
+  test('should get provinces', async () => {
+    const agent = await request(app)
+      .get('/peoples/provinces')
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([
+      { province: 'ยะลา', count: 1 },
+      { province: 'สงขลา', count: 1 }
+    ]);
+  });
+
+  test('should get provinces with sort', async () => {
+    const agent = await request(app)
+      .get('/peoples/provinces')
+      .query({
+        sort: '-province'
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([
+      { province: 'สงขลา', count: 1 },
+      { province: 'ยะลา', count: 1 }
+    ]);
+  });
+
+  test('should get provinces with limit', async () => {
+    const agent = await request(app)
+      .get('/peoples/provinces')
+      .query({
+        limit: 1
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([{ province: 'ยะลา', count: 1 }]);
+  });
+
+  test('should get provinces with skip', async () => {
+    const agent = await request(app)
+      .get('/peoples/provinces')
+      .query({
+        skip: 1
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([{ province: 'สงขลา', count: 1 }]);
+  });
+
+  test('should get provinces with where', async () => {
+    const agent = await request(app)
+      .get('/peoples/provinces')
+      .query({
+        where: JSON.stringify({ dentalId: { $regex: '^[0-9]{6}$' } })
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([{ province: 'ยะลา', count: 1 }]);
+  });
+});
+
+describe('GET /peoples/districts', () => {
+  test('should get districts', async () => {
+    const agent = await request(app)
+      .get('/peoples/districts')
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([
+      { province: 'ยะลา', district: 'เมือง', count: 1 },
+      { province: 'สงขลา', district: 'เทพา', count: 1 }
+    ]);
+  });
+
+  test('should get districts with sort', async () => {
+    const agent = await request(app)
+      .get('/peoples/districts')
+      .query({
+        sort: '-province'
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([
+      { province: 'สงขลา', district: 'เทพา', count: 1 },
+      { province: 'ยะลา', district: 'เมือง', count: 1 }
+    ]);
+  });
+
+  test('should get districts with limit', async () => {
+    const agent = await request(app)
+      .get('/peoples/districts')
+      .query({
+        limit: 1
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([
+      { province: 'ยะลา', district: 'เมือง', count: 1 }
+    ]);
+  });
+
+  test('should get districts with skip', async () => {
+    const agent = await request(app)
+      .get('/peoples/districts')
+      .query({
+        skip: 1
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([
+      { province: 'สงขลา', district: 'เทพา', count: 1 }
+    ]);
+  });
+
+  test('should get districts with where', async () => {
+    const agent = await request(app)
+      .get('/peoples/districts')
+      .query({
+        where: JSON.stringify({ dentalId: { $regex: '^[0-9]{6}$' } })
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body).toEqual([
+      { province: 'ยะลา', district: 'เมือง', count: 1 }
+    ]);
   });
 });
 

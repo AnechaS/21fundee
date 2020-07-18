@@ -11,7 +11,7 @@ import {
 } from "../../crud/comment.crud";
 
 export default class Comment extends Component {
-  columns = [
+  _columns = [
     {
       Header: "_id",
       accessor: "_id",
@@ -20,17 +20,20 @@ export default class Comment extends Component {
     {
       Header: "people",
       accessor: "people",
-      type: "Populate"
+      type: "Populate",
+      edit: true
     },
     {
       Header: "question",
       accessor: "question",
-      type: "Populate"
+      type: "Populate",
+      edit: true
     },
     {
       Header: "answer",
       accessor: "answer",
-      type: "String"
+      type: "String",
+      edit: true
     },
     {
       Header: "createdAt",
@@ -43,23 +46,32 @@ export default class Comment extends Component {
       type: "Date"
     }
   ];
+  _schema = {};
+  _isMounted = false;
 
   state = {
-    isLoading: true,
+    isLoading: false,
     count: 0,
     data: [],
     selectRows: [],
     pageIndex: 0,
-    limit: 15,
+    pageCount: 0,
+    pageSize: 15,
     isCreating: false,
     skipPageReset: false,
     filters: []
   };
 
-  _isMounted = false;
-
   componentDidMount() {
     this._isMounted = true;
+
+    this._schema = this._columns.reduce((result, column) => {
+      result[column.Header] = {
+        type: column.type
+      };
+      return result;
+    }, {});
+
     this.fetchData({ count: 1 });
     document.addEventListener("keydown", this.handleKeyDown, false);
   }
@@ -72,41 +84,39 @@ export default class Comment extends Component {
   fetchData = async params => {
     try {
       // turn on spinner
-      this.setState(prevState => {
-        if (!prevState.isLoading) {
-          return { isLoading: true };
-        }
-      });
+      this.setState({ isLoading: true });
 
-      const { limit, pageIndex } = this.state;
+      const { pageSize, pageIndex, filters } = this.state;
+
       const query = {
         sort: "-createdAt",
-        skip: pageIndex * limit,
-        limit,
+        skip: pageIndex * pageSize,
+        limit: pageSize,
         ...params
       };
+
+      if (filters.length) {
+        query.where = queryFromFilters(filters);
+      }
+
       const response = await getComment(query);
       const json = response.data;
       if (this._isMounted) {
         const state = {
-          data: json.results
+          data: json.results,
+          isLoading: false
         };
 
         if (typeof json.count !== "undefined") {
           state.count = json.count;
+          state.pageCount = Math.ceil(json.count / pageSize);
         }
 
         this.setState(state);
       }
     } catch (error) {
       // TODO handle error
-    } finally {
-      // turn off spinner
-      this.setState(prevState => {
-        if (prevState.isLoading) {
-          return { isLoading: false };
-        }
-      });
+      this.setState({ isLoading: false });
     }
   };
 
@@ -167,7 +177,7 @@ export default class Comment extends Component {
   };
 
   handlePageSizeChange = value => {
-    this.setState({ limit: value }, () => {
+    this.setState({ pageSize: value }, () => {
       this.fetchData();
     });
   };
@@ -188,9 +198,9 @@ export default class Comment extends Component {
   };
 
   handleFilterChange = filters => {
-    this.setState({ filters });
-    const query = queryFromFilters(filters);
-    this.fetchData({ where: query, count: 1 });
+    this.setState({ filters }, () => {
+      this.fetchData({ count: 1 });
+    });
   };
 
   render() {
@@ -200,8 +210,9 @@ export default class Comment extends Component {
       skipPageReset,
       isCreating,
       isLoading,
-      limit,
+      pageSize,
       pageIndex,
+      pageCount,
       filters
     } = this.state;
     return (
@@ -209,7 +220,7 @@ export default class Comment extends Component {
         <SubHeader
           loading={isLoading}
           count={count}
-          columns={this.columns}
+          schema={this._schema}
           filters={filters}
           onAddRow={this.handleAddRow}
           onRefresh={this.handleRefresh}
@@ -220,11 +231,12 @@ export default class Comment extends Component {
           <div className="kt-portlet kt-portlet--mobile">
             <div className="kt-portlet__body kt-portlet__body--fit">
               <Table
-                pageSize={limit}
+                count={count}
+                pageSize={pageSize}
                 pageIndex={pageIndex}
-                pageCount={count}
+                pageCount={pageCount}
                 data={data}
-                columns={this.columns}
+                columns={this._columns}
                 skipPageReset={skipPageReset}
                 onCheckRows={this.handleCheckRows}
                 onPagingChange={this.handlePagingChange}
@@ -233,7 +245,7 @@ export default class Comment extends Component {
                 onCreate={this.handleCreate}
                 onUpdate={this.handleUpdate}
                 loading={isLoading}
-                minHeight={660}
+                minHeight={680}
               />
             </div>
           </div>

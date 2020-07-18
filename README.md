@@ -1,3 +1,7 @@
-# 21 fun dee
+# 21fundee
 
-hello world
+## TODO
+
+### Table
+
+- [ ] ถ้ามี Field ซ้ำก็ให้ Field นั้นเป็น \$or

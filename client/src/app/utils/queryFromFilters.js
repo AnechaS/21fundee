@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export default function queryFromFilters(filters) {
   let query = {};
   filters.forEach(filter => {
@@ -46,10 +48,18 @@ function addConstraint(query = {}, filter) {
       query[filter.field] = { $regex: `${filter.compareTo}$` };
       break;
     case "before":
-      query[filter.field] = { $gte: filter.compareTo };
+      query[filter.field] = {
+        $lte: moment(filter.compareTo)
+          .startOf("day")
+          .toDate()
+      };
       break;
     case "after":
-      query[filter.field] = { $lte: filter.compareTo };
+      query[filter.field] = {
+        $gte: moment(filter.compareTo)
+          .endOf("day")
+          .toDate()
+      };
       break;
     case "containsString":
     case "containsNumber":
@@ -62,9 +72,9 @@ function addConstraint(query = {}, filter) {
     case "doesNotContainNumber":
       query[filter.field] = { $ne: filter.compareTo };
       break;
-    // case "containedIn":
-    //   query[filter.field] = { $in: filter.compareTo };
-    //   break;
+    case "containedIn":
+      query[filter.field] = { $in: filter.compareTo };
+      break;
     case "stringContainsString":
       query[filter.field] = {
         $regex: `.*${filter.compareTo}.*`,

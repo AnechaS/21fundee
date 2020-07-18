@@ -10,6 +10,14 @@ export function getPeopleById(id) {
   return axios.get(`${PEOPLE_URL}/${id}`);
 }
 
+export function getProvinceOfPeople(params) {
+  return axios.get(`${PEOPLE_URL}/provinces`, { params });
+}
+
+export function getDistrictOfPeople(params) {
+  return axios.get(`${PEOPLE_URL}/districts`, { params });
+}
+
 export function createPeople(object = {}) {
   return axios.post(PEOPLE_URL, object);
 }

@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef
-} from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import _ from "lodash";
 import SubHeader from "./SubHeader";
@@ -27,7 +21,6 @@ function compareValue(type, value, onChangeCompareTo /* , active */) {
     case "Object":
     case "ObjectId":
     case "String":
-    case "Date":
       return (
         <input
           type="text"
@@ -80,53 +73,51 @@ function compareValue(type, value, onChangeCompareTo /* , active */) {
           }}
         />
       );
-    // case "Date":
-    //   // TODO date
-    //   return null;
-
+    case "Date":
+      return (
+        <input
+          type="date"
+          className="form-control"
+          value={value}
+          onChange={e => {
+            onChangeCompareTo(e.target.value);
+          }}
+        />
+      );
     default:
       return null;
   }
 }
 
 const Filter = ({
-  columns = [],
+  schema = {},
   filters: initialFilters = [],
   onFilterChange
 }) => {
-  const schema = useMemo(() => {
-    return columns.reduce((result, column) => {
-      result[column.Header] = {
-        type: column.type
-      };
-      return result;
-    }, {});
-  }, [columns]);
-
   const dropdownRef = useRef(null);
   const [filters, setFilters] = useState([]);
 
   useEffect(() => {
     const $el = $(dropdownRef.current);
-    $el
-      .on("shown.bs.dropdown", function() {
-        let newFilters = initialFilters;
-        if (!initialFilters.length) {
-          let available = Filters.availableFilters(schema, null);
-          let field = Object.keys(available)[0];
-          newFilters = [
-            {
-              field: field,
-              constraint: available[field][0]
-            }
-          ];
-        }
+    $el.on("shown.bs.dropdown", function() {
+      let newFilters = initialFilters;
+      if (!initialFilters.length) {
+        let available = Filters.availableFilters(schema, null);
+        let field = Object.keys(available)[0];
+        newFilters = [
+          {
+            field: field,
+            constraint: available[field][0]
+          }
+        ];
+      }
 
-        setFilters(newFilters);
-      })
-      .on("hidden.bs.dropdown", function() {
-        setFilters(initialFilters);
-      });
+      setFilters(newFilters);
+    });
+
+    $el.on("hidden.bs.dropdown", function() {
+      setFilters(initialFilters);
+    });
 
     return () => {
       $el.dropdown("dispose");
@@ -228,7 +219,7 @@ const Filter = ({
         <FilterIcon className="kt-svg-icon kt-svg-icon-sm" />
         &nbsp; Filter
       </button>
-      <div className="dropdown-menu" style={{ width: 535 }}>
+      <div className="dropdown-menu" style={{ width: 555 }}>
         <form onSubmit={apply}>
           <div className="px-3">
             {filters.map((filter, i) => {
@@ -260,7 +251,7 @@ const Filter = ({
                   key={field + "-" + constraint + "-" + i}
                   className="d-flex mb-3"
                 >
-                  <div className="mr-2" style={{ width: 140 }}>
+                  <div className="mr-2" style={{ width: 150 }}>
                     <select
                       className="form-control"
                       value={field}
@@ -294,7 +285,7 @@ const Filter = ({
                     </select>
                   </div>
                   {!_.isEmpty(compareType) && (
-                    <div className="mr-2" style={{ width: 140 }}>
+                    <div className="mr-2" style={{ width: 150 }}>
                       {compareValue(compareType, compareTo, newCompareTo => {
                         onChangeCompareTo(i, newCompareTo);
                       })}
@@ -351,7 +342,7 @@ const Filter = ({
 export default function SubHeaderDatabase({
   loading = false,
   count = 0,
-  columns,
+  schema,
   filters,
   onAddRow,
   onRefresh,
@@ -386,7 +377,7 @@ export default function SubHeaderDatabase({
             &nbsp; Refresh
           </SubHeader.Button>
           <Filter
-            columns={columns}
+            schema={schema}
             filters={filters}
             onFilterChange={onFilterChange}
           />

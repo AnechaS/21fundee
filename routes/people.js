@@ -98,6 +98,138 @@ router.get(
 );
 
 /**
+ * List Address province of Peoples
+ * @api {get} /peoples
+ */
+router.get(
+  '/provinces',
+  authorize(),
+  validator([
+    query('where')
+      .if(value => value)
+      .isJSON()
+      .customSanitizer(value => {
+        return JSON.parse(value);
+      }),
+    query('limit')
+      .if(value => value)
+      .isInt()
+      .toInt(),
+    query('skip')
+      .if(value => value)
+      .isInt()
+      .toInt()
+  ]),
+  async (req, res, next) => {
+    try {
+      const { where, sort, limit, skip } = req.query;
+      const query = People.aggregate();
+      if (where) {
+        query.match(where);
+      }
+
+      query.group({
+        _id: {
+          province: { $ifNull: ['$province', 'อื่นๆ'] }
+        },
+        count: { $sum: 1 }
+      });
+
+      query.replaceRoot({
+        province: '$_id.province',
+        count: '$count'
+      });
+
+      if (sort) {
+        query.sort(sort);
+      }
+      if (skip) {
+        query.skip(skip);
+      }
+      if (limit) {
+        query.limit(limit);
+      }
+
+      const results = await query;
+      return res.json(results);
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
+
+/**
+ * List Address district of Peoples
+ * @api {get} /peoples
+ */
+router.get(
+  '/districts',
+  authorize(),
+  validator([
+    query('where')
+      .if(value => value)
+      .isJSON()
+      .customSanitizer(value => {
+        return JSON.parse(value);
+      }),
+    query('limit')
+      .if(value => value)
+      .isInt()
+      .toInt(),
+    query('skip')
+      .if(value => value)
+      .isInt()
+      .toInt()
+  ]),
+  async (req, res, next) => {
+    try {
+      const { where, sort, limit, skip } = req.query;
+      const query = People.aggregate();
+      if (where) {
+        query.match(where);
+      }
+
+      query.group({
+        _id: {
+          province: { $ifNull: ['$province', 'อื่นๆ'] },
+          district: {
+            $cond: {
+              if: {
+                $gte: [{ $ifNull: ['$province', 'อื่นๆ'] }, 'อื่นๆ']
+              },
+              then: 'อำเภออื่นๆ',
+              else: { $ifNull: ['$district', 'อำเภออื่นๆ'] }
+            }
+          }
+        },
+        count: { $sum: 1 }
+      });
+
+      query.replaceRoot({
+        province: '$_id.province',
+        district: '$_id.district',
+        count: '$count'
+      });
+
+      if (sort) {
+        query.sort(sort);
+      }
+      if (skip) {
+        query.skip(skip);
+      }
+      if (limit) {
+        query.limit(limit);
+      }
+
+      const results = await query;
+      return res.json(results);
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
+
+/**
  * Create a new people
  * @api {post} /peoples
  */

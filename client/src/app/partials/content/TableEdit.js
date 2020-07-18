@@ -35,6 +35,29 @@ function Stringify_WithSpaces(o) {
   return result;
 }
 
+const InputEdit = ({ type, ...props }) => {
+  switch (type) {
+    case "String":
+    case "Array":
+    case "Object":
+      return <textarea {...props} />;
+
+    case "Boolean":
+      return (
+        <select {...props}>
+          {["true", "false"].map(v => (
+            <option value={v} key={v}>
+              {v}
+            </option>
+          ))}
+        </select>
+      );
+
+    default:
+      return <input {...props} />;
+  }
+};
+
 /**
  * Conponent cell edit
  */
@@ -49,11 +72,11 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
     let valueString = "";
     if (typeof initialValue !== "undefined") {
       switch (type) {
-        case "array":
+        case "Array":
           valueString = Stringify_WithSpaces(initialValue);
           break;
 
-        case "object":
+        case "Object":
           valueString = Stringify_WithSpaces(initialValue);
           break;
 
@@ -81,7 +104,7 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
     setEditing(false);
 
     let val = value;
-    if (type === "array" || type === "object") {
+    if (type === "Array" || type === "Object") {
       // Validate value is json
       try {
         val = JSON.parse(val);
@@ -108,7 +131,8 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
 
   return (
     <span>
-      <input
+      <InputEdit
+        type={type}
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -118,14 +142,13 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
   );
 };
 
-const EditableCell = ({
-  value: initialValue,
-  row: { index },
-  column: { id, type = "", edit },
-  onUpdate
-}) => {
-  const t = type.toLocaleLowerCase();
-
+const EditableCell = props => {
+  const {
+    value: initialValue,
+    row: { index },
+    column: { id, type = "", edit },
+    onUpdate
+  } = props;
   const onBlur = value => {
     if (!_.isEqual(value, initialValue)) {
       onUpdate(index, id, value);
@@ -137,7 +160,7 @@ const EditableCell = ({
       initialValue={initialValue}
       onBlur={onBlur}
       edit={Boolean(edit)}
-      type={t}
+      type={type}
     />
   );
 };
@@ -170,6 +193,7 @@ export default function Table({
   loading = false,
   columns,
   data,
+  count,
   pageSize: initialPageSize = 10,
   pageIndex: initialPageIndex = 0,
   pageCount: controlledPageCount,
@@ -290,17 +314,14 @@ export default function Table({
       : pageSize * (pageIndex + 1);
 
   return (
-    <div className="kt-datatable kt-datatable--default kt-datatable--brand kt-datatable--loaded">
+    <div className="kt-datatable kt-datatable__table--edit kt-datatable--default kt-datatable--brand kt-datatable--loaded">
       <div
-        className="kt-datatable__table kt-datatable__table--scroll-x kt-datatable__table--edit"
+        className="kt-datatable__table kt-datatable__table--scroll"
         {...getTableProps()}
         style={{ minHeight }}
       >
         <div className="kt-datatable__head">
-          <div
-            className="kt-datatable__row __web-inspector-hide-shortcut__"
-            style={{ left: "0px" }}
-          >
+          <div className="kt-datatable__row">
             {headers.map(column => {
               if (column.id === "selection") {
                 return (
@@ -496,7 +517,6 @@ export default function Table({
           )}
           <select
             className="form-control form-control-sm font-weight-bold mr-4 border-0 bg-light"
-            style={{ width: 75 }}
             value={pageSize}
             onChange={e => {
               setPageSize(Number(e.target.value));
@@ -510,7 +530,7 @@ export default function Table({
             <option value="100">100</option>
           </select>
           <span className="kt-datatable__pager-detail">
-            {`Showing  ${start} - ${end} of ${controlledPageCount}`}
+            {`Showing  ${start} - ${end} of ${count}`}
           </span>
         </div>
       </div>
