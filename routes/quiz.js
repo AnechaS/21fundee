@@ -65,7 +65,7 @@ router.get(
       const { where, sort, limit = 100, skip, select, count } = req.query;
 
       let results = [];
-      if (limit !== 0) {
+      if (!(limit === 0 && count)) {
         const query = Quiz.find();
 
         if (where) {

@@ -143,6 +143,30 @@ describe('POST /chatfuel/people', () => {
     expect(result.province).toBe(payloadX.province);
   });
 
+  test('should create a new people with childBirthday match b4', async () => {
+    payload.childBirthday = 'b4 2561';
+
+    const agent = await request(app)
+      .post('/chatfuel/people')
+      .query({ api_key: appConfig.apiPublicKey })
+      .send(payload)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.CREATED);
+
+    expect(agent.body.result).toBe(true);
+
+    payload._id = payload.id;
+    delete payload.id;
+
+    const getPeople = await People.findById(payload._id).select(
+      '-resultAt -updatedAt -__v'
+    );
+    const result = JSON.parse(JSON.stringify(getPeople));
+    payload.childBirthday = 'ก่อน 2561';
+    expect(result).toMatchObject(payload);
+  });
+
   test('should update the people if id is exists', async () => {
     delete payload.id;
 
@@ -546,7 +570,7 @@ describe('POST /chatfuel/reply', () => {
         )
       )
     );
-    
+
     const agent = await request(app)
       .post('/chatfuel/reply')
       .query({ api_key: appConfig.apiPublicKey })

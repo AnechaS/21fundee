@@ -36,6 +36,7 @@ router.param('id', async (req, res, next, id) => {
 /**
  * List replies
  * @api {get} /replies
+ * TODO: on set param results equal 0 then not query docs
  */
 router.get(
   '/',
@@ -65,7 +66,7 @@ router.get(
       const { where, sort, limit = 100, skip, select, count } = req.query;
 
       let results = [];
-      if (limit !== 0) {
+      if (!(limit === 0 && count)) {
         const query = Reply.find();
 
         if (where) {
@@ -84,7 +85,11 @@ router.get(
           query.skip(skip);
         }
 
-        results = await query.limit(limit);
+        if (limit) {
+          query.limit(limit);
+        }
+
+        results = await query;
       }
 
       let countDoc;

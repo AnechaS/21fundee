@@ -52,8 +52,12 @@ router.post(
   async (req, res) => {
     try {
       // TODO Validation id is exists users of chatfuel
-      const { id, ...o } = req.body;
-      /* const people =  */ await People.findByIdAndUpdate(id, o, {
+      const { id, ...object } = req.body;
+      if (object.childBirthday) {
+        object.childBirthday = object.childBirthday.replace('b4', 'ก่อน');
+      }
+
+      /* const people =  */ await People.findByIdAndUpdate(id, object, {
         upsert: true,
         new: true
         // overwrite: true
