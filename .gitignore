@@ -14,8 +14,14 @@ package-lock.json
 .vscode
 
 # app config
-config/development.json
-config/production.json
+# config/local.json
+# config/local-*.json
+# config/production.json
+# config/production-*.json
+
+config/*
+!config/test.json
+!config/example.json
 
 # logs
 logs

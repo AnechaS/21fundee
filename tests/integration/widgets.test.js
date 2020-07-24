@@ -6,15 +6,15 @@ const bcrypt = require('bcryptjs');
 const faker = require('faker');
 const moment = require('moment');
 const _ = require('lodash');
-const app = require('../../app');
+const docToJSON = require('../docToJSON');
 
-const User = require('../../models/user.model');
-const SessionToken = require('../../models/sessionToken.model');
-const People = require('../../models/people.model');
-const Schedule = require('../../models/schedule.model');
-const Reply = require('../../models/reply.model');
-const Progress = require('../../models/progress.model');
-const e = require('express');
+const app = require('../../app');
+const User = require('../../app/models/user');
+const SessionToken = require('../../app/models/sessionToken');
+const People = require('../../app/models/people');
+const Schedule = require('../../app/models/schedule');
+const Reply = require('../../app/models/reply');
+const Progress = require('../../app/models/progress');
 
 mongoose.Promise = global.Promise;
 
@@ -126,24 +126,24 @@ beforeEach(async () => {
   ];
 
   const savedPeoples = await People.insertMany(mockDataPeoples);
-  dbPeoples = JSON.parse(JSON.stringify(savedPeoples));
+  dbPeoples = docToJSON(savedPeoples);
 
   const mockDataSchedules = Array.from({ length: 22 }, (_, i) => ({
     name: `Day ${i + 1}`
   }));
   const savedSchedules = await Schedule.insertMany(mockDataSchedules);
-  dbSchedules = JSON.parse(JSON.stringify(savedSchedules));
+  dbSchedules = docToJSON(savedSchedules);
 
   const savedReplys = await Reply.insertMany([
     ...dbSchedules.map((o, i) => ({
-      people: dbPeoples[0]._id,
-      schedule: o._id,
+      people: dbPeoples[0].id,
+      schedule: o.id,
       text: `hello${i + 1}`,
       blockId: (i + 1).toString()
     })),
     ...dbSchedules.map((o, i) => ({
-      people: dbPeoples[1]._id,
-      schedule: o._id,
+      people: dbPeoples[1].id,
+      schedule: o.id,
       text: `hello${i + 1}`,
       blockId: (i + 1).toString()
     })),
@@ -151,8 +151,8 @@ beforeEach(async () => {
       .slice()
       .splice(0, 15)
       .map((o, i) => ({
-        people: dbPeoples[2]._id,
-        schedule: o._id,
+        people: dbPeoples[2].id,
+        schedule: o.id,
         text: `hello${i + 1}`,
         blockId: (i + 1).toString()
       })),
@@ -160,58 +160,58 @@ beforeEach(async () => {
       .slice()
       .splice(0, 10)
       .map((o, i) => ({
-        people: dbPeoples[3]._id,
-        schedule: o._id,
+        people: dbPeoples[3].id,
+        schedule: o.id,
         text: `hello${i + 1}`,
         blockId: (i + 1).toString()
       })),
     ...dbSchedules.map((o, i) => ({
-      people: dbPeoples[5]._id,
-      schedule: o._id,
+      people: dbPeoples[5].id,
+      schedule: o.id,
       text: `hello${i + 1}`,
       blockId: (i + 1).toString()
     }))
   ]);
-  dbReplys = JSON.parse(JSON.stringify(savedReplys));
+  dbReplys = docToJSON(savedReplys);
 
   const savedProgresses = await Progress.insertMany([
     ...dbSchedules.map(o => ({
-      people: dbPeoples[0]._id,
-      schedule: o._id,
+      people: dbPeoples[0].id,
+      schedule: o.id,
       status: 2
     })),
     ...dbSchedules.map(o => ({
-      people: dbPeoples[1]._id,
-      schedule: o._id,
+      people: dbPeoples[1].id,
+      schedule: o.id,
       status: 2
     })),
     ...dbSchedules
       .slice()
       .splice(0, 15)
       .map(o => ({
-        people: dbPeoples[2]._id,
-        schedule: o._id,
+        people: dbPeoples[2].id,
+        schedule: o.id,
         status: 2
       })),
     ...dbSchedules
       .slice()
       .splice(0, 10)
       .map(o => ({
-        people: dbPeoples[3]._id,
-        schedule: o._id,
+        people: dbPeoples[3].id,
+        schedule: o.id,
         status: 2
       })),
-    { people: dbPeoples[3]._id, schedule: dbSchedules[10]._id, status: 1 },
+    { people: dbPeoples[3].id, schedule: dbSchedules[10].id, status: 1 },
     ...dbSchedules
       .slice()
       .splice(0, 15)
       .map(o => ({
-        people: dbPeoples[5]._id,
-        schedule: o._id,
+        people: dbPeoples[5].id,
+        schedule: o.id,
         status: 2
       }))
   ]);
-  dbProgresses = JSON.parse(JSON.stringify(savedProgresses));
+  dbProgresses = docToJSON(savedProgresses);
 });
 
 afterAll(async () => {
@@ -343,7 +343,7 @@ describe('GET /widgets/4', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    expect(agent.body.data).toHaveLength(8);
+    expect(agent.body.data).toHaveLength(11);
     expect(agent.body.data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -421,7 +421,7 @@ describe('GET /widgets/4', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    expect(agent.body.data).toHaveLength(8);
+    expect(agent.body.data).toHaveLength(11);
     expect(agent.body.data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -527,12 +527,12 @@ describe('GET /widgets/7', () => {
     expect(agent.body.data).toEqual([
       {
         province: 'สงขลา',
-        district: 'หาดใหญ่',
+        district: 'อำเภออื่นๆ',
         count: 2
       },
       {
         province: 'สงขลา',
-        district: 'อำเภออื่นๆ',
+        district: 'หาดใหญ่',
         count: 2
       },
       {

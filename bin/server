@@ -8,13 +8,13 @@
 var http = require('http');
 
 var app = require('../app');
-var appConfig = require('../config');
+var config = require('config');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(appConfig.port);
+var port = normalizePort(config.get('port'));
 app.set('port', port);
 
 /**

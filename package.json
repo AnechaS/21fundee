@@ -7,7 +7,6 @@
     "express-validator",
     "mongodb",
     "mongoose",
-    "mongoose-data-seed",
     "jest",
     "jest-mongodb",
     "rest-api",
@@ -17,14 +16,14 @@
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node ./bin/server",
+    "server-prod": "NODE_ENV=production node ./bin/server",
     "client": "node ./bin/client",
-    "seed": "md-seed run",
-    "seed-drop": "md-seed run --dropdb",
     "test": "jest tests --runInBand",
     "lint": "eslint ."
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "config": "^3.3.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "cross-env": "^7.0.0",
@@ -50,7 +49,6 @@
     "eslint": "^6.7.2",
     "faker": "^4.1.0",
     "jest": "^24.9.0",
-    "mongoose-data-seed": "^2.1.6",
     "prettier": "^1.19.1",
     "supertest": "^4.0.2"
   },
