@@ -16,7 +16,7 @@ function configureLogger({
   jsonLogs = defaults.jsonLogs,
   logLevel = winston.level,
   silent = defaults.silent,
-  maxLogFiles
+  maxFiles
 } = {}) {
   const options = {};
 
@@ -28,9 +28,12 @@ function configureLogger({
 
   options.dirname = logsFolder;
   options.level = logLevel;
-  options.maxLogFiles = maxLogFiles;
   options.silent = silent;
 
+  if (maxFiles) {
+    options.maxFiles = maxFiles;
+  }
+  
   if (jsonLogs) {
     options.json = true;
     options.stringify = true;
