@@ -36,14 +36,7 @@ const QuizSchema = new mongoose.Schema(
     // TODO score
   },
   {
-    timestamps: true,
-    toJSON: { 
-      virtuals: true,
-      versionKey: false,
-      transform: (doc, ret) => {
-        delete ret._id;
-      }
-    }
+    timestamps: true
   }
 );
 

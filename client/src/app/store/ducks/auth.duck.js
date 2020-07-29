@@ -28,13 +28,11 @@ export const reducer = persistReducer(
     switch (action.type) {
       case actionTypes.Login: {
         const { authToken } = action.payload;
-
         return { authToken, user: undefined };
       }
 
       case actionTypes.Register: {
         const { authToken } = action.payload;
-
         return { authToken, user: undefined };
       }
 
@@ -45,10 +43,10 @@ export const reducer = persistReducer(
 
       case actionTypes.UserLoaded: {
         const { user } = action.payload;
-
         return {
           ...state,
           user: {
+            ...state.user,
             ...user,
             pic: toAbsoluteUrl(user.pic || "/media/users/300_25.jpg")
           }

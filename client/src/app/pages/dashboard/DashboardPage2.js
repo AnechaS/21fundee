@@ -1,7 +1,5 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import moment from "moment";
-import { metronic } from "../../../_metronic";
 import PeopleScoreCard from "../../widgets/dashboard/PeopleScoreCard";
 import ScheduleCompletedChart from "../../widgets/dashboard/ScheduleCompletedChart";
 import NewPeoples from "../../widgets/dashboard/NewPeoples";
@@ -60,20 +58,4 @@ class DashboardPage2 extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  brandColor: metronic.builder.selectors.getConfig(state, "colors.state.brand"),
-  dangerColor: metronic.builder.selectors.getConfig(
-    state,
-    "colors.state.danger"
-  ),
-  successColor: metronic.builder.selectors.getConfig(
-    state,
-    "colors.state.success"
-  ),
-  primaryColor: metronic.builder.selectors.getConfig(
-    state,
-    "colors.state.primary"
-  )
-});
-
-export default connect(mapStateToProps)(DashboardPage2);
+export default DashboardPage2;

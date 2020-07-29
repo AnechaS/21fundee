@@ -159,7 +159,8 @@ export const Constraints = {
 };
 
 export const FieldConstraints = {
-  Pointer: ["exists", "dne", "eq", "neq", "unique"],
+  ObjectId: ["exists", "dne", "eq", "neq", "unique"],
+  Populate: ["exists", "dne", "eq", "neq", "unique"],
   Boolean: ["exists", "dne", "eq", "unique"],
   Number: ["exists", "dne", "eq", "neq", "lt", "lte", "gt", "gte", "unique"],
   String: [
@@ -195,17 +196,16 @@ export const FieldConstraints = {
     "doesNotContainNumber",
     "containsAny",
     "doesNotContainAny"
-  ],
-  ObjectId: ["exists", "dne", "eq", "neq"]
+  ]
 };
 
 export const DefaultComparisons = {
-  Pointer: "",
+  ObjectId: "",
+  Populate: "",
   Boolean: false,
   Number: "",
   String: "",
   Object: "",
-  ObjectId: "",
   Date: moment().format("YYYY-MM-DD")
 };
 

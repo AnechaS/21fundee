@@ -1,5 +1,5 @@
 /**
- * Sets the query conditions to the provided JSON object. 
+ * Sets the query conditions to the provided JSON object.
  * @param {Object} queryOptions
  * @return {Query}
  */
@@ -24,7 +24,11 @@ exports.withJSON = function(queryOptions) {
     this.populate(queryOptions.populate);
   }
 
-  if (queryOptions.limit && this.op !== 'count' && !queryOptions.distinct) {
+  if (
+    queryOptions.limit &&
+    this.op.indexOf('count') === -1 &&
+    !queryOptions.distinct
+  ) {
     this.limit(queryOptions.limit);
   }
 

@@ -43,19 +43,6 @@ router.get('/', authorize(), async (req, res, next) => {
 });
 
 /**
- * Get user with token
- * @api {get} /users/me
- */
-router.get('/me', authorize(), async (req, res, next) => {
-  try {
-    const user = req.user;
-    res.json(user.transform());
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
  * Create a new user
  * @api {post} /users
  */
@@ -83,6 +70,20 @@ router.get('/:id', authorize(), async (req, res, next) => {
 });
 
 /**
+ * TODO: add response session token.
+ * Get user with SessionToken
+ * @api {get} /users/me
+ */
+router.get('/me', authorize(), async (req, res, next) => {
+  try {
+    const user = req.user;
+    res.json(user.transform());
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * Update user
  * @api {put} /users/:id
  */
@@ -94,6 +95,54 @@ router.put('/:id', authorize(), async (req, res, next) => {
     return res.json(savedUser.transform());
   } catch (error) {
     return next(error);
+  }
+});
+
+/**
+ * TODO: Change password with SessionToken
+ * @api {post} /users/me/change-password
+ */
+router.post('/me/changePassword', authorize(), async (req, res, next) => {
+  try {
+    const { password, newPassword } = req.body;
+    // verify user with token and password
+    // clear session token ยกเว้น token ที่ส่งมา
+    // if password equal new password then response
+    // change new password then user
+    // return true
+
+    // const object = req.body;
+    // const user = await User.create(object);
+    return res.status(httpStatus.OK).json({});
+  } catch (error) {
+    return next({
+      results: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * TODO: Update user with SessionToken.
+ * @api {post} /users/me
+ */
+router.put('/me', authorize(), async (req, res, next) => {
+  try {
+    const { password, newPassword } = req.body;
+    // verify user with token and password
+    // clear session token ยกเว้น token ที่ส่งมา
+    // if password equal new password then response
+    // change new password then user
+    // return true
+
+    // const object = req.body;
+    // const user = await User.create(object);
+    return res.status(httpStatus.OK).json({});
+  } catch (error) {
+    return next({
+      results: false,
+      message: error.message
+    });
   }
 });
 

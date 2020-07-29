@@ -72,21 +72,21 @@ beforeEach(async () => {
 
   const savedProgress = await Progress.insertMany([
     {
-      people: dbPeoples[0].id,
-      schedule: dbSchedules[0].id,
+      people: dbPeoples[0]._id,
+      schedule: dbSchedules[0]._id,
       status: 2
     },
     {
-      people: dbPeoples[1].id,
-      schedule: dbSchedules[0].id,
+      people: dbPeoples[1]._id,
+      schedule: dbSchedules[0]._id,
       status: 1
     }
   ]);
   dbProgresses = docToJSON(savedProgress);
 
   progress = {
-    people: dbPeoples[0].id,
-    schedule: dbSchedules[1].id,
+    people: dbPeoples[0]._id,
+    schedule: dbSchedules[1]._id,
     status: 1
   };
 });
@@ -129,7 +129,7 @@ describe('POST /progresses', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    const result = await Progress.findById(agent.body.id);
+    const result = await Progress.findById(agent.body._id);
     expect(agent.body).toEqual(docToJSON(result));
   });
 });
@@ -139,7 +139,7 @@ describe('GET /progresses/:id', () => {
     const object = dbProgresses[0];
 
     const agent = await request(app)
-      .get(`/progresses/${object.id}`)
+      .get(`/progresses/${object._id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -167,14 +167,14 @@ describe('PUT /progresses', () => {
     const object = dbProgresses[0];
 
     const agent = await request(app)
-      .put(`/progresses/${object.id}`)
+      .put(`/progresses/${object._id}`)
       .send(progress)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    const result = await Progress.findById(object.id);
+    const result = await Progress.findById(object._id);
     expect(agent.body).toEqual(docToJSON(result));
   });
 
@@ -197,11 +197,11 @@ describe('DELETE /progresses', () => {
     const object = dbProgresses[0];
 
     const agent = await request(app)
-      .delete(`/progresses/${object.id}`)
+      .delete(`/progresses/${object._id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(Progress.findById(object.id)).resolves.toBeNull();
+    await expect(Progress.findById(object._id)).resolves.toBeNull();
   });
 
   test('should report error when progresses does not exists', async () => {

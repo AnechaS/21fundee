@@ -74,14 +74,14 @@ beforeEach(async () => {
 
   const savedReplys = await Reply.insertMany([
     {
-      people: dbPeoples[0].id,
-      schedule: dbSchedules[0].id,
+      people: dbPeoples[0]._id,
+      schedule: dbSchedules[0]._id,
       text: 'Hello',
       blockId: blockIds[0]
     },
     {
-      people: dbPeoples[1].id,
-      schedule: dbSchedules[0].id,
+      people: dbPeoples[1]._id,
+      schedule: dbSchedules[0]._id,
       text: 'Hello',
       blockId: blockIds[0]
     }
@@ -89,8 +89,8 @@ beforeEach(async () => {
   dbReplies = docToJSON(savedReplys);
 
   reply = {
-    people: dbPeoples[0].id,
-    schedule: dbSchedules[1].id,
+    people: dbPeoples[0]._id,
+    schedule: dbSchedules[1]._id,
     text: 'abc',
     blockId: blockIds[1]
   };
@@ -134,7 +134,7 @@ describe('POST /replies', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    const result = await Reply.findById(agent.body.id);
+    const result = await Reply.findById(agent.body._id);
     expect(agent.body).toEqual(docToJSON(result));
   });
 });
@@ -144,7 +144,7 @@ describe('GET /replies/:id', () => {
     const object = dbReplies[0];
 
     const agent = await request(app)
-      .get(`/replies/${object.id}`)
+      .get(`/replies/${object._id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -169,7 +169,7 @@ describe('GET /replies/:id', () => {
 
 describe('PUT /replies', () => {
   test('should update the reply', async () => {
-    const id = dbReplies[0].id;
+    const id = dbReplies[0]._id;
 
     const agent = await request(app)
       .put(`/replies/${id}`)
@@ -199,7 +199,7 @@ describe('PUT /replies', () => {
 
 describe('DELETE /replies', () => {
   test('should delete the reply', async () => {
-    const id = dbReplies[0].id;
+    const id = dbReplies[0]._id;
 
     const agent = await request(app)
       .delete(`/replies/${id}`)

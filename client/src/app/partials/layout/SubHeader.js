@@ -85,19 +85,23 @@ const Button = ({
   );
 };
 
-const Search = ({ onSubmit }) => {
-  const [text, setText] = useState("");
+const Search = ({ initialValue = "", onSubmit }) => {
+  const [value, setValue] = useState("");
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
   const handleChange = e => {
-    setText(e.target.value.trim());
+    setValue(e.target.value.trim());
   };
 
   const handleSubmit = useCallback(
     e => {
       e.preventDefault();
-      onSubmit(text);
+      onSubmit(value);
     },
-    [text, onSubmit]
+    [value, onSubmit]
   );
 
   return (
@@ -108,6 +112,7 @@ const Search = ({ onSubmit }) => {
           name="search"
           className="form-control"
           placeholder="Search..."
+          value={value}
           onChange={handleChange}
         />
         <span className="kt-input-icon__icon kt-input-icon__icon--right">

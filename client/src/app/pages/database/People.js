@@ -9,6 +9,7 @@ import {
   createPeople
 } from "../../crud/people.crud";
 import queryFromFilters from "../../utils/queryFromFilters";
+import { Portlet, PortletBody } from "../../partials/content/Portlet";
 
 export default class People extends Component {
   _columns = [
@@ -265,8 +266,8 @@ export default class People extends Component {
           onFilterChange={this.handleFilterChange}
         />
         <KTContent>
-          <div className="kt-portlet kt-portlet--mobile">
-            <div className="kt-portlet__body kt-portlet__body--fit">
+          <Portlet>
+            <PortletBody fit>
               <Table
                 count={count}
                 pageSize={pageSize}
@@ -284,8 +285,8 @@ export default class People extends Component {
                 loading={isLoading}
                 minHeight={680}
               />
-            </div>
-          </div>
+            </PortletBody>
+          </Portlet>
         </KTContent>
       </>
     );

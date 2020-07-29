@@ -44,17 +44,17 @@
         .kt-widget__username {
           text-align: center;
           display: block;
-          padding: 0.8rem 0 0.6rem 0;
+          padding: 0.8rem 0 0 0;
           font-size: 1.3rem;
           color: kt-base-color(label, 4);
           font-weight: 500;
         }
 
-        .kt-widget__desc {
+        .kt-widget__id {
           text-align: center;
           display: block;
           font-weight: 500;
-          font-size: 1.1rem;
+          font-size: 0.8rem;
           padding: 0 0.8rem;
           color: kt-base-color(label, 2);
         }
@@ -123,6 +123,7 @@
           .kt-widget__label {
             color: kt-base-color(label, 4);
             font-weight: 600;
+            min-width: 40px;
           }
 
           .kt-widget__data {

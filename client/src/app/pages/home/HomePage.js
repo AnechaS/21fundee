@@ -4,7 +4,8 @@ import { LayoutSplashScreen } from "../../../_metronic";
 
 import DashboardPage from "../dashboard/DashboardPage";
 import DatabasePage from "../database/DatabasePage";
-import PeoplePage from "../people/PeoplePage";
+import PeoplesPage from "../peoples/PeoplesPage";
+import SettingPage from "../setting/SettingPage";
 
 export default function HomePage() {
   return (
@@ -13,7 +14,8 @@ export default function HomePage() {
         <Redirect exact from="/" to="/dashboard" />
         <Route path="/dashboard" component={DashboardPage} />
         <Route path="/database" component={DatabasePage} />
-        <Route path="/people" component={PeoplePage} />
+        <Route path="/peoples" component={PeoplesPage} />
+        <Route path="/setting" component={SettingPage} />
         <Redirect to="/error" />
       </Switch>
     </Suspense>

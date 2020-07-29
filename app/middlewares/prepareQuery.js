@@ -9,7 +9,8 @@ module.exports = function(fields) {
     'where',
     'select',
     'skip',
-    'sort'
+    'sort',
+    'count'
   ];
   if (fields instanceof Array && fields.length) {
     whitelist = fields;

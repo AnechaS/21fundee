@@ -59,12 +59,12 @@ beforeEach(async () => {
     {
       name: 'a',
       correctAnswers: [1],
-      schedule: dbSchedule.id,
+      schedule: dbSchedule._id,
       type: 1
     },
     {
       name: 'b',
-      schedule: dbSchedule.id,
+      schedule: dbSchedule._id,
       type: 3
     }
   ]);
@@ -109,11 +109,14 @@ describe('POST /chatfuel/people', () => {
     expect(agent.body.result).toBe(true);
 
     const getPeople = await People.findById(payload.id).select(
-      '-resultAt -updatedAt -__v'
+      '-createdAt -updatedAt -__v'
     );
 
+    payload._id = payload.id;
+    delete payload.id;
+
     const result = docToJSON(getPeople);
-    expect(result).toMatchObject(payload);
+    expect(result).toEqual(payload);
   });
 
   test('should create a new people with value null', async () => {
@@ -137,8 +140,9 @@ describe('POST /chatfuel/people', () => {
     expect(agent.body.result).toBe(true);
 
     const getPeople = await People.findById(payloadX.id);
-    const result = JSON.parse(JSON.stringify(getPeople));
-    expect(result.id).toBe(payloadX.id);
+    const result = docToJSON(getPeople);
+
+    expect(result._id).toBe(payloadX.id);
     expect(result.province).toBe(payloadX.province);
   });
 
@@ -155,12 +159,14 @@ describe('POST /chatfuel/people', () => {
 
     expect(agent.body.result).toBe(true);
 
-
     const getPeople = await People.findById(payload.id).select(
-      '-resultAt -updatedAt -__v'
+      '-createdAt -updatedAt -__v'
     );
-    const result = JSON.parse(JSON.stringify(getPeople));
+
     payload.childBirthday = 'ก่อน 2561';
+    payload._id = payload.id;
+    delete payload.id;
+    const result = docToJSON(getPeople);
     expect(result).toMatchObject(payload);
   });
 
@@ -171,7 +177,7 @@ describe('POST /chatfuel/people', () => {
       .post('/chatfuel/people')
       .query({ api_key: config.get('app.apiPublicKey') })
       .send({
-        id: dbPeople.id,
+        id: dbPeople._id,
         ...payload
       })
       .set('Accept', 'application/json')
@@ -180,10 +186,13 @@ describe('POST /chatfuel/people', () => {
 
     expect(agent.body.result).toBe(true);
 
-    const getPeople = await People.findById(dbPeople.id).select(
-      '-resultAt -updatedAt -__v'
+    const getPeople = await People.findById(dbPeople._id).select(
+      '-createdAt -updatedAt -__v'
     );
-    const result = JSON.parse(JSON.stringify(getPeople));
+
+    payload._id = dbPeople._id;
+
+    const result = docToJSON(getPeople);
     expect(result).toMatchObject(payload);
   });
 
@@ -226,21 +235,21 @@ describe('POST /chatfuel/reply', () => {
 
   beforeEach(() => {
     payload = {
-      people: dbPeople.id,
-      schedule: dbSchedule.id,
+      people: dbPeople._id,
+      schedule: dbSchedule._id,
       text: 'Hi',
       submittedType: REPLY_SUBMITTED_TYPES[0],
       blockId
     };
 
     payloadQuiz = {
-      people: dbPeople.id,
-      schedule: dbSchedule.id,
+      people: dbPeople._id,
+      schedule: dbSchedule._id,
       blockId,
       text: 'a',
       submittedType: REPLY_SUBMITTED_TYPES[0],
       quiz: {
-        question: dbQuestions[0].id,
+        question: dbQuestions[0]._id,
         answer: 1
       }
     };
@@ -258,8 +267,8 @@ describe('POST /chatfuel/reply', () => {
 
     const object = await Reply.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -createdAt -__v');
-    const result = JSON.parse(JSON.stringify(object));
+    }).select('-createdAt -updatedAt -createdAt -__v');
+    const result = docToJSON(object);
     expect(result).toMatchObject({
       ...payload,
       blockId: blockId
@@ -286,11 +295,11 @@ describe('POST /chatfuel/reply', () => {
     const object = await Reply.find({
       people: payload.people,
       schedule: payload.schedule
-    }).select('-resultAt -updatedAt -createdAt -__v');
-    const [result] = JSON.parse(JSON.stringify(object));
+    }).select('-createdAt -updatedAt -createdAt -__v');
+    const [result] = docToJSON(object);
 
     expect(object).toHaveLength(1);
-    expect(prevResult.id.toString()).toBe(result.id);
+    expect(prevResult._id.toString()).toBe(result._id);
     expect(result).toMatchObject({
       ...payload,
       blockId: blockId
@@ -311,17 +320,17 @@ describe('POST /chatfuel/reply', () => {
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -createdAt -__v');
-    const resultReply = JSON.parse(JSON.stringify(getReply));
+    }).select('-createdAt -updatedAt -createdAt -__v');
+    const resultReply = docToJSON(getReply);
     expect(resultReply).toMatchObject({
       ...o,
       blockId: blockId
     });
 
     const getQuiz = await Quiz.findOne({ people: payload.people }).select(
-      '-resultAt -updatedAt -createdAt -__v'
+      '-createdAt -updatedAt -createdAt -__v'
     );
-    const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
+    const resultQuiz = docToJSON(getQuiz);
     expect(resultQuiz).toMatchObject({
       ...quiz,
       isCorrect: true
@@ -344,8 +353,8 @@ describe('POST /chatfuel/reply', () => {
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -createdAt -__v');
-    const resultReply = JSON.parse(JSON.stringify(getReply));
+    }).select('-createdAt -updatedAt -createdAt -__v');
+    const resultReply = docToJSON(getReply);
     expect(resultReply).toMatchObject({
       ...o,
       blockId: blockId
@@ -353,8 +362,8 @@ describe('POST /chatfuel/reply', () => {
 
     const getQuiz = await Quiz.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -createdAt -__v');
-    const resultQuiz = JSON.parse(JSON.stringify(getQuiz));
+    }).select('-createdAt -updatedAt -createdAt -__v');
+    const resultQuiz = docToJSON(getQuiz);
     expect(resultQuiz).toMatchObject({
       ...quiz,
       isCorrect: false
@@ -379,8 +388,8 @@ describe('POST /chatfuel/reply', () => {
 
     const getProgress = await Progress.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -createdAt -__v');
-    const result = JSON.parse(JSON.stringify(getProgress));
+    }).select('-createdAt -updatedAt -createdAt -__v');
+    const result = docToJSON(getProgress);
 
     expect(result.people).toBe(payload.people);
     expect(result.schedule).toBe(payload.schedule);
@@ -402,7 +411,7 @@ describe('POST /chatfuel/reply', () => {
 
     const getProgresses = await Progress.find({
       people: payload.people
-    }).select('-resultAt -updatedAt -createdAt -__v');
+    }).select('-createdAt -updatedAt -createdAt -__v');
     const [resultProgress] = getProgresses;
     expect(getProgresses).toHaveLength(1);
     expect(resultProgress.people.toString()).toBe(payload.people);
@@ -413,8 +422,8 @@ describe('POST /chatfuel/reply', () => {
 
     const getReply = await Reply.findOne({
       people: payload.people
-    }).select('-resultAt -updatedAt -createdAt -__v');
-    const resultReply = JSON.parse(JSON.stringify(getReply));
+    }).select('-createdAt -updatedAt -createdAt -__v');
+    const resultReply = docToJSON(getReply);
     expect(resultReply).toMatchObject({
       ...payload,
       blockId: blockId
@@ -514,11 +523,11 @@ describe('POST /chatfuel/reply', () => {
     expect(agent.body.result).toBe(true);
 
     const getPeople = await People.findById(payload.people).select(
-      '-resultAt -updatedAt -createdAt -__v'
+      '-createdAt -updatedAt -createdAt -__v'
     );
-    const resultPeople = JSON.parse(JSON.stringify(getPeople));
+    const resultPeople = docToJSON(getPeople);
     expect(resultPeople).toEqual({
-      id: '3922551107771013',
+      _id: '3922551107771013',
       gender: 'female',
       firstName: 'asdf',
       pic:
@@ -712,7 +721,7 @@ describe('POST /chatfuel/reply', () => {
     ['is equal to empty', ''],
     ['is equal to text', 'asdf']
   ])('should report error when quiz answer %s', async (s, v) => {
-    payload.quiz = { question: dbQuestions[0].id, answer: v };
+    payload.quiz = { question: dbQuestions[0]._id, answer: v };
 
     const agent = await request(app)
       .post('/chatfuel/reply')
@@ -761,8 +770,8 @@ describe('POST /chatfuel/comment', () => {
 
   beforeEach(() => {
     payload = {
-      people: dbPeople.id,
-      question: dbQuestions[1].id,
+      people: dbPeople._id,
+      question: dbQuestions[1]._id,
       answer: 'good'
     };
   });
@@ -780,8 +789,8 @@ describe('POST /chatfuel/comment', () => {
 
     let result = await Comment.findOne({
       people: payload.people
-    }).select('-resultAt -createdAt -updatedAt -__v');
-    result = JSON.parse(JSON.stringify(result));
+    }).select('-createdAt -createdAt -updatedAt -__v');
+    result = docToJSON(result);
     expect(result.people).toBe(payload.people);
     expect(result.question).toBe(payload.question);
     expect(result.answer).toBe(payload.answer);
@@ -804,10 +813,10 @@ describe('POST /chatfuel/comment', () => {
 
     const results = await Comment.find({
       people: payload.people
-    }).select('-resultAt -createdAt -updatedAt -__v');
-    const result = JSON.parse(JSON.stringify(results[0]));
+    }).select('-createdAt -createdAt -updatedAt -__v');
+    const result = docToJSON(results[0]);
     expect(results).toHaveLength(1);
-    expect(result.id).toBe(oldResult.id.toString());
+    expect(result._id).toBe(oldResult._id.toString());
     expect(result.people).toBe(payload.people);
     expect(result.question).toBe(payload.question);
     expect(result.answer).toBe(payload.answer);
@@ -906,11 +915,11 @@ describe('POST /chatfuel/comment', () => {
     expect(agent.body.result).toBe(true);
 
     const getPeople = await People.findById(payload.people).select(
-      '-resultAt -updatedAt -createdAt -__v'
+      '-createdAt -updatedAt -__v'
     );
-    const resultPeople = JSON.parse(JSON.stringify(getPeople));
+    const resultPeople = docToJSON(getPeople);
     expect(resultPeople).toEqual({
-      id: '40738040699c7951',
+      _id: '40738040699c7951',
       gender: 'female',
       firstName: 'asdf',
       pic:
@@ -928,7 +937,7 @@ describe('POST /chatfuel/cetificate', () => {
 
   beforeEach(() => {
     payload = {
-      public_id: dbPeople.id,
+      public_id: dbPeople._id,
       image: 'https://scontent.xx.fbcdn.net/v/t1.15752-9/cat.jpg',
       name: `${dbPeople.firstName} ${dbPeople.lastName}`
     };

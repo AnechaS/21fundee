@@ -9,11 +9,12 @@ import {
   updateSchedule,
   deleteSchedule
 } from "../../crud/schedule.crud";
+import { Portlet, PortletBody } from "../../partials/content/Portlet";
 
 export default class Schedule extends Component {
   _columns = [
     {
-      Header: "id",
+      Header: "_id",
       accessor: "_id",
       type: "ObjectId"
     },
@@ -216,8 +217,8 @@ export default class Schedule extends Component {
           onFilterChange={this.handleFilterChange}
         />
         <KTContent>
-          <div className="kt-portlet kt-portlet--mobile">
-            <div className="kt-portlet__body kt-portlet__body--fit">
+          <Portlet>
+            <PortletBody fit>
               <Table
                 count={count}
                 pageSize={pageSize}
@@ -235,8 +236,8 @@ export default class Schedule extends Component {
                 loading={isLoading}
                 minHeight={680}
               />
-            </div>
-          </div>
+            </PortletBody>
+          </Portlet>
         </KTContent>
       </>
     );

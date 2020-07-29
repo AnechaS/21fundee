@@ -1,9 +1,4 @@
-import {
-  LOGIN_URL,
-  ME_URL,
-  REGISTER_URL,
-  REQUEST_PASSWORD_URL
-} from "../../app/crud/auth.crud";
+import { LOGIN_URL, ME_URL } from "../../app/crud/auth.crud";
 import userTableMock from "./userTableMock";
 
 export default function mockAuth(mock) {
@@ -18,49 +13,6 @@ export default function mockAuth(mock) {
       );
 
       if (user) {
-        return [200, { ...user, password: undefined }];
-      }
-    }
-
-    return [400];
-  });
-
-  mock.onPost(REGISTER_URL).reply(({ data }) => {
-    const { email, fullname, username, password } = JSON.parse(data);
-
-    console.log("Hello");
-
-    if (email && fullname && username && password) {
-      const user = {
-        email,
-        fullname,
-        username,
-        password,
-        roles: [2], // Manager
-        accessToken: "access-token-" + Math.random(),
-        refreshToken: "access-token-" + Math.random(),
-        pic: process.env.PUBLIC_URL + "/media/users/default.jpg"
-      };
-
-      userTableMock.push(user);
-
-      return [200, { ...user, password: undefined }];
-    }
-
-    return [400];
-  });
-
-  mock.onPost(REQUEST_PASSWORD_URL).reply(({ data }) => {
-    const { email } = JSON.parse(data);
-
-    if (email) {
-      const user = userTableMock.find(
-        x => x.email.toLowerCase() === email.toLowerCase()
-      );
-
-      if (user) {
-        user.password = undefined;
-
         return [200, { ...user, password: undefined }];
       }
     }

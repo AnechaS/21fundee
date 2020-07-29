@@ -86,7 +86,8 @@ export const initLayoutConfig = {
     fixed: true,
     width: "fluid", // fixed|fluid,
     clear: false,
-    style: "solid"
+    style: "solid",
+    skin: "dark"
   },
   content: {
     width: "fluid"

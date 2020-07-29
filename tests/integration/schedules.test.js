@@ -80,7 +80,7 @@ describe('POST /schedules', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    const result = await Schedule.findById(agent.body.id);
+    const result = await Schedule.findById(agent.body._id);
     expect(agent.body).toEqual(docToJSON(result));
   });
 });
@@ -90,7 +90,7 @@ describe('GET /schedules/:id', () => {
     const object = dbSchedules[0];
 
     const agent = await request(app)
-      .get(`/schedules/${object.id}`)
+      .get(`/schedules/${object._id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -115,7 +115,7 @@ describe('GET /schedules/:id', () => {
 
 describe('PUT /schedules', () => {
   test('should update the schedule', async () => {
-    const id = dbSchedules[0].id;
+    const id = dbSchedules[0]._id;
 
     const agent = await request(app)
       .put(`/schedules/${id}`)
@@ -147,16 +147,14 @@ describe('PUT /schedules', () => {
 
 describe('DELETE /schedules', () => {
   test('should delete the schedule', async () => {
-    const id = dbSchedules[0].id;
+    const id = dbSchedules[0]._id;
 
     const agent = await request(app)
       .delete(`/schedules/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(
-      Schedule.findById(dbSchedules[0].id)
-    ).resolves.toBeNull();
+    await expect(Schedule.findById(dbSchedules[0]._id)).resolves.toBeNull();
   });
 
   test('should report error when schedules does not exists', async () => {

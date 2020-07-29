@@ -32,13 +32,15 @@ function compareValue(type, value, onChangeCompareTo /* , active */) {
           ref={setFocus}
         />
       );
-    // TODO type populate
-    case "Pointer":
+    case "Populate":
       return (
         <input
           type="text"
-          value={value.objectId || ""}
-          onChange={e => onChangeCompareTo(e.target.value)}
+          className="form-control"
+          value={value}
+          onChange={e => {
+            onChangeCompareTo(e.target.value);
+          }}
           ref={setFocus}
         />
       );

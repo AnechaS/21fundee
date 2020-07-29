@@ -1,15 +1,10 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import { Redirect, Route, Switch } from "react-router-dom";
-// import clsx from "clsx";
 import moment from "moment";
-import { metronic } from "../../../_metronic";
 import SubHeader from "../../partials/layout/SubHeader";
 import KTContent from "../../../_metronic/layout/KtContent";
-
 import DashboardPage1 from "./DashboardPage1";
 import DashboardPage2 from "./DashboardPage2";
-// import DashboardPage2 from "./DashboardPage2";
 
 class DashboardPage extends Component {
   constructor(props) {
@@ -32,6 +27,9 @@ class DashboardPage extends Component {
     const { history } = this.props;
     const page = history.location.pathname.split("/").pop();
     this.setState({ page });
+
+    // set scroll to top
+    // window.scrollTo(0, 0);
   }
 
   handleChangePage = value => {
@@ -80,20 +78,4 @@ class DashboardPage extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  brandColor: metronic.builder.selectors.getConfig(state, "colors.state.brand"),
-  dangerColor: metronic.builder.selectors.getConfig(
-    state,
-    "colors.state.danger"
-  ),
-  successColor: metronic.builder.selectors.getConfig(
-    state,
-    "colors.state.success"
-  ),
-  primaryColor: metronic.builder.selectors.getConfig(
-    state,
-    "colors.state.primary"
-  )
-});
-
-export default connect(mapStateToProps)(DashboardPage);
+export default DashboardPage;

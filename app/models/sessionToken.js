@@ -6,16 +6,16 @@ const SessionTokenSchema = new mongoose.Schema({
   token: {
     type: String,
     required: true,
-    index: true,
+    index: true
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: true
   },
   expiresAt: {
-    type: Date,
-  },
+    type: Date
+  }
 });
 
 SessionTokenSchema.statics = {
@@ -34,11 +34,11 @@ SessionTokenSchema.statics = {
     const tokenObject = new SessionToken({
       token,
       user,
-      expiresAt,
+      expiresAt
     });
     tokenObject.save();
     return tokenObject;
-  },
+  }
 };
 
 const SessionToken = mongoose.model(

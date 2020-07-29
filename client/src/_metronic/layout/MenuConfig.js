@@ -23,10 +23,10 @@ export default {
         bullet: "dot"
       },
       {
-        title: "People",
+        title: "Peoples",
         root: true,
         icon: "flaticon2-group",
-        page: "people"
+        page: "peoples"
       },
       {
         title: "Database",
@@ -72,7 +72,7 @@ export default {
         ]
       },
       {
-        title: "Bot",
+        title: "Help",
         root: true,
         bullet: "dot",
         icon: "flaticon2-start-up",
@@ -83,7 +83,7 @@ export default {
         title: "General",
         root: true,
         icon: "flaticon2-gear",
-        page: "#"
+        page: "setting"
       }
     ]
   }

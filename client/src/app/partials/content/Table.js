@@ -302,7 +302,6 @@ export default function Table({
         </thead>
 
         <tbody className="kt-datatable__body" {...instance.getTableBodyProps()}>
-          {/* data not empty */}
           {Boolean(data.length) &&
             rows.map((row, i) => {
               instance.prepareRow(row);

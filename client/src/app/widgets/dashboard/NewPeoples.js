@@ -9,6 +9,15 @@ import {
 
 const colorMedials = ["success", "danger", "warning", "info"];
 
+const Image = ({ src, renderError }) => {
+  const [isImgError, setIsImgError] = useState(false);
+  if (!src || isImgError) {
+    return renderError || null;
+  }
+
+  return <img src={src} onError={() => setIsImgError(true)} alt="" />;
+};
+
 export default function NewPeoples({ query, limit = 5 }) {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,16 +38,18 @@ export default function NewPeoples({ query, limit = 5 }) {
       return (
         <div key={_id} className="kt-widget4__item">
           <div className="kt-widget4__pic kt-widget4__pic--pic">
-            {pic ? (
-              <img src={pic} alt="" />
-            ) : (
-              <div
-                className={`kt-media kt-media--sm kt-media--${colorMedials[i] ||
-                  "warning"}`}
-              >
-                <span>{firstName.substring(0, 2)}</span>
-              </div>
-            )}
+            <Image
+              src={pic}
+              renderError={
+                <div
+                  className={`kt-media kt-media--sm kt-media--${colorMedials[
+                    i
+                  ] || "warning"}`}
+                >
+                  <span>{firstName.substring(0, 2)}</span>
+                </div>
+              }
+            />
           </div>
           <div className="kt-widget4__info ">
             <div className="kt-widget4__username">

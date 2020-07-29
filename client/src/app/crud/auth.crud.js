@@ -3,7 +3,7 @@ import axios from "axios";
 export const LOGIN_URL = "/auth/login";
 export const LOGOUT_URL = "/auth/logout";
 export const REGISTER_URL = "/auth/register";
-export const REQUEST_PASSWORD_URL = "api/auth/forgot-password";
+export const REQUEST_PASSWORD_URL = "auth/forgot-password";
 
 export const ME_URL = "/users/me";
 

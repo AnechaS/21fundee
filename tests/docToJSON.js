@@ -1,4 +1,4 @@
-const transform = doc => JSON.parse(JSON.stringify(doc.toJSON()));
+const transform = doc => JSON.parse(JSON.stringify(doc));
 
 module.exports = function(doc) {
   if (doc instanceof Array) {

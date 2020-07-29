@@ -265,7 +265,7 @@ describe('POST /peoples', () => {
 
 describe('GET /peoples/:id', () => {
   test('should get the peoples', async () => {
-    const id = dbPeoples[0].id;
+    const id = dbPeoples[0]._id;
 
     const agent = await request(app)
       .get(`/peoples/${id}`)
@@ -290,7 +290,7 @@ describe('GET /peoples/:id', () => {
 
 describe('PUT /peoples/:id', () => {
   test('should update the people', async () => {
-    const id = dbPeoples[0].id;
+    const id = dbPeoples[0]._id;
 
     const agent = await request(app)
       .put(`/peoples/${id}`)
@@ -299,7 +299,7 @@ describe('PUT /peoples/:id', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body.id).toBe(id);
+    expect(agent.body._id).toBe(id);
     expect(agent.body).toMatchObject(people);
   });
 
@@ -319,11 +319,11 @@ describe('PUT /peoples/:id', () => {
 describe('DELETE /peoples', () => {
   test('should delete the people', async () => {
     const agent = await request(app)
-      .delete(`/peoples/${dbPeoples[0].id}`)
+      .delete(`/peoples/${dbPeoples[0]._id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(People.findById(dbPeoples[0].id)).resolves.toBeNull();
+    await expect(People.findById(dbPeoples[0]._id)).resolves.toBeNull();
   });
 
   test('should report error when people does not exists', async () => {

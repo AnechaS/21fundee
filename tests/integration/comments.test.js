@@ -75,12 +75,12 @@ beforeEach(async () => {
   const savedQuestion = await Question.create([
     {
       name: 'a',
-      schedule: dbSchedules[0].id,
+      schedule: dbSchedules[0]._id,
       type: 3
     },
     {
       name: 'b',
-      schedule: dbSchedules[0].id,
+      schedule: dbSchedules[0]._id,
       type: 3
     }
   ]);
@@ -89,16 +89,16 @@ beforeEach(async () => {
 
   const savedComments = await Comment.insertMany([
     {
-      people: dbPeoples[0].id,
-      question: dbQuestions[0].id,
+      people: dbPeoples[0]._id,
+      question: dbQuestions[0]._id,
       answer: 'good'
     }
   ]);
   dbComments = docToJSON(savedComments);
 
   comment = {
-    people: dbPeoples[0].id,
-    question: dbQuestions[1].id,
+    people: dbPeoples[0]._id,
+    question: dbQuestions[1]._id,
     answer: 'good'
   };
 });
@@ -143,7 +143,7 @@ describe('POST /comments', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    const result = await Comment.findById(agent.body.id);
+    const result = await Comment.findById(agent.body._id);
     expect(agent.body).toEqual(docToJSON(result));
   });
 });
@@ -153,7 +153,7 @@ describe('GET /comments/:id', () => {
     const object = dbComments[0];
 
     const agent = await request(app)
-      .get(`/comments/${object.id}`)
+      .get(`/comments/${object._id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -181,14 +181,14 @@ describe('PUT /comments', () => {
     const object = dbComments[0];
 
     const agent = await request(app)
-      .put(`/comments/${object.id}`)
+      .put(`/comments/${object._id}`)
       .send(comment)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    const result = await Comment.findById(object.id);
+    const result = await Comment.findById(object._id);
     expect(agent.body).toEqual(docToJSON(result));
   });
 
@@ -208,7 +208,7 @@ describe('PUT /comments', () => {
 
 describe('DELETE /comments', () => {
   test('should delete the comment', async () => {
-    const id = dbComments[0].id;
+    const id = dbComments[0]._id;
 
     const agent = await request(app)
       .delete(`/comments/${id}`)

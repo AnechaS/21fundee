@@ -1,6 +1,6 @@
 /* eslint-disable no-script-url,jsx-a11y/anchor-is-valid */
 import React from "react";
-import { /* Link,  */ Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
 import { connect } from "react-redux";
 import { toAbsoluteUrl } from "../../../_metronic";
@@ -15,7 +15,6 @@ class UserProfile extends React.Component {
 
   render() {
     const { user, showHi, showAvatar, showBadge } = this.props;
-
     if (this.state.isLogouted) {
       return <Redirect to="/logout" />;
     }
@@ -67,65 +66,32 @@ class UserProfile extends React.Component {
               </span>
             </div>
             <div className="kt-user-card__name">{user.name}</div>
-            <div className="kt-user-card__badge">
+            {/* <div className="kt-user-card__badge">
               <span className="btn btn-success btn-sm btn-bold btn-font-md">
                 23 messages
               </span>
-            </div>
+            </div> */}
           </div>
           <div className="kt-notification">
-            <a className="kt-notification__item">
+            <Link
+              onClick={() => {
+                document.body.click();
+              }}
+              to="/setting"
+              className="kt-notification__item"
+            >
               <div className="kt-notification__item-icon">
                 <i className="flaticon2-calendar-3 kt-font-success" />
               </div>
               <div className="kt-notification__item-details">
                 <div className="kt-notification__item-title kt-font-bold">
-                  My Profile
+                  ตั้งค่าโปรไฟล์ของฉัน
                 </div>
                 <div className="kt-notification__item-time">
-                  Account settings and more
+                  การตั้งค่าบัญชีและอื่น ๆ
                 </div>
               </div>
-            </a>
-            <a className="kt-notification__item">
-              <div className="kt-notification__item-icon">
-                <i className="flaticon2-mail kt-font-warning" />
-              </div>
-              <div className="kt-notification__item-details">
-                <div className="kt-notification__item-title kt-font-bold">
-                  My Messages
-                </div>
-                <div className="kt-notification__item-time">
-                  Inbox and tasks
-                </div>
-              </div>
-            </a>
-            <a className="kt-notification__item">
-              <div className="kt-notification__item-icon">
-                <i className="flaticon2-rocket-1 kt-font-danger" />
-              </div>
-              <div className="kt-notification__item-details">
-                <div className="kt-notification__item-title kt-font-bold">
-                  My Activities
-                </div>
-                <div className="kt-notification__item-time">
-                  Logs and notifications
-                </div>
-              </div>
-            </a>
-            <a className="kt-notification__item">
-              <div className="kt-notification__item-icon">
-                <i className="flaticon2-hourglass kt-font-brand" />
-              </div>
-              <div className="kt-notification__item-details">
-                <div className="kt-notification__item-title kt-font-bold">
-                  My Tasks
-                </div>
-                <div className="kt-notification__item-time">
-                  latest tasks and projects
-                </div>
-              </div>
-            </a>
+            </Link>
             <div className="kt-notification__custom">
               <button
                 className="btn btn-label-brand btn-sm btn-bold"

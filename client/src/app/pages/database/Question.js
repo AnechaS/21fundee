@@ -9,11 +9,12 @@ import {
   updateQuestion,
   deleteQuestion
 } from "../../crud/question.crud";
+import { PortletBody, Portlet } from "../../partials/content/Portlet";
 
 export default class Question extends Component {
   _columns = [
     {
-      Header: "id",
+      Header: "_id",
       accessor: "_id",
       type: "ObjectId"
     },
@@ -234,8 +235,8 @@ export default class Question extends Component {
           onFilterChange={this.handleFilterChange}
         />
         <KTContent>
-          <div className="kt-portlet kt-portlet--mobile">
-            <div className="kt-portlet__body kt-portlet__body--fit">
+          <Portlet>
+            <PortletBody fit>
               <Table
                 count={count}
                 pageSize={pageSize}
@@ -253,8 +254,8 @@ export default class Question extends Component {
                 loading={isLoading}
                 minHeight={680}
               />
-            </div>
-          </div>
+            </PortletBody>
+          </Portlet>
         </KTContent>
       </>
     );

@@ -1,12 +1,74 @@
 import React, { useState } from "react";
+import { Link, useRouteMatch } from "react-router-dom";
 import moment from "moment";
 import Skeleton from "@material-ui/lab/Skeleton";
+import { Portlet, PortletBody } from "../../partials/content/Portlet";
+import { GENDERS } from "../../utils/constants";
 
-export function ProfileCard({ data, onClick }) {
-  const [isImgError, setIsImgError] = useState(false);
+export function ProfileCardSkeleton({ showActions = false }) {
   return (
-    <div className="kt-portlet kt-portlet--height-fluid">
-      <div className="kt-portlet__body">
+    <Portlet>
+      <PortletBody>
+        <div className="kt-widget kt-widget--user-profile-5">
+          <div className="kt-widget__head">
+            <div className="kt-widget__media">
+              <Skeleton variant="circle" width={90} height={90} />
+            </div>
+            <div className="kt-widget__info">
+              <span className="kt-widget__username">
+                <Skeleton
+                  variant="text"
+                  height={31}
+                  style={{ marginBottom: 10 }}
+                />
+              </span>
+            </div>
+          </div>
+          <div className="kt-widget__body">
+            <div className="kt-widget__item">
+              <div className="kt-widget__contact">
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="text" width="40%" />
+              </div>
+              <div className="kt-widget__contact">
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="text" width="40%" />
+              </div>
+              <div className="kt-widget__contact">
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="text" width="40%" />
+              </div>
+              <div className="kt-widget__contact">
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="text" width="40%" />
+              </div>
+              <div className="kt-widget__contact">
+                <Skeleton variant="text" width="40%" />
+                <Skeleton variant="text" width="40%" />
+              </div>
+            </div>
+          </div>
+          {showActions && (
+            <div className="kt-widget__footer">
+              <Skeleton variant="rect" height={49} />
+            </div>
+          )}
+        </div>
+      </PortletBody>
+    </Portlet>
+  );
+}
+
+export function ProfileCard({ data, showActions = false, loading }) {
+  const [isImgError, setIsImgError] = useState(false);
+  const { path } = useRouteMatch();
+  if (loading) {
+    return <ProfileCardSkeleton showActions={showActions} />;
+  }
+
+  return (
+    <Portlet>
+      <PortletBody>
         <div className="kt-widget kt-widget--user-profile-5">
           <div className="kt-widget__head">
             <div className="kt-widget__media">
@@ -26,101 +88,67 @@ export function ProfileCard({ data, onClick }) {
               )}
             </div>
             <div className="kt-widget__info">
-              <span className="kt-widget__username">
+              <span className="kt-widget__username text-truncate">
                 {data.firstName} {data.lastName}
+              </span>
+              <span className="kt-widget__id" style={{ height: 15 }}>
+                {/^\d{6}$/.test(data.dentalId) ? (
+                  <>
+                    <i className="fa fa-id-card"></i>
+                    &nbsp;{data.dentalId}
+                  </>
+                ) : (
+                  ""
+                )}
               </span>
             </div>
           </div>
           <div className="kt-widget__body">
             <div className="kt-widget__item">
               <div className="kt-widget__contact">
+                <span className="kt-widget__label">เพศ:</span>
+                <span className="kt-widget__data text-truncate">
+                  {GENDERS[data.gender]}
+                </span>
+              </div>
+              <div className="kt-widget__contact">
                 <span className="kt-widget__label">ที่อยู่:</span>
-                <span className="kt-widget__data">
-                  อ.{data.district} จ.{data.province}
+                <span className="kt-widget__data text-truncate">
+                  อ.{data.district || "อื่นๆ"} จ.{data.province || "อื่นๆ"}
                 </span>
               </div>
               <div className="kt-widget__contact">
                 <span className="kt-widget__label">ลูกชื่อ:</span>
-                <span className="kt-widget__data">{data.childName}</span>
+                <span className="kt-widget__data text-truncate">
+                  {data.childName}
+                </span>
               </div>
               <div className="kt-widget__contact">
                 <span className="kt-widget__label">ลูกเกิดเมื่อ(พ.ศ.):</span>
-                <span className="kt-widget__data">{data.childBirthday}</span>
+                <span className="kt-widget__data text-truncate">
+                  {data.childBirthday}
+                </span>
               </div>
               <div className="kt-widget__contact">
                 <span className="kt-widget__label">วันที่สร้าง:</span>
-                <span className="kt-widget__data">
+                <span className="kt-widget__data text-truncate">
                   {moment(data.createdAt).format("ll")}
                 </span>
               </div>
-              <div className="kt-widget__contact">
-                <span className="kt-widget__label">อื่นๆ:</span>
-                <span className="kt-widget__data">
-                  {data.gender ? `เพศ ${data.gender}` : ""}{" "}
-                  {/^\d{6}$/.test(data.dentalId) ? `รหัส ${data.dentalId}` : ""}
-                </span>
-              </div>
             </div>
           </div>
-          <div className="kt-widget__footer">
-            <button
-              type="button"
-              className="btn btn-label-brand btn-lg"
-              onClick={onClick}
-            >
-              ดูข้อมูล
-            </button>
-          </div>
+          {showActions && (
+            <div className="kt-widget__footer">
+              <Link
+                to={`${path}/${data._id}`}
+                className="btn btn-label-brand btn-lg"
+              >
+                ดูข้อมูล
+              </Link>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
-  );
-}
-
-export function ProfileCardSkeleton() {
-  return (
-    <div className="kt-portlet kt-portlet--height-fluid">
-      <div className="kt-portlet__body">
-        <div className="kt-widget kt-widget--user-profile-5">
-          <div className="kt-widget__head">
-            <div className="kt-widget__media">
-              <Skeleton variant="circle" width={90} height={90} />
-            </div>
-            <div className="kt-widget__info">
-              <span className="kt-widget__username">
-                <Skeleton variant="text" height={25} />
-              </span>
-            </div>
-          </div>
-          <div className="kt-widget__body">
-            <div className="kt-widget__item">
-              <div className="kt-widget__contact">
-                <Skeleton variant="text" width="40%" />
-                <Skeleton variant="text" width="40%" />
-              </div>
-              <div className="kt-widget__contact">
-                <Skeleton variant="text" width="40%" />
-                <Skeleton variant="text" width="40%" />
-              </div>
-              <div className="kt-widget__contact">
-                <Skeleton variant="text" width="40%" />
-                <Skeleton variant="text" width="40%" />
-              </div>
-              <div className="kt-widget__contact">
-                <Skeleton variant="text" width="40%" />
-                <Skeleton variant="text" width="40%" />
-              </div>
-              <div className="kt-widget__contact">
-                <Skeleton variant="text" width="40%" />
-                <Skeleton variant="text" width="40%" />
-              </div>
-            </div>
-          </div>
-          <div className="kt-widget__footer">
-            <Skeleton variant="rect" height={49} />
-          </div>
-        </div>
-      </div>
-    </div>
+      </PortletBody>
+    </Portlet>
   );
 }

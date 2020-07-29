@@ -45,19 +45,19 @@ beforeEach(async () => {
   question = {
     name: 'c',
     correctAnswers: [2],
-    schedule: dbSchedules[0].id
+    schedule: dbSchedules[0]._id
   };
 
   const savedQuestion = await Question.insertMany([
     {
       name: 'a',
       correctAnswers: [1],
-      schedule: dbSchedules[0].id
+      schedule: dbSchedules[0]._id
     },
     {
       name: 'b',
       correctAnswers: [1],
-      schedule: dbSchedules[1].id
+      schedule: dbSchedules[1]._id
     }
   ]);
   dbQuestions = docToJSON(savedQuestion);
@@ -101,7 +101,7 @@ describe('POST /questions', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    const result = await Question.findById(agent.body.id);
+    const result = await Question.findById(agent.body._id);
     expect(agent.body).toMatchObject(docToJSON(result));
   });
 });
@@ -111,7 +111,7 @@ describe('GET /questions/:id', () => {
     const object = dbQuestions[0];
 
     const agent = await request(app)
-      .get(`/questions/${object.id}`)
+      .get(`/questions/${object._id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -136,7 +136,7 @@ describe('GET /questions/:id', () => {
 
 describe('PUT /questions', () => {
   test('should update the question', async () => {
-    const id = dbQuestions[0].id;
+    const id = dbQuestions[0]._id;
 
     const agent = await request(app)
       .put(`/questions/${id}`)
@@ -168,14 +168,14 @@ describe('PUT /questions', () => {
 
 describe('DELETE /questions', () => {
   test('should delete the question', async () => {
-    const id = dbQuestions[0].id;
+    const id = dbQuestions[0]._id;
 
     const agent = await request(app)
       .delete(`/questions/${id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(Question.findById(dbQuestions[0].id)).resolves.toBeNull();
+    await expect(Question.findById(dbQuestions[0]._id)).resolves.toBeNull();
   });
 
   test('should report error when question does not exists', async () => {

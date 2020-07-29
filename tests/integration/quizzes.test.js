@@ -80,22 +80,22 @@ beforeEach(async () => {
 
   const savedReplys = await Reply.insertMany([
     {
-      people: dbPeoples[0].id,
-      schedule: dbSchedules[0].id,
+      people: dbPeoples[0]._id,
+      schedule: dbSchedules[0]._id,
       text: 'a',
       type: 'button',
       blockId: blockIds[0]
     },
     {
-      people: dbPeoples[1].id,
-      schedule: dbSchedules[0].id,
+      people: dbPeoples[1]._id,
+      schedule: dbSchedules[0]._id,
       text: 'b',
       type: 'button',
       blockId: blockIds[0]
     },
     {
-      people: dbPeoples[0].id,
-      schedule: dbSchedules[1].id,
+      people: dbPeoples[0]._id,
+      schedule: dbSchedules[1]._id,
       text: 'a',
       type: 'button',
       blockId: blockIds[1]
@@ -119,18 +119,18 @@ beforeEach(async () => {
 
   const savedQuizs = await Quiz.insertMany([
     {
-      people: dbPeoples[0].id,
-      schedule: dbSchedules[0].id,
-      reply: dbReplys[0].id,
-      question: dbQuestions[0].id,
+      people: dbPeoples[0]._id,
+      schedule: dbSchedules[0]._id,
+      reply: dbReplys[0]._id,
+      question: dbQuestions[0]._id,
       answer: 1,
       isCorrect: true
     },
     {
-      people: dbPeoples[1].id,
-      schedule: dbSchedules[0].id,
-      reply: dbReplys[0].id,
-      question: dbQuestions[0].id,
+      people: dbPeoples[1]._id,
+      schedule: dbSchedules[0]._id,
+      reply: dbReplys[0]._id,
+      question: dbQuestions[0]._id,
       answer: 2,
       isCorrect: false
     }
@@ -138,10 +138,10 @@ beforeEach(async () => {
   dbQuizzes = docToJSON(savedQuizs);
 
   quiz = {
-    people: dbPeoples[0].id,
-    schedule: dbSchedules[1].id,
-    reply: dbReplys[1].id,
-    question: dbQuestions[1].id,
+    people: dbPeoples[0]._id,
+    schedule: dbSchedules[1]._id,
+    reply: dbReplys[1]._id,
+    question: dbQuestions[1]._id,
     answer: 1,
     isCorrect: true
   };
@@ -218,7 +218,7 @@ describe('POST /quizzes', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.CREATED);
 
-    const result = await Quiz.findById(agent.body.id);
+    const result = await Quiz.findById(agent.body._id);
     expect(agent.body).toEqual(docToJSON(result));
   });
 });
@@ -228,7 +228,7 @@ describe('GET /quiz/:id', () => {
     const object = await dbQuizzes[0];
 
     const agent = await request(app)
-      .get(`/quizzes/${object.id}`)
+      .get(`/quizzes/${object._id}`)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
@@ -239,7 +239,7 @@ describe('GET /quiz/:id', () => {
 
   test('should get the quiz with populate', async () => {
     const result = await Quiz.findOne().populate('question');
-    const id = result.id.toString();
+    const id = result._id.toString();
 
     const agent = await request(app)
       .get(`/quizzes/${id}`)
@@ -257,14 +257,14 @@ describe('PUT /quizzes', () => {
     const object = dbQuizzes[0];
 
     const agent = await request(app)
-      .put(`/quizzes/${object.id}`)
+      .put(`/quizzes/${object._id}`)
       .send(quiz)
       .set('Accept', 'application/json')
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    const result = await Quiz.findById(object.id);
+    const result = await Quiz.findById(object._id);
     expect(agent.body).toEqual(docToJSON(result));
   });
 
@@ -287,11 +287,11 @@ describe('DELETE /quizzes', () => {
     const object = dbQuizzes[0];
 
     const agent = await request(app)
-      .delete(`/quizzes/${object.id}`)
+      .delete(`/quizzes/${object._id}`)
       .set('Authorization', sessionToken)
       .expect(httpStatus.NO_CONTENT);
     expect(agent.body).toEqual({});
-    await expect(Quiz.findById(object.id)).resolves.toBeNull();
+    await expect(Quiz.findById(object._id)).resolves.toBeNull();
   });
 
   test('should report error when id does not exists', async () => {

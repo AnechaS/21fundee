@@ -136,14 +136,14 @@ beforeEach(async () => {
 
   const savedReplys = await Reply.insertMany([
     ...dbSchedules.map((o, i) => ({
-      people: dbPeoples[0].id,
-      schedule: o.id,
+      people: dbPeoples[0]._id,
+      schedule: o._id,
       text: `hello${i + 1}`,
       blockId: (i + 1).toString()
     })),
     ...dbSchedules.map((o, i) => ({
-      people: dbPeoples[1].id,
-      schedule: o.id,
+      people: dbPeoples[1]._id,
+      schedule: o._id,
       text: `hello${i + 1}`,
       blockId: (i + 1).toString()
     })),
@@ -151,8 +151,8 @@ beforeEach(async () => {
       .slice()
       .splice(0, 15)
       .map((o, i) => ({
-        people: dbPeoples[2].id,
-        schedule: o.id,
+        people: dbPeoples[2]._id,
+        schedule: o._id,
         text: `hello${i + 1}`,
         blockId: (i + 1).toString()
       })),
@@ -160,14 +160,14 @@ beforeEach(async () => {
       .slice()
       .splice(0, 10)
       .map((o, i) => ({
-        people: dbPeoples[3].id,
-        schedule: o.id,
+        people: dbPeoples[3]._id,
+        schedule: o._id,
         text: `hello${i + 1}`,
         blockId: (i + 1).toString()
       })),
     ...dbSchedules.map((o, i) => ({
-      people: dbPeoples[5].id,
-      schedule: o.id,
+      people: dbPeoples[5]._id,
+      schedule: o._id,
       text: `hello${i + 1}`,
       blockId: (i + 1).toString()
     }))
@@ -176,38 +176,38 @@ beforeEach(async () => {
 
   const savedProgresses = await Progress.insertMany([
     ...dbSchedules.map(o => ({
-      people: dbPeoples[0].id,
-      schedule: o.id,
+      people: dbPeoples[0]._id,
+      schedule: o._id,
       status: 2
     })),
     ...dbSchedules.map(o => ({
-      people: dbPeoples[1].id,
-      schedule: o.id,
+      people: dbPeoples[1]._id,
+      schedule: o._id,
       status: 2
     })),
     ...dbSchedules
       .slice()
       .splice(0, 15)
       .map(o => ({
-        people: dbPeoples[2].id,
-        schedule: o.id,
+        people: dbPeoples[2]._id,
+        schedule: o._id,
         status: 2
       })),
     ...dbSchedules
       .slice()
       .splice(0, 10)
       .map(o => ({
-        people: dbPeoples[3].id,
-        schedule: o.id,
+        people: dbPeoples[3]._id,
+        schedule: o._id,
         status: 2
       })),
-    { people: dbPeoples[3].id, schedule: dbSchedules[10].id, status: 1 },
+    { people: dbPeoples[3]._id, schedule: dbSchedules[10]._id, status: 1 },
     ...dbSchedules
       .slice()
       .splice(0, 15)
       .map(o => ({
-        people: dbPeoples[5].id,
-        schedule: o.id,
+        people: dbPeoples[5]._id,
+        schedule: o._id,
         status: 2
       }))
   ]);
@@ -527,12 +527,12 @@ describe('GET /widgets/7', () => {
     expect(agent.body.data).toEqual([
       {
         province: 'สงขลา',
-        district: 'อำเภออื่นๆ',
+        district: 'หาดใหญ่',
         count: 2
       },
       {
         province: 'สงขลา',
-        district: 'หาดใหญ่',
+        district: 'อำเภออื่นๆ',
         count: 2
       },
       {

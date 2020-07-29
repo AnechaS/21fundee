@@ -57,7 +57,6 @@ router.get('/', authorize(), prepareQuery(), async (req, res, next) => {
 
     return res.json({ results, count: countResults });
   } catch (error) {
-    console.log(error);
     return next(error);
   }
 });
