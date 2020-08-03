@@ -3,26 +3,27 @@ const mongoose = require('mongoose');
 const httpStatus = require('http-status');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
+const docToJSON = require('../docToJSON');
+const app = require('../../app');
+
 const User = require('../../app/models/user');
 const SessionToken = require('../../app/models/sessionToken');
-
-const app = require('../../app');
 
 let sessionToken;
 let dbUsers;
 let admin;
+let password = '123456';
 
 beforeEach(async () => {
   await User.deleteMany({});
   await SessionToken.deleteMany({});
 
-  const password = '123456';
   const passwordHashed = await bcrypt.hash(password, 1);
 
   admin = {
     email: 'sousa.dfs@gmail.com',
     password,
-    name: 'Daniel Sousa',
+    name: 'Daniel Sousa'
   };
 
   const savedUsers = await User.insertMany([
@@ -30,14 +31,14 @@ beforeEach(async () => {
       email: 'jonsnow@gmail.com',
       password: passwordHashed,
       name: 'Jon Snow',
-      role: 'admin',
+      role: 'admin'
     },
     {
       email: 'branstark@gmail.com',
       password: passwordHashed,
       name: 'Bran Stark',
-      role: 'admin',
-    },
+      role: 'admin'
+    }
   ]);
   const transformedUsers = savedUsers.map(o => o.transform());
   dbUsers = JSON.parse(JSON.stringify(transformedUsers));
@@ -144,6 +145,7 @@ describe('GET /users/:id', () => {
 describe('PUT /users/:id', () => {
   test('should update the user', async () => {
     const id = dbUsers[0]._id;
+    delete admin.password;
 
     const agent = await request(app)
       .put(`/users/${id}`)
@@ -152,10 +154,50 @@ describe('PUT /users/:id', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    delete admin.password;
-
     expect(agent.body._id).toBe(id);
     expect(agent.body).toMatchObject(admin);
+  });
+
+  test('should update password the user', async () => {
+    const object = dbUsers[0];
+    await Promise.all([
+      SessionToken.generate(object),
+      SessionToken.generate(object),
+      SessionToken.generate(object)
+    ]);
+
+    const agent = await request(app)
+      .put(`/users/${object._id}`)
+      .send({ password: admin.password })
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+
+    const user = await User.findOne({ email: agent.body.email });
+    await expect(user.passwordMatches(admin.password)).resolves.toBe(true);
+    await expect(SessionToken.find({ user })).resolves.toHaveLength(0);
+  });
+
+  test('should clean session when set password', async () => {
+    const object = await User.findOne();
+    await Promise.all([
+      SessionToken.generate(object),
+      SessionToken.generate(object),
+      SessionToken.generate(object)
+    ]);
+
+    const agent = await request(app)
+      .put(`/users/${object._id}`)
+      .send({ password: password })
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+
+    expect(agent.body).toEqual(docToJSON(object.transform()));
+
+    const user = await User.findOne({ email: agent.body.email });
+    await expect(user.passwordMatches(password)).resolves.toBe(true);
+    await expect(SessionToken.find({ user })).resolves.toHaveLength(0);
   });
 
   test('should resport error when user does not exists', async () => {

@@ -40,7 +40,7 @@ router.post(
         const userTransformed = user.transform();
         return res.json({ ...userTransformed, sessionToken });
       }
-  
+
       return next(
         new APIError({
           status: httpStatus.UNAUTHORIZED,

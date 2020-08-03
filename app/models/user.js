@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const httpStatus = require('http-status');
 const APIError = require('../utils/APIError');
-const schemaQuery = require('../utils/schemaQuery');
+// const schemaQuery = require('../utils/schemaQuery');
 
 /**
  * User Roles
@@ -113,6 +113,6 @@ UserSchema.statics = {
   }
 };
 
-UserSchema.query.withJSON = schemaQuery;
+// UserSchema.query.withJSON = schemaQuery;
 
 module.exports = mongoose.model('User', UserSchema);

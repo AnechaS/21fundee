@@ -7,7 +7,7 @@ const handleAuthorize = async (req, res, next, roles) => {
   try {
     const apiError = new APIError({
       message: 'Unauthorized',
-      status: httpStatus.UNAUTHORIZED,
+      status: httpStatus.UNAUTHORIZED
     });
 
     // check property authorization in headers not provide
@@ -19,10 +19,7 @@ const handleAuthorize = async (req, res, next, roles) => {
     }
 
     const token = req.headers.authorization;
-    const sessionToken = await SessionToken.findOne({ token }).populate(
-      'user',
-      '-password'
-    );
+    const sessionToken = await SessionToken.findOne({ token }).populate('user');
 
     // check session token is exists database
     if (!sessionToken) {
