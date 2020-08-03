@@ -153,9 +153,9 @@ function Login(props) {
                   </label>
                 </div>
                 <div className="col kt-align-right">
-                  <Link to="/auth/forgot-password" className="kt-login__link">
+                  {/* <Link to="/auth/forgot-password" className="kt-login__link">
                     <FormattedMessage id="AUTH.GENERAL.FORGOT_BUTTON" />
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
 

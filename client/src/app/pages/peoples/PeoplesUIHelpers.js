@@ -1,7 +1,9 @@
 import { useReducer, useEffect, useCallback } from "react";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { has, isEqual, isEmpty } from "lodash";
 import moment from "moment";
 import { getPeople as getPeoples } from "../../crud/people.crud";
+import { actions } from "../../store/ducks/peoples.duck";
 
 const initialState = {
   search: "",
@@ -36,6 +38,7 @@ function reducer(state, { type, payload }) {
     case "FILTERS_CLEAR": {
       return {
         ...state,
+        listLoading: Boolean(state.search || !isEmpty(state.filters)),
         search: initialState.search,
         filters: initialState.filters
       };
@@ -69,6 +72,11 @@ function reducer(state, { type, payload }) {
     }
 
     case "LOADING_LIST": {
+      const { pagin, count, filters, search } = state;
+      if (count && isEmpty(filters) && !search && !pagin.offset) {
+        return state;
+      }
+
       return {
         ...state,
         listLoading: true
@@ -78,11 +86,12 @@ function reducer(state, { type, payload }) {
     case "FETCH_PEOPLES_SUCCESS": {
       const { items, count } = payload;
       const { page, perPage } = state.pagin;
+
       return {
         ...state,
         loading: false,
         listLoading: false,
-        count: count || state.count,
+        count: typeof count === "number" ? count : state.count,
         items: page === 0 ? items : [...state.items, ...items],
         pagin: {
           ...state.pagin,
@@ -130,8 +139,25 @@ function reducer(state, { type, payload }) {
  * @return {object}
  */
 export function useQueryPeoples() {
-  const [state, dispatch] = useReducer(reducer, { ...initialState });
-  const { pagin, search, filters } = state;
+  const peoples = useSelector(state => state.peoples, shallowEqual);
+
+  const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
+    count: peoples.count,
+    items: peoples.items
+  });
+
+  const { pagin, search, filters, count, items } = state;
+
+  const dispatchPeople = useDispatch();
+
+  useEffect(() => {
+    if (isEmpty(search) && isEmpty(filters) && pagin.page === 0 && count) {
+      if (!isEqual(peoples, { count, items })) {
+        dispatchPeople(actions.requestedPeoples({ count, items }));
+      }
+    }
+  }, [search, filters, count, items, pagin.page, dispatchPeople, peoples]);
 
   useEffect(() => {
     dispatch({
@@ -169,12 +195,9 @@ export function useQueryPeoples() {
     getPeoples(query)
       .then(({ data }) => {
         const payload = {
-          items: data.results
+          items: data.results,
+          count: data.count
         };
-
-        if (data.count) {
-          payload.count = data.count;
-        }
 
         dispatch({
           type: "FETCH_PEOPLES_SUCCESS",

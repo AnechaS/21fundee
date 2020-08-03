@@ -5,20 +5,11 @@ import Dropdown from "react-bootstrap/Dropdown";
 import { connect } from "react-redux";
 import { toAbsoluteUrl } from "../../../_metronic";
 import * as auth from "../../store/ducks/auth.duck";
-import { logout } from "../../crud/auth.crud";
 import HeaderDropdownToggle from "../content/CustomDropdowns/HeaderDropdownToggle";
 
 class UserProfile extends React.Component {
-  state = {
-    isLogouted: false
-  };
-
   render() {
     const { user, showHi, showAvatar, showBadge } = this.props;
-    if (this.state.isLogouted) {
-      return <Redirect to="/logout" />;
-    }
-
     return (
       <Dropdown
         className="kt-header__topbar-item kt-header__topbar-item--user"
@@ -93,16 +84,12 @@ class UserProfile extends React.Component {
               </div>
             </Link>
             <div className="kt-notification__custom">
-              <button
+              <Link
+                to="/logout"
                 className="btn btn-label-brand btn-sm btn-bold"
-                onClick={() => {
-                  logout().finally(() => {
-                    this.setState({ isLogouted: true });
-                  });
-                }}
               >
                 Sign Out
-              </button>
+              </Link>
             </div>
           </div>
         </Dropdown.Menu>

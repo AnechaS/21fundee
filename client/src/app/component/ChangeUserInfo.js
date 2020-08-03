@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import * as Yup from "yup";
 import clsx from "clsx";
 import {
@@ -8,17 +8,22 @@ import {
   PortletBody
 } from "../partials/content/Portlet";
 import { actions } from "../store/ducks/auth.duck";
-import { updateUserByToken } from "../crud/user.crud";
+import { updateUser } from "../crud/user.crud";
 
 export default function ChangeUserInfo() {
-  const user = useSelector(state => state.auth.user);
+  const user = useSelector(state => state.auth.user, shallowEqual);
   const dispatch = useDispatch();
 
-  const editUser = (value, name) => {
-    return updateUserByToken({ [name]: value }).catch(() =>
-      Promise.reject(new Error("ไม่สามารถแก้ไขได้ เนื่องจากส่งคำรองขอล้มเหลว"))
-    );
-  };
+  const editUser = useCallback(
+    (value, name) => {
+      return updateUser(user._id, { [name]: value }).catch(() =>
+        Promise.reject(
+          new Error("ไม่สามารถแก้ไขได้ เนื่องจากส่งคำรองขอล้มเหลว")
+        )
+      );
+    },
+    [user._id]
+  );
 
   const onChange = (value, name) => {
     dispatch(actions.fulfillUser({ [name]: value }));

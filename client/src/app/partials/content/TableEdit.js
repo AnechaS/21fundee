@@ -1,4 +1,10 @@
-import React, { useState, useEffect, forwardRef, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  useRef,
+  useCallback
+} from "react";
 import {
   useTable,
   usePagination,
@@ -61,7 +67,7 @@ const InputEdit = ({ type, ...props }) => {
 /**
  * Conponent cell edit
  */
-const Edit = ({ initialValue, edit = true, type, onBlur }) => {
+const Edit = ({ initialValue, edit = true, hidden = false, type, onBlur }) => {
   const [value, setValue] = useState("");
   const [originalValue, setOriginalValue] = useState("");
   const [editing, setEditing] = useState(false);
@@ -88,7 +94,7 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
 
     setValue(valueString);
     setOriginalValue(valueString);
-  }, [initialValue, type]);
+  }, [hidden, initialValue, type]);
 
   const handleDoubleClick = () => {
     if (edit) {
@@ -100,7 +106,7 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
     setValue(e.target.value);
   };
 
-  const handleBlur = () => {
+  const handleBlur = useCallback(() => {
     setEditing(false);
 
     let val = value;
@@ -115,14 +121,24 @@ const Edit = ({ initialValue, edit = true, type, onBlur }) => {
       }
     }
 
+    if (hidden && !val) {
+      return;
+    }
+
     if (onBlur && typeof onBlur === "function") {
       onBlur(val);
+
+      if (hidden) {
+        setValue("");
+      }
     }
-  };
+  }, [hidden, value, onBlur, originalValue, type]);
 
   let text = value;
-  if (typeof initialValue === "undefined" && value === "") {
-    text = "(Undefined)";
+  if (hidden) {
+    text = "(hidden)";
+  } else if (typeof initialValue === "undefined" && value === "") {
+    text = "(undefined)";
   }
 
   if (!editing) {
@@ -146,7 +162,7 @@ const EditableCell = props => {
   const {
     value: initialValue,
     row: { index },
-    column: { id, type = "", edit },
+    column: { id, type = "", edit, hidden = false },
     onUpdate
   } = props;
   const onBlur = value => {
@@ -160,6 +176,7 @@ const EditableCell = props => {
       initialValue={initialValue}
       onBlur={onBlur}
       edit={Boolean(edit)}
+      hidden={hidden}
       type={type}
     />
   );

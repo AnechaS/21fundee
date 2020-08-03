@@ -68,6 +68,11 @@ export default {
             title: "Schedule",
             root: true,
             page: "database/schedule"
+          },
+          {
+            title: "User",
+            root: true,
+            page: "database/user"
           }
         ]
       },

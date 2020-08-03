@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
+import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import clsx from "clsx";
@@ -7,34 +8,64 @@ import {
   PortletHeader,
   PortletBody
 } from "../partials/content/Portlet";
+import { updateUser } from "../crud/user.crud";
+import { login } from "../crud/auth.crud";
+import * as auth from "../store/ducks/auth.duck";
 
 const ChangePasswordSchema = Yup.object().shape({
-  password: Yup.string().required("ต้องระบุรหัสผ่านในปัจจุบัน"),
-  newPassword: Yup.string()
+  password: Yup.string()
     .required("ต้องระบุรหัสผ่านใหม่")
     .min(8, "ต้องมีอักษร 8 ตัวขึ้นไป")
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}/g,
       "ต้องมีอักษร A-Z, a-z, #$^+=!*()@%& เหล่านี้อยู่ด้วย ตัวอย่าง HelloX1@"
-    )
-    .test("notMatchCurrentPassword", "ต้องไม่เหมือนกับรหัสปัจจุบัน", function(
-      value
-    ) {
-      const { password } = this.parent;
-      console.log(this.parent);
-      console.log("password", password);
-      console.log("value", value);
-      return password && password !== value;
-    }),
+    ),
   confirm: Yup.string()
     .required("ต้องระบุรหัสยืนยัน")
-    .oneOf([Yup.ref("newPassword")], "ไม่ตรงกันรหัสผ่านใหม่")
+    .oneOf([Yup.ref("password")], "ไม่ตรงกันรหัสผ่านใหม่")
 });
 
 export default function ChangePassword() {
+  const user = useSelector(state => state.auth.user, shallowEqual);
+  const dispatch = useDispatch();
+
   const [showForm, setShowFrom] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = useCallback(
+    async (values, { setStatus }) => {
+      try {
+        // spinner on
+        setLoading(true);
+
+        // clear status
+        setStatus("");
+
+        // request to change password
+        await updateUser(user._id, { password: values.password });
+
+        // get session token
+        const sessionToken = await login(user.email, values.password).then(
+          ({ data }) => data.sessionToken
+        );
+
+        dispatch(auth.actions.refreshToken(sessionToken));
+
+        setShowFrom(false);
+        setIsSuccess(true);
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 2000);
+      } catch (error) {
+        setStatus("การส่งคำร้องข้อ เปลียนรหัสผ่านเข้าสู่ระบบลมเหลว");
+      } finally {
+        // spinner off
+        setLoading(false);
+      }
+    },
+    [user._id, user.email, dispatch]
+  );
 
   return (
     <Portlet>
@@ -70,35 +101,11 @@ export default function ChangePassword() {
                       <Formik
                         initialValues={{
                           password: "",
-                          newPassword: "",
                           confirm: ""
                         }}
                         validationSchema={ChangePasswordSchema}
                         onReset={() => setShowFrom(false)}
-                        onSubmit={async (values, { setStatus }) => {
-                          try {
-                            setLoading(true);
-                            setStatus("");
-
-                            await new Promise((resolve, reject) => {
-                              return setTimeout(() => {
-                                reject(new Error("Http Status 500"));
-                              }, 2000);
-                            });
-
-                            setShowFrom(false);
-                            setIsSuccess(true);
-                            setTimeout(() => {
-                              setIsSuccess(false);
-                            }, 2000);
-                          } catch (error) {
-                            setStatus(
-                              "การส่งคำร้องข้อ เปลียนรหัสผ่านเข้าสู่ระบบลมเหลว"
-                            );
-                          } finally {
-                            setLoading(false);
-                          }
-                        }}
+                        onSubmit={handleSubmit}
                       >
                         {({
                           handleSubmit,
@@ -122,10 +129,10 @@ export default function ChangePassword() {
                             )}
 
                             <div className="form-group">
-                              <label>ปัจจุบัน:</label>
+                              <label>ใหม่:</label>
                               <input
                                 type="password"
-                                id="password"
+                                id="new-password"
                                 name="password"
                                 className={clsx("form-control", {
                                   "is-invalid":
@@ -138,29 +145,6 @@ export default function ChangePassword() {
                               {Boolean(errors.password && touched.password) && (
                                 <div className="invalid-feedback">
                                   {errors.password}
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="form-group">
-                              <label>ใหม่:</label>
-                              <input
-                                type="password"
-                                id="new-password"
-                                name="newPassword"
-                                className={clsx("form-control", {
-                                  "is-invalid":
-                                    errors.newPassword && touched.newPassword
-                                })}
-                                value={values.newPassword}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                              />
-                              {Boolean(
-                                errors.newPassword && touched.newPassword
-                              ) && (
-                                <div className="invalid-feedback">
-                                  {errors.newPassword}
                                 </div>
                               )}
                             </div>

@@ -28,8 +28,7 @@ class DashboardPage extends Component {
     const page = history.location.pathname.split("/").pop();
     this.setState({ page });
 
-    // set scroll to top
-    // window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
   }
 
   handleChangePage = value => {

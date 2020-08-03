@@ -1,7 +1,5 @@
 import React from "react";
 import { Link, Redirect, Route, Switch } from "react-router-dom";
-import Registration from "./Registration";
-import ForgotPassword from "./ForgotPassword";
 import Login from "./Login";
 import { toAbsoluteUrl } from "../../../_metronic";
 import "../../../_metronic/_assets/sass/pages/login/login-3.scss";
@@ -34,13 +32,7 @@ export default function AuthPage() {
 
                 <Switch>
                   <Redirect from="/auth" exact={true} to="/auth/login" />
-
                   <Route path="/auth/login" component={Login} />
-                  <Route path="/auth/registration" component={Registration} />
-                  <Route
-                    path="/auth/forgot-password"
-                    component={ForgotPassword}
-                  />
                 </Switch>
               </div>
             </div>

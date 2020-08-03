@@ -1,16 +1,16 @@
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { put, takeLatest } from "redux-saga/effects";
-import { getUserByToken } from "../../crud/auth.crud";
+import { getUserByToken } from "../../crud/user.crud";
 import * as routerHelpers from "../../router/RouterHelpers";
-import { toAbsoluteUrl } from "../../../_metronic/utils/utils";
 
 export const actionTypes = {
   Login: "[Login] Action",
   Logout: "[Logout] Action",
   Register: "[Register] Action",
   UserRequested: "[Request User] Action",
-  UserLoaded: "[Load User] Auth API"
+  UserLoaded: "[Load User] Auth API",
+  RefreshToken: "[Refresh Token] Auth API"
 };
 
 const initialAuthState = {
@@ -47,10 +47,14 @@ export const reducer = persistReducer(
           ...state,
           user: {
             ...state.user,
-            ...user,
-            pic: toAbsoluteUrl(user.pic || "/media/users/300_25.jpg")
+            ...user
           }
         };
+      }
+
+      case actionTypes.RefreshToken: {
+        const { authToken } = action.payload;
+        return { ...state, authToken };
       }
 
       default: {
@@ -71,7 +75,11 @@ export const actions = {
   }),
   logout: () => ({ type: actionTypes.Logout }),
   requestUser: user => ({ type: actionTypes.UserRequested, payload: { user } }),
-  fulfillUser: user => ({ type: actionTypes.UserLoaded, payload: { user } })
+  fulfillUser: user => ({ type: actionTypes.UserLoaded, payload: { user } }),
+  refreshToken: authToken => ({
+    type: actionTypes.RefreshToken,
+    payload: { authToken }
+  })
 };
 
 export function* saga() {

@@ -33,12 +33,17 @@ export function setupAxios(axios, store) {
       const {
         auth: { authToken }
       } = store.getState();
-      if (error.response.status === 401) {
-        if (authToken) {
-          setTimeout(() => {
-            store.dispatch(actions.logout());
-          }, 250);
+      // check server available
+      if (typeof error.response !== "undefined") {
+        if (error.response.status === 401) {
+          if (authToken) {
+            setTimeout(() => {
+              store.dispatch(actions.logout());
+            }, 250);
+          }
         }
+      } else {
+        window.location.href = "/error";
       }
 
       return Promise.reject(error);
