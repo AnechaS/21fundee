@@ -40,8 +40,7 @@ beforeEach(async () => {
       role: 'admin'
     }
   ]);
-  const transformedUsers = savedUsers.map(o => o.transform());
-  dbUsers = JSON.parse(JSON.stringify(transformedUsers));
+  dbUsers = docToJSON(savedUsers);
   sessionToken = SessionToken.generate(dbUsers[0]).token;
 });
 
@@ -56,17 +55,32 @@ describe('GET /users', () => {
       .set('Authorization', sessionToken)
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
-    expect(agent.body).toEqual(dbUsers);
+
+    expect(agent.body.results).toEqual(dbUsers);
   });
 
-  test.todo('add should get all users with pagination');
+  test('should get count users', async () => {
+    const agent = await request(app)
+      .get('/users')
+      .query({ count: 1, limit: 0 })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body.count).toBe(dbUsers.length);
+    expect(agent.body.results).toEqual([]);
+  });
 
-  test.todo('add should filter users');
-
-  // prettier-ignore
-  test.todo('add should report error when pagination\'s parameters are not a number');
-
-  test.todo('add should report error if logged user is not an admin');
+  test('should get users with param "where"', async () => {
+    const agent = await request(app)
+      .get('/users')
+      .query({ where: JSON.stringify({ email: dbUsers[0].email }) })
+      .set('Accept', 'application/json')
+      .set('Authorization', sessionToken)
+      .expect('Content-Type', /json/)
+      .expect(httpStatus.OK);
+    expect(agent.body.results).toEqual([dbUsers[0]]);
+  });
 });
 
 describe('GET /users/me', () => {

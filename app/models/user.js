@@ -2,44 +2,56 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const httpStatus = require('http-status');
 const APIError = require('../utils/APIError');
-// const schemaQuery = require('../utils/schemaQuery');
+const schemaQuery = require('../utils/schemaQuery');
 
 /**
  * User Roles
  */
 const roles = ['admin'];
 
-const UserSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    match: /^\S+@\S+\.\S+$/,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true
+const UserSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      match: /^\S+@\S+\.\S+$/,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      maxlength: 128
+    },
+    name: {
+      type: String,
+      maxlength: 128,
+      index: true,
+      trim: true
+    },
+    role: {
+      type: String,
+      enum: roles,
+      default: 'admin'
+    },
+    pic: {
+      type: String,
+      trim: true
+    }
   },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-    maxlength: 128
-  },
-  name: {
-    type: String,
-    maxlength: 128,
-    index: true,
-    trim: true
-  },
-  role: {
-    type: String,
-    enum: roles,
-    default: 'admin'
-  },
-  pic: {
-    type: String,
-    trim: true
+  {
+    toJSON: {
+      versionKey: false,
+      transform: (doc, ret) => {
+        delete ret.password;
+        delete ret.role;
+        return ret;
+      }
+    }
   }
-});
+);
 
 /**
  * Add your
@@ -113,6 +125,6 @@ UserSchema.statics = {
   }
 };
 
-// UserSchema.query.withJSON = schemaQuery;
+UserSchema.query = schemaQuery;
 
 module.exports = mongoose.model('User', UserSchema);

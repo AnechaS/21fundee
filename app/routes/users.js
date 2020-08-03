@@ -3,6 +3,7 @@ const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const APIError = require('../utils/APIError');
 const authorize = require('../middlewares/auth');
+const prepareQuery = require('../middlewares/prepareQuery');
 
 const User = require('../models/user');
 const SessionToken = require('../models/sessionToken');
@@ -33,11 +34,25 @@ router.param('id', async (req, res, next, id) => {
  * List users
  * @api {get} /users
  */
-router.get('/', authorize(), async (req, res, next) => {
+router.get('/', authorize(), prepareQuery(), async (req, res, next) => {
   try {
-    const users = await User.find().limit(2000);
-    const transformedUsers = users.map(user => user.transform());
-    res.json(transformedUsers);
+    const { count, ...query } = req.query;
+    let queryResults;
+    if (!(query.limit === 0 && count)) {
+      queryResults = User.find().withJSON({ limit: 100, ...query });
+    }
+
+    let queryCount;
+    if (count) {
+      queryCount = User.countDocuments().withJSON(query);
+    }
+
+    const [results = [], countResults] = await Promise.all([
+      queryResults,
+      queryCount
+    ]);
+
+    return res.json({ results, count: countResults });
   } catch (error) {
     next(error);
   }
