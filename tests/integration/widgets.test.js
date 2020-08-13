@@ -524,7 +524,7 @@ describe('GET /widgets/7', () => {
       .expect('Content-Type', /json/)
       .expect(httpStatus.OK);
 
-    expect(agent.body.data).toEqual([
+    expect(agent.body.data).toEqual(expect.arrayContaining([
       {
         province: 'สงขลา',
         district: 'หาดใหญ่',
@@ -545,7 +545,7 @@ describe('GET /widgets/7', () => {
         district: 'เทพา',
         count: 1
       }
-    ]);
+    ]));
   });
 });
 
