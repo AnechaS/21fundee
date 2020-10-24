@@ -2,7 +2,6 @@
 Extended report management system for chatfuel
 
 **Dashboard Page**
-
 ![Image of Yaktocat](.github/dashboard.jpg)
 
 
