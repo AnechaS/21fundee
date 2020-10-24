@@ -19,7 +19,8 @@
     "server-prod": "NODE_ENV=production node ./bin/server",
     "client": "node ./bin/client",
     "test": "jest tests --runInBand",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "cd ./client && npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
