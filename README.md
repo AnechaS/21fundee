@@ -7,7 +7,7 @@ Extended report management system for chatfuel
 
 
 **Management Data Page**
-![Image of Yaktocat](.github/manage-data.jpg)
+![Image of Yaktocat](.github/browserdata.jpg)
 
 ## Install 
 
@@ -16,7 +16,7 @@ $ npm install
 ```
 
 ## Configuration
-create file /config/default.json
+create file` /config/default.json
 ```json
 {
   "port": 3000,
