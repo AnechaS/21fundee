@@ -1,13 +1,6 @@
 # 21fundee
 Extended report management system for chatfuel
 
-**Dashboard Page**
-![Image of Yaktocat](.github/dashboard.jpg)
-
-
-**Management Data Page**
-![Image of Yaktocat](.github/browserdata.jpg)
-
 ## Install 
 
 ```bash
